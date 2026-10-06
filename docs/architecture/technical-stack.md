@@ -9,6 +9,8 @@ The portfolio is a bilingual, static, interactive experience built around an iso
 
 The lighting state is explicit: open curtains enable the light theme through natural daylight while artificial lights stay off; closed curtains block all light from the window, enable the dark theme, and turn on the room's artificial lighting.
 
+Object exploration uses a contextual immersive zoom. Selecting an object pans and scales the room toward it while keeping the surrounding scene visible, then reveals an adjacent content card. On narrow screens, the same card becomes a bottom sheet after the object is centered.
+
 Personal information, links, projects, skills, translations, and availability must be editable from one central typed content file. The scene must remain usable on mobile, with a conventional navigation path for visitors who do not want to explore it.
 
 ## Locked stack
