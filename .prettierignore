@@ -1,4 +1,6 @@
+docs/
 .superpowers/
+README.md
 node_modules/
 dist/
 coverage/
