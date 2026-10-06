@@ -1,6 +1,7 @@
 # Canva room source
 
-Status: **production handoff blocked — explicit decision required**  
+Status: **Figma production handoff approved — connection pending**
+
 Retrieved: 2026-10-07
 
 ## Source
@@ -38,4 +39,4 @@ Choose one of these paths before implementation continues:
 1. **Recommended — Figma production handoff:** recreate the approved Canva composition as named, exportable layers for the room shell, ten interactive objects, open/closed curtains, day/night window, lamps off/on, flags, and decoration. Canva remains the approved concept reference.
 2. **Canva manual production bundle:** restructure the Canva file manually and provide separate transparent SVG/PNG/WebP exports plus a `1920 × 1080` placement manifest for the same layers.
 
-The next implementation step begins only after the production pages or export bundle receive explicit visual approval.
+The Figma handoff was approved on 2026-10-07. The next implementation step begins when the Figma connection is active, then pauses again for explicit visual approval of the production frames before assets and geometry enter the codebase.
