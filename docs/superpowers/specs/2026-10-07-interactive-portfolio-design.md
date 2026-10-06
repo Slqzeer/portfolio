@@ -161,6 +161,8 @@ The detailed rationale, exclusions, and upgrade thresholds live in [`docs/archit
 
 Canva is the shared design source for moodboards, composition, object inventory, and review. Higgsfield may generate visual references and controlled variations, but generated concept images are not used as one flattened final interface.
 
+Approved Canva production pages are the visual source of truth for room proportions, object silhouettes, colors, layer order, and day/night variants. Their 1920 by 1080 coordinates are normalized for responsive implementation; the coded scene must not improvise a different geometry. If Canva cannot provide separable assets and reliable element bounds, implementation pauses for a Canva export bundle or explicit approval to move the production handoff to Figma.
+
 Final interactive objects must exist as stable layers with predictable bounds. Figma is introduced only if Canva cannot express precise interactive layers, responsive variants, or reusable component states. Blender is outside the current scope and is reconsidered only for a validated requirement involving true 3D geometry or camera movement.
 
 ## Responsive behavior

@@ -13,6 +13,8 @@
 ## Global Constraints
 
 - Keep personal data, translations, links, projects, timeline entries, and room labels in `src/content/portfolioContent.ts`.
+- Treat Canva design `DAHXRbROrBI` as the visual source of truth. Room proportions, object silhouettes, colors, layer order, and day/night variants must come from its approved production pages rather than being invented in code.
+- Normalize Canva's 1920 by 1080 production coordinates into percentages. If Canva cannot provide separable production assets or reliable layer geometry, stop before room implementation and ask for a Canva export bundle or approval to move that handoff to Figma.
 - Ship French and English together; missing localized values must fail tests and type checking.
 - Do not add Next.js, Tailwind CSS, a router, an i18n library, a state library, Three.js, or an animation library in v1.
 - Use Node `^20.19.0 || >=22.12.0`, the engine range published by Vite 8.0.10; record the chosen runtime in `.node-version` and GitHub Actions.
@@ -26,10 +28,10 @@
 ## Review Focus
 
 - Corrupt or unavailable local storage falls back to French/day without preventing interaction — pinned in Task 3.
-- Missing room artwork preserves geometry and exposes a readable object label — pinned in Task 4.
-- Unknown hashes, rapid object changes, and browser Back always end on a valid single active object or the room overview — pinned in Task 6.
-- Empty sample links never navigate, while populated external links use a new tab with `noopener noreferrer` — pinned in Task 7.
-- Reduced motion and hidden-tab state suppress non-essential idle work and discovery hints — pinned in Task 8.
+- Canva coordinates and exported assets cannot drift from the approved 1920 by 1080 production page — pinned in Task 4.
+- Missing room artwork preserves geometry and exposes a readable object label — pinned in Task 5.
+- Unknown hashes, rapid object changes, and browser Back always end on a valid single active object or the room overview — pinned in Task 7.
+- Reduced motion and hidden-tab state suppress non-essential idle work and discovery hints — pinned in Task 9.
 
 ---
 
@@ -40,7 +42,8 @@
 - `src/content/types.ts`, `src/content/portfolioContent.ts`: domain types and the only editable portfolio content source.
 - `src/app/App.tsx`, `src/app/appState.ts`, `src/app/preferences.ts`: composition, reducer, persistence, and URL-independent application state.
 - `src/components/SiteHeader.tsx`, `src/components/IntroCard.tsx`: conventional navigation and first-screen introduction.
-- `src/room/roomObjects.ts`, `src/room/RoomScene.tsx`, `src/room/RoomArtwork.tsx`, `src/room/RoomAsset.tsx`, `src/room/room.css`: room metadata, hotspots, artwork, asset fallback, and layout.
+- `docs/design/room-source.md`, `src/room/roomGeometry.ts`, `public/assets/room/*`: Canva source provenance, normalized production geometry, and approved exported layers.
+- `src/room/roomObjects.ts`, `src/room/RoomScene.tsx`, `src/room/RoomArtwork.tsx`, `src/room/RoomAsset.tsx`, `src/room/room.css`: room metadata, hotspots, approved artwork composition, asset fallback, and layout.
 - `src/room/hashNavigation.ts`, `src/room/FocusView.tsx`, `src/room/useIdleRoom.ts`: shareable focus state, camera transform, and idle controller.
 - `src/details/ObjectDetails.tsx`, `src/details/ProjectGallery.tsx`, `src/details/details.css`: contextual content and project exploration.
 - `src/**/*.test.ts?(x)`, `src/test/setup.ts`: unit and component checks colocated with the owning module.
@@ -155,14 +158,58 @@ Expected: PASS.
 
 `git commit -m "feat(app): add portfolio shell and preferences"`
 
-### Task 4: Layered room and accessible objects
+### Task 4: Canva production geometry and asset contract
+
+**Files:**
+- Create: `docs/design/room-source.md`, `src/room/roomGeometry.ts`, `src/room/roomGeometry.test.ts`
+- Create: `public/assets/room/` with the approved room shell, objects, curtains, window states, lamp states, flag states, and decorative layers exported from Canva
+
+**Interfaces:**
+- Consumes: Canva design `DAHXRbROrBI`, approved composition page, and approved day/night state page.
+- Produces: `CANVA_DESIGN_ID = 'DAHXRbROrBI'`; `CANVA_PAGE_SIZE = {width: 1920, height: 1080}`; `RoomGeometry`; `roomGeometry`; stable asset filenames used by Task 5.
+
+- [ ] **Step 1: Inspect the Canva source and record provenance**
+
+Use the Canva integration to retrieve the current page IDs, dimensions, editable element bounds, and thumbnails. Record the design ID, edit URL, production page IDs, 1920 by 1080 coordinate system, and retrieval date in `room-source.md`.
+
+- [ ] **Step 2: Turn the approved concept into production pages in Canva**
+
+Refine the composition and day/night pages so the room shell and every interactive object are separate named elements with final silhouettes, colors, layer order, and both required lighting states. Do not reinterpret the room in code. Present the production pages to the user and obtain explicit visual approval before continuing.
+
+- [ ] **Step 3: Confirm Canva can provide the implementation handoff**
+
+Export or download each approved layer as SVG where faithful, otherwise transparent WebP/PNG. If the Canva connection cannot provide separable files and exact bounds, stop and ask the user either for a Canva export bundle or permission to use Figma for this handoff; do not silently redraw or approximate assets.
+
+- [ ] **Step 4: Write the failing geometry-contract test**
+
+Assert every `RoomObjectId` has a Canva element reference, normalized `x`, `y`, `width`, `height`, focus transform, layer index, and existing asset path; assert conversion of `{left:960, top:540, width:192, height:108}` becomes `{x:50, y:50, width:10, height:10}`.
+
+- [ ] **Step 5: Verify the geometry test fails**
+
+Run: `npm test -- src/room/roomGeometry.test.ts`
+Expected: FAIL because the normalized Canva manifest does not exist.
+
+- [ ] **Step 6: Encode the approved Canva geometry and assets**
+
+Implement `roomGeometry` by transcribing the approved Canva element bounds into normalized percentages and linking each record to its exported layer. `room-source.md` must map every code entry back to a Canva page and element ID.
+
+- [ ] **Step 7: Verify the production contract**
+
+Run: `npm test -- src/room/roomGeometry.test.ts && npm run build`
+Expected: PASS, every referenced asset exists, and build exits 0.
+
+- [ ] **Step 8: Commit**
+
+`git commit -m "feat(room): add Canva geometry and assets"`
+
+### Task 5: Layered room and accessible objects
 
 **Files:**
 - Create: `src/room/roomObjects.ts`, `src/room/RoomScene.tsx`, `src/room/RoomScene.test.tsx`, `src/room/RoomArtwork.tsx`, `src/room/RoomAsset.tsx`, `src/room/RoomAsset.test.tsx`, `src/room/room.css`
 - Modify: `src/app/App.tsx`
 
 **Interfaces:**
-- Consumes: `RoomObjectId`, localized room metadata, and `activeObject` from Tasks 2–3.
+- Consumes: `RoomObjectId`, localized room metadata, and `activeObject` from Tasks 2–3; `roomGeometry` and approved Canva assets from Task 4.
 - Produces: `RoomObjectDefinition`; `roomObjects`; `RoomScene({locale, lighting, activeObject, onSelect, onToggleLighting})`; `RoomAsset({src, label, className})`.
 
 - [ ] **Step 1: Write failing room contract tests**
@@ -176,11 +223,11 @@ Expected: FAIL because room modules do not exist.
 
 - [ ] **Step 3: Define object geometry and focus metadata**
 
-Each `RoomObjectDefinition` contains `id`, percentage-based `hotspot`, `focusTransform`, `tabOrder`, and visual-state keys. Keep editorial strings out of this file.
+Each `RoomObjectDefinition` contains `id`, Canva-derived percentage `hotspot`, `focusTransform`, `tabOrder`, and visual-state keys. Keep editorial strings and duplicated coordinates out of this file.
 
-- [ ] **Step 4: Build the original layered room artwork**
+- [ ] **Step 4: Compose the approved Canva room layers**
 
-Implement the approved warm isometric room as decorative SVG layers in `RoomArtwork.tsx`: window, curtains, desk, monitor, server, volleyball, diploma, controller, phone, bookshelf, contact card, flag, clock, lamp, and restrained decor. Use Canva/Higgsfield only as reference; do not flatten interactive objects into one generated image.
+Implement `RoomArtwork.tsx` by composing the exact Task 4 asset manifest and layer order: window, curtains, desk, monitor, server, volleyball, diploma, controller, phone, bookshelf, contact card, flag, clock, lamp, and restrained decor. Geometry and design come from Canva; code only makes the approved layers responsive and stateful.
 
 - [ ] **Step 5: Overlay accessible object controls and fallback handling**
 
@@ -195,7 +242,7 @@ Expected: PASS and build exit 0.
 
 `git commit -m "feat(room): add accessible isometric scene"`
 
-### Task 5: Curtain-driven lighting and theme
+### Task 6: Curtain-driven lighting and theme
 
 **Files:**
 - Modify: `src/app/appState.ts`, `src/app/appState.test.ts`, `src/app/App.tsx`
@@ -227,7 +274,7 @@ Expected: PASS.
 
 `git commit -m "feat(room): synchronize curtains and lighting"`
 
-### Task 6: Hash navigation and contextual immersive zoom
+### Task 7: Hash navigation and contextual immersive zoom
 
 **Files:**
 - Create: `src/room/hashNavigation.ts`, `src/room/hashNavigation.test.ts`, `src/room/FocusView.tsx`, `src/room/FocusView.test.tsx`
@@ -263,7 +310,7 @@ Expected: PASS and build exit 0.
 
 `git commit -m "feat(room): add immersive object focus"`
 
-### Task 7: Portfolio detail content and project filtering
+### Task 8: Portfolio detail content and project filtering
 
 **Files:**
 - Create: `src/details/ProjectGallery.tsx`, `src/details/ProjectGallery.test.tsx`, `src/details/ObjectDetails.test.tsx`
@@ -299,7 +346,7 @@ Expected: PASS and build exit 0.
 
 `git commit -m "feat(details): add portfolio stories and projects"`
 
-### Task 8: Calm idle animation controller
+### Task 9: Calm idle animation controller
 
 **Files:**
 - Create: `src/room/useIdleRoom.ts`, `src/room/useIdleRoom.test.ts`
@@ -334,7 +381,7 @@ Expected: PASS.
 
 `git commit -m "feat(room): add accessible idle ambience"`
 
-### Task 9: Browser validation, CI, and deployment handoff
+### Task 10: Browser validation, CI, and deployment handoff
 
 **Files:**
 - Create: `playwright.config.ts`, `tests/e2e/portfolio.spec.ts`, `.github/workflows/ci.yml`, `src/content/noscript.ts`, `src/content/noscript.test.ts`

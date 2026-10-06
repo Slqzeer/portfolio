@@ -40,6 +40,8 @@ Personal information, links, projects, skills, translations, and availability mu
 
 Generated concept images are references. Final interactive objects must be separated into stable layers with predictable bounds and states.
 
+The approved Canva production pages are the visual source of truth for geometry and styling. Their 1920 by 1080 element bounds are normalized into responsive percentages and traced back through a source manifest. If Canva cannot provide separable assets or reliable bounds, room implementation stops until the user supplies an export bundle or approves Figma for the production handoff.
+
 ## Deployment decision
 
 The preferred path is the Vercel Git integration:
