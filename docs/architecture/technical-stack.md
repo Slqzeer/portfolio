@@ -67,6 +67,8 @@ Direct deployment remains a recovery/manual option through the Vercel integratio
 
 An excluded tool is added only when a concrete requirement exceeds the current stack. Visual polish alone is not enough justification for a new runtime dependency. Any upgrade must preserve keyboard access, reduced-motion behavior, mobile performance, and the single-source content model.
 
+Idle ambience follows the same native-animation decision. Long-running decorative loops use CSS; discovery hints start after about eight seconds of inactivity, stop on input, pause in hidden tabs, and disappear under `prefers-reduced-motion`. An animation library is justified only if measured coordination complexity exceeds these native capabilities.
+
 ## Required external access
 
 - Canva: connected for the shared visual design board.

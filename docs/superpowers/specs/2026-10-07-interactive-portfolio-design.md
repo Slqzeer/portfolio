@@ -85,6 +85,22 @@ Only one object is active at a time. `Escape`, the visible Back action, and brow
 
 On narrow screens, the scene centers the selected object before presenting the detail card as a bottom sheet. With reduced motion enabled, camera and card state changes are immediate rather than animated.
 
+## Idle animation system
+
+The room feels inhabited through restrained ambient motion rather than continuous attention-grabbing effects:
+
+- the monitor shows a blinking cursor or very slow terminal and chart activity;
+- server LEDs indicate occasional network or disk activity;
+- open curtains move almost imperceptibly;
+- daytime light varies gently and may reveal sparse dust particles;
+- nighttime artificial lights use a subtle, steady breathing effect without flicker;
+- a clock advances with real time;
+- one plant or small decorative object may move occasionally.
+
+Ambient animations use long durations and offset timing so they do not synchronize. After roughly eight seconds without pointer, keyboard, touch, or scroll input, one interactive object at a time may display a gentle discovery hint. Any user interaction stops the hint immediately and resets the idle timer. Hints must not change layout or repeatedly target the same object before the others have been suggested.
+
+The Page Visibility API pauses idle work while the tab is hidden. `prefers-reduced-motion` disables discovery hints, particles, curtain motion, light breathing, and non-essential loops while preserving static state indicators. CSS animations are the default implementation; the Web Animations API is reserved for effects that need explicit pause and resume control.
+
 ## Conventional navigation
 
 The sticky navigation exposes Home, About, Projects, Homelab, Experience, and Contact. GitHub, LinkedIn, and CV actions remain visible where space permits and move into the mobile menu on narrow screens.
@@ -187,6 +203,7 @@ GitHub CI verifies formatting, TypeScript, tests, and the production build. Brow
 - project filtering;
 - narrow-screen object focus and bottom sheet behavior;
 - reduced-motion behavior;
+- idle hint timing, cancellation, tab visibility, and reduced-motion suppression;
 - missing-asset fallback.
 
 Vercel provides preview deployments for branches and pull requests. Production deploys from `main` only after required checks pass. Direct Vercel deployment remains a manual recovery path.
@@ -197,6 +214,7 @@ Vercel provides preview deployments for branches and pull requests. Production d
 - Every room object in the object map is keyboard accessible and opens the correct content.
 - The day/night interaction follows the approved curtain, window, and artificial-light logic.
 - Object selection produces the approved contextual zoom on desktop and bottom sheet on mobile.
+- The room includes the approved calm idle animations, pauses hidden-tab work, and removes non-essential motion for reduced-motion users.
 - French and English cover all visitor-facing content.
 - All personal data can be replaced through the central typed content module.
 - The conventional navigation reaches the same content without requiring room exploration.
