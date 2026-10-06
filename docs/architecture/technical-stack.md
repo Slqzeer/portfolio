@@ -11,6 +11,8 @@ The lighting state is explicit: open curtains enable the light theme through nat
 
 Object exploration uses a contextual immersive zoom. Selecting an object pans and scales the room toward it while keeping the surrounding scene visible, then reveals an adjacent content card. On narrow screens, the same card becomes a bottom sheet after the object is centered.
 
+The room is visible on the first screen. A compact introductory card overlays it with the profile, internship availability, and an "Explore" action; activating it minimizes the introduction and gives the room full visual priority. The conventional navigation remains visible from the start.
+
 Personal information, links, projects, skills, translations, and availability must be editable from one central typed content file. The scene must remain usable on mobile, with a conventional navigation path for visitors who do not want to explore it.
 
 ## Locked stack
@@ -43,7 +45,7 @@ Generated concept images are references. Final interactive objects must be separ
 The preferred path is the Vercel Git integration:
 
 - pull requests and non-production branches receive preview deployments;
-- the production branch deploys automatically after checks pass;
+- `main` deploys automatically after checks pass;
 - Vercel owns the deployment step, so GitHub Actions only needs to run quality checks;
 - no long-lived Vercel token is required in the repository for the standard path.
 
