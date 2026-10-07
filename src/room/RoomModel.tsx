@@ -2,6 +2,7 @@ import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Material, Mesh, Object3D } from "three";
 import type { RoomObjectId } from "../content/types";
+import { CameraRig } from "./CameraRig";
 import { sceneManifest } from "./sceneManifest";
 
 const ROOM_GLTF_URL = "/assets/room/portfolio-room.glb";
@@ -19,6 +20,8 @@ export interface RoomModelProps {
   activeObject: RoomObjectId | null;
   onInteract: (id: RoomObjectId) => void;
   onReady: () => void;
+  reducedMotion?: boolean;
+  pointerEnabled?: boolean;
 }
 
 function roomObjectIdForNode(object: Object3D) {
@@ -94,6 +97,8 @@ export function RoomModel({
   activeObject,
   onInteract,
   onReady,
+  reducedMotion = false,
+  pointerEnabled = true,
 }: RoomModelProps) {
   const { scene: source } = useGLTF(ROOM_GLTF_URL, false);
   const scene = useMemo(() => prepareRoomScene(source), [source]);
@@ -103,6 +108,21 @@ export function RoomModel({
     () => createRoomInteractionHandlers(onInteract, setHovered),
     [onInteract],
   );
+  const anchors = useMemo(() => {
+    const names = [
+      "CAM_Overview",
+      ...Object.values(sceneManifest).flatMap(({ cameraAnchorName }) =>
+        cameraAnchorName ? [cameraAnchorName] : [],
+      ),
+    ];
+    return Object.fromEntries(
+      names.map((name) => {
+        const anchor = scene.getObjectByName(name);
+        if (!anchor) throw new Error(`Missing camera anchor: ${name}`);
+        return [name, anchor];
+      }),
+    );
+  }, [scene]);
 
   useCursor(hovered);
 
@@ -116,5 +136,15 @@ export function RoomModel({
     onReady();
   }, [onReady]);
 
-  return <primitive object={scene} {...handlers} />;
+  return (
+    <>
+      <primitive object={scene} {...handlers} />
+      <CameraRig
+        activeObject={activeObject}
+        anchors={anchors}
+        reducedMotion={reducedMotion}
+        pointerEnabled={pointerEnabled}
+      />
+    </>
+  );
 }

@@ -87,6 +87,8 @@ export function RoomCanvas(props: RoomCanvasProps) {
       )}
       <CanvasErrorBoundary onError={reportError}>
         <Canvas
+          orthographic
+          camera={{ near: 0.1, far: 100, zoom: 65 }}
           dpr={[1, 2]}
           fallback={<CanvasUnavailable onError={reportError} />}
         >
@@ -95,6 +97,10 @@ export function RoomCanvas(props: RoomCanvasProps) {
               activeObject={props.activeObject}
               onInteract={props.onInteract}
               onReady={reportReady}
+              reducedMotion={
+                typeof window.matchMedia === "function" &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches
+              }
             />
           </Suspense>
         </Canvas>

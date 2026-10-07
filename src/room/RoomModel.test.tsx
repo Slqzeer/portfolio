@@ -1,4 +1,10 @@
-import { Group, Mesh, MeshStandardMaterial, BoxGeometry } from "three";
+import {
+  BoxGeometry,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  Object3D,
+} from "three";
 import { describe, expect, it, vi } from "vitest";
 import type { RoomObjectId } from "../content/types";
 import { sceneManifest } from "./sceneManifest";
@@ -11,6 +17,17 @@ function createScene() {
     const root = new Group();
     root.name = nodeName;
     scene.add(root);
+  }
+
+  for (const name of [
+    "CAM_Overview",
+    ...Object.values(sceneManifest).flatMap(({ cameraAnchorName }) =>
+      cameraAnchorName ? [cameraAnchorName] : [],
+    ),
+  ]) {
+    const cameraAnchor = new Object3D();
+    cameraAnchor.name = name;
+    scene.add(cameraAnchor);
   }
 
   const monitor = scene.getObjectByName("INT_Monitor") as Group;
