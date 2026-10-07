@@ -2,7 +2,10 @@ import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Material, Mesh, Object3D } from "three";
 import type { RoomObjectId } from "../content/types";
+import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";
+import { RoomIdle } from "./RoomIdle";
+import { RoomLighting } from "./RoomLighting";
 import { sceneManifest } from "./sceneManifest";
 
 const ROOM_GLTF_URL = "/assets/room/portfolio-room.glb";
@@ -20,6 +23,8 @@ export interface RoomModelProps {
   activeObject: RoomObjectId | null;
   onInteract: (id: RoomObjectId) => void;
   onReady: () => void;
+  lighting: Lighting;
+  ambientPaused?: boolean;
   reducedMotion?: boolean;
   pointerEnabled?: boolean;
 }
@@ -97,10 +102,12 @@ export function RoomModel({
   activeObject,
   onInteract,
   onReady,
+  lighting,
+  ambientPaused = false,
   reducedMotion = false,
   pointerEnabled = true,
 }: RoomModelProps) {
-  const { scene: source } = useGLTF(ROOM_GLTF_URL, false);
+  const { animations, scene: source } = useGLTF(ROOM_GLTF_URL, false);
   const scene = useMemo(() => prepareRoomScene(source), [source]);
   const [hovered, setHovered] = useState(false);
   const ready = useRef(false);
@@ -144,6 +151,17 @@ export function RoomModel({
         anchors={anchors}
         reducedMotion={reducedMotion}
         pointerEnabled={pointerEnabled}
+      />
+      <RoomLighting
+        lighting={lighting}
+        scene={scene}
+        animations={animations}
+        reducedMotion={reducedMotion}
+      />
+      <RoomIdle
+        scene={scene}
+        paused={ambientPaused}
+        reducedMotion={reducedMotion}
       />
     </>
   );

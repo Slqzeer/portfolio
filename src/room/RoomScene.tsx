@@ -22,7 +22,7 @@ export function RoomScene({
   onSelect,
   onToggleLighting,
 }: RoomSceneProps) {
-  const { ambientPaused } = useIdleRoom({
+  const { ambientPaused, reducedMotion } = useIdleRoom({
     objectIds: roomObjectIds,
   });
 
@@ -40,6 +40,8 @@ export function RoomScene({
       <RoomCanvas
         lighting={lighting}
         activeObject={activeObject}
+        ambientPaused={ambientPaused}
+        reducedMotion={reducedMotion}
         onInteract={(id) => {
           onSelect(id);
           if (id === "window") onToggleLighting();

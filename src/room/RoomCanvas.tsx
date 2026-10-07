@@ -18,6 +18,8 @@ export interface RoomCanvasProps {
   onInteract: (id: RoomObjectId) => void;
   onReady: () => void;
   onError: (error: Error) => void;
+  ambientPaused?: boolean;
+  reducedMotion?: boolean;
 }
 
 interface ErrorBoundaryProps {
@@ -56,6 +58,10 @@ export function RoomCanvas(props: RoomCanvasProps) {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const reportedError = useRef(false);
+  const reducedMotion =
+    props.reducedMotion ??
+    (typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   const reportError = useCallback(
     (error: Error) => {
@@ -95,12 +101,11 @@ export function RoomCanvas(props: RoomCanvasProps) {
           <Suspense fallback={null}>
             <RoomModel
               activeObject={props.activeObject}
+              lighting={props.lighting}
+              ambientPaused={props.ambientPaused}
               onInteract={props.onInteract}
               onReady={reportReady}
-              reducedMotion={
-                typeof window.matchMedia === "function" &&
-                window.matchMedia("(prefers-reduced-motion: reduce)").matches
-              }
+              reducedMotion={reducedMotion}
             />
           </Suspense>
         </Canvas>

@@ -58,5 +58,9 @@ export function useIdleRoom({ objectIds, delayMs = 8000 }: UseIdleRoomOptions) {
     return () => window.clearInterval(timer);
   }, [ambientPaused, delayMs, objectIds, timerVersion]);
 
-  return { hintedObject, ambientPaused };
+  return {
+    hintedObject,
+    ambientPaused,
+    reducedMotion: reducedMotion.matches,
+  };
 }

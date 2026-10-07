@@ -72,6 +72,7 @@ describe("useIdleRoom", () => {
     expect(result.current).toEqual({
       hintedObject: null,
       ambientPaused: true,
+      reducedMotion: true,
     });
   });
 
