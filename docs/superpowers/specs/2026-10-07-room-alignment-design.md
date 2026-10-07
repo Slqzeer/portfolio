@@ -1,7 +1,7 @@
 # Room Alignment Design
 
 Date: 2026-10-07  
-Status: awaiting written-spec review  
+Status: approved
 Supersedes: conflicting room-layout, object-interaction, camera, lighting, and delivery rules in `2026-10-07-interactive-3d-room-design.md` and `2026-10-07-interactive-portfolio-design.md`
 
 ## Goal
@@ -62,19 +62,19 @@ The Blender scene, not Canva, currently needs these corrections:
 
 The current stable nodes remain unless this specification changes their role. The Blender and TypeScript contracts add a desk focus zone:
 
-| Function | Blender node | Camera anchor | Behavior |
-| --- | --- | --- | --- |
-| Desk project zone | `INT_Desk` | `CAM_Anchor_Desk` | Enter or leave desk focus; no detail panel |
-| Data, AI, and software projects | `INT_Monitor` | `CAM_Anchor_Monitor` | Available from desk focus; opens projects |
-| Personal applications and experiments | `INT_Smartphone` | `CAM_Anchor_Smartphone` | Available from desk focus; opens experiments |
-| Game-development projects | `INT_Controller` | `CAM_Anchor_Controller` | Direct selection from the overview |
-| Homelab | `INT_Homelab` | `CAM_Anchor_Homelab` | Direct selection from the overview |
-| Education and experience | `INT_Diploma` | `CAM_Anchor_Diploma` | Direct selection from the overview |
-| Personal qualities | `INT_Volleyball` | `CAM_Anchor_Volleyball` | Direct selection from the overview |
-| Current explorations | `INT_Bookshelf` | `CAM_Anchor_Bookshelf` | Direct selection from the overview |
-| Contact and social links | `INT_ContactCard` | `CAM_Anchor_ContactCard` | Direct selection from the overview |
-| Day/night control | `CTL_Curtains` | none | Toggle the synchronized lighting transition |
-| Language control | `CTL_Flag` | none | Toggle locale without camera travel |
+| Function                              | Blender node      | Camera anchor            | Behavior                                     |
+| ------------------------------------- | ----------------- | ------------------------ | -------------------------------------------- |
+| Desk project zone                     | `INT_Desk`        | `CAM_Anchor_Desk`        | Enter or leave desk focus; no detail panel   |
+| Data, AI, and software projects       | `INT_Monitor`     | `CAM_Anchor_Monitor`     | Available from desk focus; opens projects    |
+| Personal applications and experiments | `INT_Smartphone`  | `CAM_Anchor_Smartphone`  | Available from desk focus; opens experiments |
+| Game-development projects             | `INT_Controller`  | `CAM_Anchor_Controller`  | Direct selection from the overview           |
+| Homelab                               | `INT_Homelab`     | `CAM_Anchor_Homelab`     | Direct selection from the overview           |
+| Education and experience              | `INT_Diploma`     | `CAM_Anchor_Diploma`     | Direct selection from the overview           |
+| Personal qualities                    | `INT_Volleyball`  | `CAM_Anchor_Volleyball`  | Direct selection from the overview           |
+| Current explorations                  | `INT_Bookshelf`   | `CAM_Anchor_Bookshelf`   | Direct selection from the overview           |
+| Contact and social links              | `INT_ContactCard` | `CAM_Anchor_ContactCard` | Direct selection from the overview           |
+| Day/night control                     | `CTL_Curtains`    | none                     | Toggle the synchronized lighting transition  |
+| Language control                      | `CTL_Flag`        | none                     | Toggle locale without camera travel          |
 
 `CAM_Overview` remains the default pose. All interactive nodes, controls, and camera anchors stay separate during mesh optimization.
 
@@ -179,4 +179,3 @@ Final acceptance requires the room to match Canva at the overview, every focused
 The connected Canva and Blender tools are sufficient for inspecting and updating the approved sources. Paid 3D generation is not required for the initial correction pass; existing geometry should be edited or rebuilt with Blender primitives where practical.
 
 Figma synchronization requires either renewed Figma MCP quota or a manual user edit based on the approved Canva page. If access remains rate-limited at that increment, work stops before Figma mutation rather than approximating or silently skipping synchronization.
-
