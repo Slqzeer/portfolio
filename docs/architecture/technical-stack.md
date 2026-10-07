@@ -1,7 +1,7 @@
 # Technical Stack Decision
 
-Status: **locked for the first portfolio release**  
-Date: 2026-10-06
+Status: **locked for the interactive 3D room release**
+Date: 2026-10-07
 
 ## Product constraints
 
@@ -23,24 +23,31 @@ Personal information, links, projects, skills, translations, and availability mu
 | UI | React | A natural fit for independent interactive objects, panels, and shared room state. |
 | Language | TypeScript | Protects the centralized content schema and bilingual keys from silent mistakes. |
 | Styling | Plain CSS with custom properties | Direct control of the bespoke room composition, responsive breakpoints, and day/night tokens without a utility abstraction. |
-| Scene | Layered SVG and transparent raster assets in HTML | Keeps objects independently clickable and animatable while avoiding a 3D runtime. |
+| Scene | Three.js through React Three Fiber | Provides real camera movement, object picking, dynamic lighting, and GLB integration inside React. |
+| 3D helpers | `@react-three/drei` | Reuses maintained GLB-loading and scene utilities instead of local wrappers. |
+| 3D authoring | Blender | Owns geometry, materials, lighting, camera anchors, and physical clips. |
+| Asset format | One named-node GLB/glTF scene | Preserves replaceable objects and a stable runtime contract. |
 | State | React state and context only where shared | Enough for theme, locale, selected object, filters, and modal state; no external state library. |
 | Localization | Typed `fr`/`en` content object | Two languages do not justify a localization dependency. |
-| Animation | CSS transitions and Web Animations API | Native, accessible, and sufficient for curtains, lighting, hover feedback, and panel transitions. |
+| Animation | Blender clips, R3F `useFrame`, and CSS | Separates physical 3D motion, procedural scene motion, and HTML transitions. |
 | Testing | Small unit/component checks plus browser-level smoke tests | Protects interaction state, keyboard access, responsive layout, and language/theme switching. |
 | Deployment | Vercel connected to GitHub | Pushes produce preview deployments; the production branch publishes automatically. |
 
-## Visual production pipeline
+## Current 3D production pipeline
 
-1. **Canva** — shared moodboard, composition board, palette, object inventory, and review notes.
-2. **Higgsfield** — concept exploration and controlled visual variations, not final unsliced interface artwork.
-3. **Figma, deferred** — introduce it only if Canva can no longer express precise interactive layers, responsive variants, or reusable component states.
-4. **Blender, excluded for the current scope** — reconsider it only if a validated requirement needs true 3D geometry or camera movement.
-5. Export final visual elements as optimized SVG where practical, otherwise transparent WebP/AVIF layers with PNG fallbacks only when required.
+1. **Canva** remains the visual source for composition, palette, silhouettes, and placement.
+2. **Blender** owns geometry, materials, lighting, camera anchors, and physical animation clips.
+3. **Figma** is limited to HTML panels, typography, and reusable interface components.
+4. **Higgsfield** may provide concept references but never final geometry.
+5. The approved Canva export is aligned behind the locked Blender overview camera; blockout and final renders are compared by overlay.
+6. Blender exports `public/assets/room/portfolio-room.glb` plus day/night fallback posters.
+7. `portfolio-room.blend` remains the editable master; `portfolio-room-optimized.blend` joins static meshes by material for the web export without altering interactive or animated nodes.
 
-Generated concept images are references. Final interactive objects must be separated into stable layers with predictable bounds and states.
+The `.blend` source is versioned at `assets/blender/portfolio-room.blend`. Functional objects and camera anchors keep the stable names defined by the approved 3D-room specification. Editorial copy never enters the GLB.
 
-The approved Canva production pages are the visual source of truth for geometry and styling. Their 1920 by 1080 element bounds are normalized into responsive percentages and traced back through a source manifest. If Canva cannot provide separable assets or reliable bounds, room implementation stops until the user supplies an export bundle or approves Figma for the production handoff.
+Start with one GLB, joined static decor, instanced repeated homelab parts, baked ambient occlusion, and only the lights required by day/night behavior. Add texture compression, mesh compression, file splitting, or LOD only after measurements show the initial asset misses its targets.
+
+The current export is 2.26 MB with 168 named nodes. Static joining reduced the measured headless desktop draw calls from 213 to 144; mobile framing measured 21. Chromium software-renderer samples reached 7 FPS desktop and 41 FPS at 390 × 844, so the mobile 30 FPS target passes while physical desktop GPU validation remains required before treating the headless desktop number as representative.
 
 ## Deployment decision
 
@@ -60,16 +67,17 @@ Direct deployment remains a recovery/manual option through the Vercel integratio
 | Next.js | No server rendering, backend, or dynamic content requirement. | A blog, CMS preview, server routes, or per-page dynamic metadata becomes necessary. |
 | Tailwind CSS | The interface is a bespoke spatial composition rather than a repeated utility-driven application UI. | The project grows into many conventional screens with repeated layout patterns. |
 | Anime.js or Motion | Native CSS and Web Animations cover the planned transitions. | Coordinated timelines, complex sequencing, or gesture physics become hard to maintain natively. |
-| Three.js / React Three Fiber | A WebGL scene would increase asset, performance, accessibility, and mobile complexity. | Real camera movement, dynamic 3D lighting, or free object rotation becomes a validated product requirement. |
+| Post-processing stack | It adds cost without solving an approved requirement. | A tested visual target specifically requires it and performance remains within budget. |
+| Multiple GLBs or runtime LOD | They add loading and synchronization complexity. | Profiling shows the single optimized scene misses mobile targets. |
 | Global state library | The state graph is small and local. | Cross-page state becomes complex enough that React state produces measurable coordination problems. |
 | react-i18next | Only two static languages are planned. | Pluralization, locale-aware message formatting, remote translations, or more languages are introduced. |
 | CMS / database | Content changes are developer-managed and deploy with the site. | A non-technical editor needs independent publishing. |
 
 ## Upgrade rules
 
-An excluded tool is added only when a concrete requirement exceeds the current stack. Visual polish alone is not enough justification for a new runtime dependency. Any upgrade must preserve keyboard access, reduced-motion behavior, mobile performance, and the single-source content model.
+An excluded tool is added only when a concrete requirement exceeds the current stack. Any upgrade must preserve keyboard access, reduced-motion behavior, mobile performance, the static fallback, and the single-source content model.
 
-Idle ambience follows the same native-animation decision. Long-running decorative loops use CSS; discovery hints start after about eight seconds of inactivity, stop on input, pause in hidden tabs, and disappear under `prefers-reduced-motion`. An animation library is justified only if measured coordination complexity exceeds these native capabilities.
+Idle ambience uses Blender clips for physical motion, R3F `useFrame` for procedural scene state, and CSS for HTML transitions. It pauses in hidden tabs and removes non-essential motion under `prefers-reduced-motion`. A separate animation library is justified only if measured coordination complexity exceeds these tools.
 
 ## Required external access
 
@@ -77,5 +85,5 @@ Idle ambience follows the same native-animation decision. Long-running decorativ
 - Higgsfield: connected for concept generation.
 - GitHub: repository access is required for pushing changes and configuring or observing CI.
 - Vercel: project access is required to connect the repository and manage deployments.
-- Figma: deferred; connect only when precise interactive layers, responsive variants, or reusable component states exceed Canva's role.
-- Blender: not required for the current 2.5D layered scene.
+- Figma: connected for HTML interface panels and reusable components, not room geometry.
+- Blender: required for the room source, camera anchors, lighting, and GLB export.
