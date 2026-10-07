@@ -10,10 +10,12 @@ vi.mock("./RoomCanvas", () => ({
     lighting,
     activeObject,
     onInteract,
+    onError,
   }: {
     lighting: Lighting;
     activeObject: RoomObjectId | null;
     onInteract: (id: RoomObjectId) => void;
+    onError: (error: Error) => void;
   }) => (
     <div
       data-testid="room-canvas"
@@ -21,24 +23,23 @@ vi.mock("./RoomCanvas", () => ({
       data-active-object={activeObject ?? undefined}
     >
       <button type="button" onClick={() => onInteract("server")}>
-        interact-server
+        model-server
       </button>
-      <button type="button" onClick={() => onInteract("window")}>
-        interact-window
+      <button type="button" onClick={() => onError(new Error("WebGL"))}>
+        fail-canvas
       </button>
     </div>
   ),
 }));
 
 describe("RoomScene", () => {
-  it("hosts the 3D canvas with localized scene labeling", () => {
+  it("hosts the 3D canvas and accessible controls", () => {
     render(
       <RoomScene
         locale="fr"
         lighting="day"
         activeObject="server"
-        onSelect={() => undefined}
-        onToggleLighting={() => undefined}
+        onInteract={() => undefined}
       />,
     );
 
@@ -47,23 +48,27 @@ describe("RoomScene", () => {
       "data-active-object",
       "server",
     );
+    expect(screen.getByRole("button", { name: "Homelab" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
-  it("routes model interactions", async () => {
+  it("routes model and keyboard interactions through one callback", async () => {
     const user = userEvent.setup();
-    const onSelect = vi.fn<(id: RoomObjectId) => void>();
+    const onInteract = vi.fn<(id: RoomObjectId) => void>();
     render(
       <RoomScene
         locale="en"
         lighting="day"
         activeObject={null}
-        onSelect={onSelect}
-        onToggleLighting={() => undefined}
+        onInteract={onInteract}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "interact-server" }));
-    expect(onSelect).toHaveBeenCalledWith("server");
+    await user.click(screen.getByRole("button", { name: "model-server" }));
+    await user.click(screen.getByRole("button", { name: "Change lighting" }));
+    expect(onInteract.mock.calls).toEqual([["server"], ["window"]]);
   });
 
   it.each([
@@ -77,8 +82,7 @@ describe("RoomScene", () => {
           locale="fr"
           lighting={lighting}
           activeObject={null}
-          onSelect={() => undefined}
-          onToggleLighting={() => undefined}
+          onInteract={() => undefined}
         />,
       );
 
@@ -86,27 +90,23 @@ describe("RoomScene", () => {
       expect(scene).toHaveAttribute("data-curtains", curtains);
       expect(scene).toHaveAttribute("data-window", windowState);
       expect(scene).toHaveAttribute("data-lamps", lamps);
-      expect(screen.getByTestId("room-canvas")).toHaveAttribute(
-        "data-lighting",
-        lighting,
-      );
     },
   );
 
-  it("uses the window as the lighting control", async () => {
+  it("keeps accessible controls active after canvas failure", async () => {
     const user = userEvent.setup();
-    const onToggleLighting = vi.fn();
     render(
       <RoomScene
-        locale="fr"
+        locale="en"
         lighting="day"
         activeObject={null}
-        onSelect={() => undefined}
-        onToggleLighting={onToggleLighting}
+        onInteract={() => undefined}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "interact-window" }));
-    expect(onToggleLighting).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole("button", { name: "fail-canvas" }));
+    expect(
+      screen.getByRole("navigation", { name: "Interactive room controls" }),
+    ).toHaveAttribute("data-canvas-failed", "true");
   });
 });

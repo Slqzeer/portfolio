@@ -42,7 +42,9 @@ describe("App", () => {
     expect(
       screen.getByRole("navigation", { name: "Main navigation" }),
     ).toBeInTheDocument();
-    expect(window.location.hash).toBe("#room/flag");
+    expect(document.documentElement.lang).toBe("en");
+    expect(window.location.hash).toBe("");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("minimizes the introduction before room exploration", async () => {
@@ -74,6 +76,8 @@ describe("App", () => {
         '"lighting":"night"',
       ),
     );
+    expect(window.location.hash).toBe("");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("keeps one shareable focused object during rapid selection", async () => {

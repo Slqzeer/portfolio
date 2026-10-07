@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { Lighting } from "../app/appState";
 import type { Locale, RoomObjectId } from "../content/types";
+import { AccessibleRoomControls } from "./AccessibleRoomControls";
 import { RoomCanvas } from "./RoomCanvas";
 import { sceneManifest } from "./sceneManifest";
 import { useIdleRoom } from "./useIdleRoom";
@@ -9,8 +11,7 @@ interface RoomSceneProps {
   locale: Locale;
   lighting: Lighting;
   activeObject: RoomObjectId | null;
-  onSelect: (id: RoomObjectId) => void;
-  onToggleLighting: () => void;
+  onInteract: (id: RoomObjectId) => void;
 }
 
 const roomObjectIds = Object.keys(sceneManifest) as RoomObjectId[];
@@ -19,9 +20,9 @@ export function RoomScene({
   locale,
   lighting,
   activeObject,
-  onSelect,
-  onToggleLighting,
+  onInteract,
 }: RoomSceneProps) {
+  const [canvasFailed, setCanvasFailed] = useState(false);
   const { ambientPaused, reducedMotion } = useIdleRoom({
     objectIds: roomObjectIds,
   });
@@ -42,12 +43,15 @@ export function RoomScene({
         activeObject={activeObject}
         ambientPaused={ambientPaused}
         reducedMotion={reducedMotion}
-        onInteract={(id) => {
-          onSelect(id);
-          if (id === "window") onToggleLighting();
-        }}
-        onReady={() => undefined}
-        onError={() => undefined}
+        onInteract={onInteract}
+        onReady={() => setCanvasFailed(false)}
+        onError={() => setCanvasFailed(true)}
+      />
+      <AccessibleRoomControls
+        locale={locale}
+        activeObject={activeObject}
+        canvasFailed={canvasFailed}
+        onInteract={onInteract}
       />
     </section>
   );

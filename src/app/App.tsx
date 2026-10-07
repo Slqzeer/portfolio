@@ -3,10 +3,9 @@ import { IntroCard } from "../components/IntroCard";
 import { SiteHeader } from "../components/SiteHeader";
 import { portfolioContent } from "../content/portfolioContent";
 import { ObjectDetails } from "../details/ObjectDetails";
-import { FocusView } from "../room/FocusView";
 import { hashForObject, parseRoomHash } from "../room/hashNavigation";
-import { roomObjects } from "../room/roomObjects";
 import { RoomScene } from "../room/RoomScene";
+import { sceneManifest } from "../room/sceneManifest";
 import { appReducer, initialAppState } from "./appState";
 import { readPreferences, writePreferences } from "./preferences";
 
@@ -27,6 +26,10 @@ export function App() {
     });
   }, [state.locale, state.lighting]);
 
+  useEffect(() => {
+    document.documentElement.lang = state.locale;
+  }, [state.locale]);
+
   const closeObject = useCallback(() => {
     const objectId = state.activeObject;
     window.history.pushState(
@@ -43,7 +46,18 @@ export function App() {
   }, [state.activeObject]);
 
   useEffect(() => {
-    const validIds = roomObjects.map(({ id }) => id);
+    if (!state.activeObject) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeObject();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [closeObject, state.activeObject]);
+
+  useEffect(() => {
+    const validIds = Object.values(sceneManifest)
+      .filter(({ action }) => action === "focus")
+      .map(({ id }) => id);
     const syncFromHistory = () => {
       const objectId = parseRoomHash(window.location.hash, validIds);
       dispatch({
@@ -62,8 +76,27 @@ export function App() {
     };
   }, []);
 
-  const activeDefinition =
-    roomObjects.find(({ id }) => id === state.activeObject) ?? null;
+  const handleRoomInteract = useCallback(
+    (objectId: keyof typeof sceneManifest) => {
+      const { action } = sceneManifest[objectId];
+      if (action === "toggle-lighting") {
+        dispatch({ type: "lighting.toggled" });
+        return;
+      }
+      if (action === "toggle-locale") {
+        dispatch({
+          type: "locale.changed",
+          locale: state.locale === "fr" ? "en" : "fr",
+        });
+        return;
+      }
+
+      window.history.pushState(null, "", hashForObject(objectId));
+      dispatch({ type: "object.selected", objectId });
+      dispatch({ type: "intro.minimized" });
+    },
+    [state.locale],
+  );
 
   return (
     <div className="app-shell" id="home">
@@ -75,24 +108,12 @@ export function App() {
         }
       />
       <main>
-        <FocusView definition={activeDefinition} onClose={closeObject}>
-          <RoomScene
-            locale={state.locale}
-            lighting={state.lighting}
-            activeObject={state.activeObject}
-            onSelect={(objectId) => {
-              window.history.pushState(null, "", hashForObject(objectId));
-              dispatch({ type: "object.selected", objectId });
-              if (objectId === "flag") {
-                dispatch({
-                  type: "locale.changed",
-                  locale: state.locale === "fr" ? "en" : "fr",
-                });
-              }
-            }}
-            onToggleLighting={() => dispatch({ type: "lighting.toggled" })}
-          />
-        </FocusView>
+        <RoomScene
+          locale={state.locale}
+          lighting={state.lighting}
+          activeObject={state.activeObject}
+          onInteract={handleRoomInteract}
+        />
         {state.activeObject && (
           <ObjectDetails
             objectId={state.activeObject}
