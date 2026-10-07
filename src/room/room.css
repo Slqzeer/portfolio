@@ -1,0 +1,47 @@
+.room-scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #eee4cf;
+}
+
+.room-scene[data-lighting="night"] {
+  background: #050b12;
+}
+
+.room-artwork,
+.room-hotspots {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.room-artwork {
+  object-fit: contain;
+}
+
+.room-hotspot {
+  position: absolute;
+  min-width: var(--room-hit-target);
+  min-height: var(--room-hit-target);
+  padding: 0;
+  border: 0;
+  border-radius: 1rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.room-hotspot:hover,
+.room-hotspot:focus-visible,
+.room-hotspot[aria-pressed="true"] {
+  background: rgb(86 216 193 / 12%);
+  box-shadow: inset 0 0 0 2px rgb(86 216 193 / 72%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .room-artwork {
+    transition: opacity 300ms ease;
+  }
+}

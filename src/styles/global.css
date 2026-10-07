@@ -95,19 +95,6 @@ main {
   padding: clamp(1rem, 6vw, 6rem);
 }
 
-.room-backdrop {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      135deg,
-      transparent 48%,
-      rgb(255 255 255 / 38%) 48% 52%,
-      transparent 52%
-    ),
-    radial-gradient(circle at 72% 35%, #ffeec9, #d8cbb5 48%, #9fa99c);
-}
-
 .intro-card {
   position: relative;
   width: min(39rem, 100%);

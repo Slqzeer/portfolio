@@ -2,6 +2,7 @@ import { useEffect, useReducer } from "react";
 import { IntroCard } from "../components/IntroCard";
 import { SiteHeader } from "../components/SiteHeader";
 import { portfolioContent } from "../content/portfolioContent";
+import { RoomScene } from "../room/RoomScene";
 import { appReducer, initialAppState } from "./appState";
 import { readPreferences, writePreferences } from "./preferences";
 
@@ -32,7 +33,20 @@ export function App() {
         }
       />
       <main>
-        <div className="room-backdrop" aria-hidden="true" />
+        <RoomScene
+          locale={state.locale}
+          lighting={state.lighting}
+          activeObject={state.activeObject}
+          onSelect={(objectId) =>
+            dispatch({ type: "object.selected", objectId })
+          }
+          onToggleLighting={() =>
+            dispatch({
+              type: "lighting.changed",
+              lighting: state.lighting === "day" ? "night" : "day",
+            })
+          }
+        />
         {state.introExpanded && (
           <IntroCard
             content={portfolioContent}
