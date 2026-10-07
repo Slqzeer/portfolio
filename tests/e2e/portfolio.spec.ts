@@ -78,8 +78,8 @@ test("supports keyboard focus, Back, and Escape", async ({ page }) => {
   await monitor.focus();
   await page.keyboard.press("Enter");
   await page
-    .getByTestId("room-scene")
-    .getByRole("button", { name: "Homelab" })
+    .getByRole("navigation", { name: "Navigation principale" })
+    .getByRole("link", { name: "Homelab" })
     .click();
   await page.goBack();
   await expect(page).toHaveURL(/#room\/monitor$/);

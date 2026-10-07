@@ -2,7 +2,13 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -18,6 +24,5 @@ jobs:
       - run: npm run assets:check
       - run: npm run format:check
       - run: npm test
-      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
