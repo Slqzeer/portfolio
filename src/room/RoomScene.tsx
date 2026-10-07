@@ -4,6 +4,7 @@ import { localize, portfolioContent } from "../content/portfolioContent";
 import type { Locale, RoomObjectId } from "../content/types";
 import { RoomArtwork } from "./RoomArtwork";
 import { roomObjects } from "./roomObjects";
+import { useIdleRoom } from "./useIdleRoom";
 import "./room.css";
 
 interface RoomSceneProps {
@@ -15,6 +16,7 @@ interface RoomSceneProps {
 }
 
 type RoomSceneStyle = CSSProperties & { "--room-hit-target": string };
+const roomObjectIds = roomObjects.map(({ id }) => id);
 
 export function RoomScene({
   locale,
@@ -24,6 +26,9 @@ export function RoomScene({
   onToggleLighting,
 }: RoomSceneProps) {
   const sceneStyle: RoomSceneStyle = { "--room-hit-target": "44px" };
+  const { hintedObject, ambientPaused } = useIdleRoom({
+    objectIds: roomObjectIds,
+  });
 
   return (
     <section
@@ -33,6 +38,7 @@ export function RoomScene({
       data-curtains={lighting === "day" ? "open" : "closed"}
       data-window={lighting === "day" ? "daylight" : "dark"}
       data-lamps={lighting === "day" ? "off" : "on"}
+      data-ambient-paused={ambientPaused}
       style={sceneStyle}
       aria-label={locale === "fr" ? "Chambre interactive" : "Interactive room"}
     >
@@ -49,6 +55,7 @@ export function RoomScene({
             )}
             aria-pressed={activeObject === id}
             data-room-object={id}
+            data-hinted={hintedObject === id || undefined}
             style={{
               left: `${hotspot.x}%`,
               top: `${hotspot.y}%`,

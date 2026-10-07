@@ -48,7 +48,8 @@
 
 .room-hotspot:hover,
 .room-hotspot:focus-visible,
-.room-hotspot[aria-pressed="true"] {
+.room-hotspot[aria-pressed="true"],
+.room-hotspot[data-hinted="true"] {
   background: rgb(86 216 193 / 12%);
   box-shadow: inset 0 0 0 2px rgb(86 216 193 / 72%);
 }
@@ -56,5 +57,25 @@
 @media (prefers-reduced-motion: no-preference) {
   .room-artwork {
     transition: opacity 300ms ease;
+  }
+
+  .room-scene:not([data-ambient-paused="true"]) .room-artwork {
+    animation: room-breathe 8s ease-in-out infinite alternate;
+  }
+
+  .room-hotspot[data-hinted="true"] {
+    animation: hotspot-hint 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes room-breathe {
+  to {
+    filter: saturate(1.04) brightness(1.025);
+  }
+}
+
+@keyframes hotspot-hint {
+  50% {
+    box-shadow: inset 0 0 0 3px rgb(86 216 193 / 85%);
   }
 }
