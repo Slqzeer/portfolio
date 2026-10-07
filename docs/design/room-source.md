@@ -1,6 +1,6 @@
 # Canva room source
 
-Status: **Figma production handoff approved — connection pending**
+Status: **Canva-aligned Figma production frames approved**
 
 Retrieved: 2026-10-07
 
@@ -32,11 +32,25 @@ The composition is visually approved as a concept, but it is not yet an implemen
 
 Therefore `roomGeometry.ts` and `public/assets/room/` must not be produced from guessed positions or redrawn substitutes. Doing so would violate Canva's role as the visual source of truth.
 
-## Required handoff
+## Figma production source
 
-Choose one of these paths before implementation continues:
+- File: [Portfolio — Chambre interactive — Production](https://www.figma.com/design/mESnsD8GuPIigFtJiQ29Ki)
+- File key: `mESnsD8GuPIigFtJiQ29Ki`
+- Review wrapper: `2:33`
+- Day frame: `3:4` (`Artwork / Room Day`: `9:2`)
+- Night frame: `3:6` (`Artwork / Room Night`: `9:13`)
+- Coordinate system: `1920 × 1080`
+- Source policy: Canva remains the approved concept reference; Figma is the editable production source.
 
-1. **Recommended — Figma production handoff:** recreate the approved Canva composition as named, exportable layers for the room shell, ten interactive objects, open/closed curtains, day/night window, lamps off/on, flags, and decoration. Canva remains the approved concept reference.
-2. **Canva manual production bundle:** restructure the Canva file manually and provide separate transparent SVG/PNG/WebP exports plus a `1920 × 1080` placement manifest for the same layers.
+The first Figma interpretation was rejected because its flat frontal composition differed too much from Canva's isometric 3D room. It must not be integrated.
 
-The Figma handoff was approved on 2026-10-07. The next implementation step begins when the Figma connection is active, then pauses again for explicit visual approval of the production frames before assets and geometry enter the codebase.
+The approved revision uses two transparent 1536 × 1024 PNG renders that closely preserve Canva's isometric composition and rendered style. Figma holds the exact 1920 × 1080 presentation placement plus ten identically positioned semantic hotspot frames. Day uses open curtains, natural light, and artificial lamps off. Night uses closed curtains, no window-emitted light, and artificial lamps on.
+
+## Production asset contract
+
+| State | Repository asset | Figma image node |
+| --- | --- | --- |
+| Day | `/assets/room/room-day.png` | `9:2` |
+| Night | `/assets/room/room-night.png` | `9:13` |
+
+Hotspot bounds come from the Figma production frames and are normalized from 1920 × 1080 in `src/room/roomGeometry.ts`. Each geometry entry records its Figma node reference so artwork and interaction coordinates can be replaced together.
