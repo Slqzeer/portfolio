@@ -1,6 +1,6 @@
 # Canva room source
 
-Status: **Superseded for runtime production by the approved Blender/GLB pipeline**
+Status: **Implemented in Blender and exported as the runtime GLB**
 
 The existing Canva-aligned Figma frames remain valid visual references and temporary fallback artwork. New room geometry, lighting, camera anchors, and physical animations are authored in Blender according to `docs/superpowers/specs/2026-10-07-interactive-3d-room-design.md`.
 
@@ -33,6 +33,33 @@ The composition is visually approved as a concept, but it is not yet an implemen
 - Canva provides reliable bounds for the existing fills, but the current connector cannot split a flattened bitmap into transparent semantic layers.
 
 Therefore `roomGeometry.ts` and `public/assets/room/` must not be produced from guessed positions or redrawn substitutes. Doing so would violate Canva's role as the visual source of truth.
+
+## Blender production source
+
+- Source: `assets/blender/portfolio-room.blend`
+- Canva reference: `assets/references/canva-room.png`
+- Runtime export: `public/assets/room/portfolio-room.glb`
+- Day poster: `public/assets/room/room-poster-day.webp`
+- Night poster: `public/assets/room/room-poster-night.webp`
+- Camera: `CAM_Overview`
+- Collections: `RoomShell`, `StaticDecor`, `InteractiveObjects`, `Controls`, `Lights`, `Animations`
+
+The Blender scene recreates the approved isometric composition as native geometry. Static decor is modeled for visual fidelity; only functional objects expose interaction nodes. The exported scene contains 237 named nodes and weighs 1.23 MB.
+
+Daylight and window light are active at frame 1. At frame 18 both are off while the lamp remains off; at frame 24 the curtains are closed and the lamp is on. This prevents light from appearing behind closed curtains. The French flag and monitor cursor contain subtle idle animation clips.
+
+| Function | Mesh/control node | Camera anchor |
+| --- | --- | --- |
+| Monitor | `INT_Monitor` | `CAM_Anchor_Monitor` |
+| Homelab | `INT_Homelab` | `CAM_Anchor_Homelab` |
+| Diploma | `INT_Diploma` | `CAM_Anchor_Diploma` |
+| Volleyball | `INT_Volleyball` | `CAM_Anchor_Volleyball` |
+| Controller | `INT_Controller` | `CAM_Anchor_Controller` |
+| Smartphone | `INT_Smartphone` | `CAM_Anchor_Smartphone` |
+| Bookshelf | `INT_Bookshelf` | `CAM_Anchor_Bookshelf` |
+| Contact card | `INT_ContactCard` | `CAM_Anchor_ContactCard` |
+| Curtains | `CTL_Curtains` | none |
+| Language flag | `CTL_Flag` | none |
 
 ## Figma production source
 
