@@ -1,7 +1,7 @@
 # Interactive Portfolio Design
 
 Date: 2026-10-07  
-Status: approved design
+Status: partially superseded by `2026-10-07-interactive-3d-room-design.md`
 
 ## Purpose
 

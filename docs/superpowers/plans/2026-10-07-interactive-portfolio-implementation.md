@@ -1,5 +1,7 @@
 # Interactive Portfolio Implementation Plan
 
+> Historical 2.5D plan. The implemented foundation remains valid; all remaining room work is superseded by `2026-10-07-interactive-3d-room-implementation.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build and deploy the bilingual interactive isometric-room portfolio defined in the approved design.

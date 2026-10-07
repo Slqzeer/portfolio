@@ -1,6 +1,8 @@
 # Canva room source
 
-Status: **Canva-aligned Figma production frames approved**
+Status: **Superseded for runtime production by the approved Blender/GLB pipeline**
+
+The existing Canva-aligned Figma frames remain valid visual references and temporary fallback artwork. New room geometry, lighting, camera anchors, and physical animations are authored in Blender according to `docs/superpowers/specs/2026-10-07-interactive-3d-room-design.md`.
 
 Retrieved: 2026-10-07
 
