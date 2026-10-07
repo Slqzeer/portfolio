@@ -24,11 +24,28 @@
   background: #050b12;
 }
 
-.room-artwork,
+.room-renderer,
+.room-canvas,
+.room-poster,
+.room-canvas canvas,
 .room-hotspots {
   position: absolute;
   width: 100%;
   height: 100%;
+}
+
+.room-canvas {
+  inset: 0;
+}
+
+.room-poster {
+  z-index: 1;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.room-canvas canvas {
+  inset: 0;
 }
 
 .room-artwork {

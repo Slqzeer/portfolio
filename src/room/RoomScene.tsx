@@ -3,6 +3,7 @@ import type { Lighting } from "../app/appState";
 import { localize, portfolioContent } from "../content/portfolioContent";
 import type { Locale, RoomObjectId } from "../content/types";
 import { RoomArtwork } from "./RoomArtwork";
+import { RoomCanvas } from "./RoomCanvas";
 import { roomObjects } from "./roomObjects";
 import { useIdleRoom } from "./useIdleRoom";
 import "./room.css";
@@ -42,7 +43,16 @@ export function RoomScene({
       style={sceneStyle}
       aria-label={locale === "fr" ? "Chambre interactive" : "Interactive room"}
     >
-      <RoomArtwork lighting={lighting} />
+      <div className="room-renderer">
+        <RoomArtwork lighting={lighting} />
+        <RoomCanvas
+          lighting={lighting}
+          activeObject={activeObject}
+          onInteract={onSelect}
+          onReady={() => undefined}
+          onError={() => undefined}
+        />
+      </div>
       <div className="room-hotspots">
         {roomObjects.map(({ id, hotspot, layerIndex }) => (
           <button
