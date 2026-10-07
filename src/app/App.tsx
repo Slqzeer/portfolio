@@ -85,6 +85,10 @@ export function App() {
             objectId={state.activeObject}
             locale={state.locale}
             onClose={closeObject}
+            activeCategory={state.projectCategory}
+            onCategoryChange={(category) =>
+              dispatch({ type: "category.changed", category })
+            }
           />
         )}
         {state.introExpanded && (

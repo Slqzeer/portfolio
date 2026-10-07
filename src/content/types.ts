@@ -77,6 +77,7 @@ export interface PortfolioContent {
   actions: Record<"explore" | "replaceLink", LocalizedText>;
   social: Record<"github" | "linkedin" | "cv" | "email", Link>;
   skills: Array<{ group: LocalizedText; items: string[] }>;
+  projectCategories: Record<ProjectCategory, LocalizedText>;
   projects: Project[];
   homelab: {
     description: LocalizedText;

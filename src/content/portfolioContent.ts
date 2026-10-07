@@ -53,6 +53,13 @@ export const portfolioContent: PortfolioContent = {
       items: ["Linux", "Docker", "Kubernetes", "CI/CD"],
     },
   ],
+  projectCategories: {
+    "data-ai": text("Data & IA", "Data & AI"),
+    software: text("Logiciel", "Software"),
+    homelab: text("Homelab", "Homelab"),
+    "game-development": text("Jeux", "Games"),
+    experiments: text("Expériences", "Experiments"),
+  },
   projects: [
     {
       id: "sample-rag-assistant",
