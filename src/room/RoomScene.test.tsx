@@ -64,4 +64,69 @@ describe("RoomScene", () => {
       "--room-hit-target": "44px",
     });
   });
+
+  it("derives every daylight state from day lighting", () => {
+    render(
+      <RoomScene
+        locale="fr"
+        lighting="day"
+        activeObject={null}
+        onSelect={() => undefined}
+        onToggleLighting={() => undefined}
+      />,
+    );
+
+    const scene = screen.getByTestId("room-scene");
+    expect(scene).toHaveAttribute("data-curtains", "open");
+    expect(scene).toHaveAttribute("data-window", "daylight");
+    expect(scene).toHaveAttribute("data-lamps", "off");
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/assets/room/room-day.png",
+    );
+  });
+
+  it("derives every dark state from night lighting", () => {
+    render(
+      <RoomScene
+        locale="fr"
+        lighting="night"
+        activeObject={null}
+        onSelect={() => undefined}
+        onToggleLighting={() => undefined}
+      />,
+    );
+
+    const scene = screen.getByTestId("room-scene");
+    expect(scene).toHaveAttribute("data-curtains", "closed");
+    expect(scene).toHaveAttribute("data-window", "dark");
+    expect(scene).toHaveAttribute("data-lamps", "on");
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/assets/room/room-night.png",
+    );
+  });
+
+  it("uses the window as the single lighting control", async () => {
+    const user = userEvent.setup();
+    const onToggleLighting = vi.fn();
+
+    render(
+      <RoomScene
+        locale="fr"
+        lighting="day"
+        activeObject={null}
+        onSelect={() => undefined}
+        onToggleLighting={onToggleLighting}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: localize(portfolioContent.roomObjects.window.label, "fr"),
+      }),
+    );
+
+    expect(onToggleLighting).toHaveBeenCalledOnce();
+  });
 });

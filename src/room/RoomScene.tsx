@@ -30,6 +30,9 @@ export function RoomScene({
       className="room-scene"
       data-testid="room-scene"
       data-lighting={lighting}
+      data-curtains={lighting === "day" ? "open" : "closed"}
+      data-window={lighting === "day" ? "daylight" : "dark"}
+      data-lamps={lighting === "day" ? "off" : "on"}
       style={sceneStyle}
       aria-label={locale === "fr" ? "Chambre interactive" : "Interactive room"}
     >

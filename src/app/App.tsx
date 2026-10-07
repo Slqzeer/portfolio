@@ -40,12 +40,7 @@ export function App() {
           onSelect={(objectId) =>
             dispatch({ type: "object.selected", objectId })
           }
-          onToggleLighting={() =>
-            dispatch({
-              type: "lighting.changed",
-              lighting: state.lighting === "day" ? "night" : "day",
-            })
-          }
+          onToggleLighting={() => dispatch({ type: "lighting.toggled" })}
         />
         {state.introExpanded && (
           <IntroCard

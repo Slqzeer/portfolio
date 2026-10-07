@@ -12,7 +12,7 @@ export interface AppState {
 
 export type AppAction =
   | { type: "locale.changed"; locale: Locale }
-  | { type: "lighting.changed"; lighting: Lighting }
+  | { type: "lighting.toggled" }
   | { type: "object.selected"; objectId: RoomObjectId | null }
   | { type: "category.changed"; category: ProjectCategory }
   | { type: "intro.minimized" };
@@ -29,8 +29,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case "locale.changed":
       return { ...state, locale: action.locale };
-    case "lighting.changed":
-      return { ...state, lighting: action.lighting };
+    case "lighting.toggled":
+      return { ...state, lighting: state.lighting === "day" ? "night" : "day" };
     case "object.selected":
       return { ...state, activeObject: action.objectId };
     case "category.changed":

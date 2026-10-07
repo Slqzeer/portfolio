@@ -23,4 +23,12 @@ describe("appReducer", () => {
       }).projectCategory,
     ).toBe("game-development");
   });
+
+  it("toggles lighting as one synchronized state", () => {
+    const night = appReducer(initialAppState, { type: "lighting.toggled" });
+    const day = appReducer(night, { type: "lighting.toggled" });
+
+    expect(night.lighting).toBe("night");
+    expect(day.lighting).toBe("day");
+  });
 });
