@@ -1,9 +1,8 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
   Suspense,
   useCallback,
-  useEffect,
   useRef,
   useState,
   type ReactNode,
@@ -46,12 +45,23 @@ class CanvasErrorBoundary extends Component<
   }
 }
 
-function CanvasUnavailable({ onError }: { onError: (error: Error) => void }) {
-  useEffect(() => {
-    onError(new Error("WebGL is unavailable"));
-  }, [onError]);
+function SceneMetrics() {
+  const { gl } = useThree();
+  const sample = useRef({ frames: 0, startedAt: performance.now() });
 
-  return <p role="status">3D scene unavailable</p>;
+  useFrame(() => {
+    const now = performance.now();
+    sample.current.frames += 1;
+    const elapsed = now - sample.current.startedAt;
+    if (elapsed < 1000) return;
+    gl.domElement.dataset.fps = String(
+      Math.round((sample.current.frames * 1000) / elapsed),
+    );
+    gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
+    sample.current = { frames: 0, startedAt: now };
+  });
+
+  return null;
 }
 
 export function RoomCanvas(props: RoomCanvasProps) {
@@ -82,6 +92,8 @@ export function RoomCanvas(props: RoomCanvasProps) {
     <div
       className="room-canvas"
       data-active-object={props.activeObject ?? undefined}
+      data-ready={ready}
+      data-failed={failed}
     >
       {(!ready || failed) && (
         <img
@@ -91,12 +103,13 @@ export function RoomCanvas(props: RoomCanvasProps) {
           alt=""
         />
       )}
+      {failed && <p role="status">3D scene unavailable</p>}
       <CanvasErrorBoundary onError={reportError}>
         <Canvas
           orthographic
           camera={{ near: 0.1, far: 100, zoom: 65 }}
           dpr={[1, 2]}
-          fallback={<CanvasUnavailable onError={reportError} />}
+          fallback={<span>3D scene unavailable</span>}
         >
           <Suspense fallback={null}>
             <RoomModel
@@ -107,6 +120,7 @@ export function RoomCanvas(props: RoomCanvasProps) {
               onReady={reportReady}
               reducedMotion={reducedMotion}
             />
+            <SceneMetrics />
           </Suspense>
         </Canvas>
       </CanvasErrorBoundary>

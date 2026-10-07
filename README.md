@@ -22,11 +22,13 @@ Toutes les informations personnelles, traductions, disponibilités, projets et d
 ## Remplacer les visuels
 
 - Référence de composition : [Canva](https://www.canva.com/d/Hy2EbjsPEIPOa6D)
-- Source de production : [Figma](https://www.figma.com/design/mESnsD8GuPIigFtJiQ29Ki)
-- Images jour/nuit : `public/assets/room/room-day.png` et `public/assets/room/room-night.png`
-- Géométrie et cadrages : `src/room/roomGeometry.ts`
+- Source Blender éditable : `assets/blender/portfolio-room.blend`
+- Source Blender optimisée : `assets/blender/portfolio-room-optimized.blend`
+- Scène web : `public/assets/room/portfolio-room.glb`
+- Posters de secours : `public/assets/room/room-poster-day.webp` et `room-poster-night.webp`
+- Contrat des objets : `src/room/sceneManifest.ts`
 
-Conserver les dimensions `1536 × 1024`, la transparence et le cadrage lors du remplacement des images. Si la position d’un objet change, mettre à jour son hotspot et son cadrage dans Figma puis dans `roomGeometry.ts`.
+Après une modification Blender, conserver les noms `INT_*`, `CTL_*` et `CAM_Anchor_*`, exporter le GLB, puis exécuter `npm run assets:check`. Canva reste la référence visuelle ; Figma sert aux panneaux HTML et à la typographie.
 
 ## Déploiement
 

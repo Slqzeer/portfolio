@@ -1,52 +1,30 @@
-# Canva room source
+# Interactive room source
 
-Status: **Implemented in Blender and exported as the runtime GLB**
+Status: **implemented in Blender and exported as the runtime GLB**
 
-The existing Canva-aligned Figma frames remain valid visual references and temporary fallback artwork. New room geometry, lighting, camera anchors, and physical animations are authored in Blender according to `docs/superpowers/specs/2026-10-07-interactive-3d-room-design.md`.
+## Visual reference
 
-Retrieved: 2026-10-07
-
-## Source
+Canva remains the approved visual direction for the room.
 
 - Design ID: `DAHXRbROrBI`
-- Title: `Portfolio Data & IA`
-- Shared URL: <https://canva.link/gqx5yi3auudqj5a>
-- Canva edit URL: <https://www.canva.com/d/Hy2EbjsPEIPOa6D>
-- Canva view URL: <https://www.canva.com/d/DKimTilzbisQ2Ee>
-- Coordinate system: `1920 × 1080` on every page
+- Shared view: <https://canva.link/gqx5yi3auudqj5a>
+- Edit link: <https://www.canva.com/d/Hy2EbjsPEIPOa6D>
+- Pages: vision, isometric composition, day/night rule, object inventory, responsive/accessibility principles
 
-| Page | Canva page ID | Current purpose |
-| --- | --- | --- |
-| 1 | `PBSzpNCRtmBSxtxR` | Vision and principles |
-| 2 | `PBJZjL4025zP7qR5` | Annotated isometric-room composition |
-| 3 | `PB0t5GKtxrdXyD6x` | Day/night concept and lighting rule |
-| 4 | `PBxZGj9ln7xdLGlT` | Interactive-object inventory |
-| 5 | `PBjmj5fc8SMLVXMm` | Responsive, accessibility, and data principles |
+The Figma file [Portfolio — Chambre interactive — Production](https://www.figma.com/design/mESnsD8GuPIigFtJiQ29Ki) is retained only as an HTML/layout reference. It is not the source of the room geometry.
 
-## Production inspection
+## Production assets
 
-The composition is visually approved as a concept, but it is not yet an implementable layered scene.
-
-- Page 2 exposes the room as one central bitmap fill (`MAHXRTy1NY0`) at `left 524.78`, `top 157.24`, `width 915.22`, `height 856.20`. The other fills are annotation graphics rather than isolated room objects.
-- Page 3 exposes the day and night rooms as large bitmap compositions. The window, curtains, natural light, and artificial lamps are not independent state layers.
-- Page 4 documents nine interactive objects. The window/curtain theme control required by the product specification is not present as a tenth production object.
-- Canva provides reliable bounds for the existing fills, but the current connector cannot split a flattened bitmap into transparent semantic layers.
-
-Therefore `roomGeometry.ts` and `public/assets/room/` must not be produced from guessed positions or redrawn substitutes. Doing so would violate Canva's role as the visual source of truth.
-
-## Blender production source
-
-- Source: `assets/blender/portfolio-room.blend`
-- Canva reference: `assets/references/canva-room.png`
-- Runtime export: `public/assets/room/portfolio-room.glb`
-- Day poster: `public/assets/room/room-poster-day.webp`
-- Night poster: `public/assets/room/room-poster-night.webp`
-- Camera: `CAM_Overview`
+- Editable master: `assets/blender/portfolio-room.blend`
+- Web-optimized derivative: `assets/blender/portfolio-room-optimized.blend`
+- Runtime scene: `public/assets/room/portfolio-room.glb`
+- Loading posters: `public/assets/room/room-poster-day.webp` and `room-poster-night.webp`
+- Overview camera: `CAM_Overview`
 - Collections: `RoomShell`, `StaticDecor`, `InteractiveObjects`, `Controls`, `Lights`, `Animations`
 
-The Blender scene recreates the approved isometric composition as native geometry. Static decor is modeled for visual fidelity; only functional objects expose interaction nodes. The exported scene contains 237 named nodes and weighs 1.23 MB.
+The master preserves editable objects. The optimized derivative joins compatible static, single-material meshes while preserving every interactive node, control, camera anchor, light, and animated object. This reduced Blender mesh objects from 214 to 145; the runtime GLB contains 168 named nodes and weighs 2.26 MB.
 
-Daylight and window light are active at frame 1. At frame 18 both are off while the lamp remains off; at frame 24 the curtains are closed and the lamp is on. This prevents light from appearing behind closed curtains. The French flag and monitor cursor contain subtle idle animation clips.
+## Stable scene contract
 
 | Function | Mesh/control node | Camera anchor |
 | --- | --- | --- |
@@ -61,25 +39,19 @@ Daylight and window light are active at frame 1. At frame 18 both are off while 
 | Curtains | `CTL_Curtains` | none |
 | Language flag | `CTL_Flag` | none |
 
-## Figma production source
+Run `npm run assets:check` after any Blender export. The validator rejects missing or renamed contract nodes before deployment.
 
-- File: [Portfolio — Chambre interactive — Production](https://www.figma.com/design/mESnsD8GuPIigFtJiQ29Ki)
-- File key: `mESnsD8GuPIigFtJiQ29Ki`
-- Review wrapper: `2:33`
-- Day frame: `3:4` (`Artwork / Room Day`: `9:2`)
-- Night frame: `3:6` (`Artwork / Room Night`: `9:13`)
-- Coordinate system: `1920 × 1080`
-- Source policy: Canva remains the approved concept reference; Figma is the editable production source.
+## Lighting and animation
 
-The first Figma interpretation was rejected because its flat frontal composition differed too much from Canva's isometric 3D room. It must not be integrated.
+Frame 1 is the day state: curtains open, daylight active, artificial lamps off. Frame 18 removes daylight without introducing light behind the curtains. Frame 24 closes the curtains and turns the lamp on. The flag and monitor cursor have subtle idle animation clips.
 
-The approved revision uses two transparent 1536 × 1024 PNG renders that closely preserve Canva's isometric composition and rendered style. Figma holds the exact 1920 × 1080 presentation placement plus ten identically positioned semantic hotspot frames. Day uses open curtains, natural light, and artificial lamps off. Night uses closed curtains, no window-emitted light, and artificial lamps on.
+Export as GLB with transforms applied and cameras, lights, and animations enabled. Blender area lights are recreated by `RoomLighting` at runtime because glTF does not preserve them consistently.
 
-## Production asset contract
+## Validation snapshot
 
-| State | Repository asset | Figma image node |
-| --- | --- | --- |
-| Day | `/assets/room/room-day.png` | `9:2` |
-| Night | `/assets/room/room-night.png` | `9:13` |
+- Canva-aligned Blender render: visually inspected after optimization
+- First useful render: 2317 ms in headless Chromium
+- Draw calls: 144 desktop, 21 at 390 × 844
+- Observed FPS: 41 mobile; 7 desktop under the headless software renderer
 
-Hotspot bounds come from the Figma production frames and are normalized from 1920 × 1080 in `src/room/roomGeometry.ts`. Each geometry entry records its Figma node reference so artwork and interaction coordinates can be replaced together.
+The mobile target is met. Desktop FPS must be confirmed on a physical GPU because headless Chromium's software-rendered result is not representative. Further mesh merging is deferred until that measurement shows a real bottleneck.

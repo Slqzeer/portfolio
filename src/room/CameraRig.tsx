@@ -44,7 +44,10 @@ export function CameraRig({
 
   useEffect(() => {
     const canvas = gl.domElement;
-    const reset = () => pointer.current.set(0, 0);
+    const reset = () => {
+      pointer.current.set(0, 0);
+      canvas.dataset.pointerFollow = "0,0";
+    };
     if (!pointerEnabled || reducedMotion) {
       reset();
       return;
@@ -56,6 +59,7 @@ export function CameraRig({
         clampPointer(((event.clientX - bounds.left) / bounds.width) * 2 - 1),
         clampPointer(1 - ((event.clientY - bounds.top) / bounds.height) * 2),
       );
+      canvas.dataset.pointerFollow = `${pointer.current.x.toFixed(2)},${pointer.current.y.toFixed(2)}`;
     };
 
     canvas.addEventListener("pointermove", update);
@@ -65,6 +69,12 @@ export function CameraRig({
       canvas.removeEventListener("pointerleave", reset);
     };
   }, [gl.domElement, pointerEnabled, reducedMotion]);
+
+  useEffect(() => {
+    gl.domElement.dataset.cameraTarget = activeObject
+      ? (sceneManifest[activeObject].cameraAnchorName ?? "CAM_Overview")
+      : "CAM_Overview";
+  }, [activeObject, gl.domElement]);
 
   useFrame((_, deltaSeconds) => {
     const anchorName = activeObject

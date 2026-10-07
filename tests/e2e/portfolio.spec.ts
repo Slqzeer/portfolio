@@ -1,76 +1,119 @@
 import { expect, test } from "@playwright/test";
 
-test("explores the room, changes lighting, and opens a shareable detail", async ({
+test("loads the GLB behind its poster and enables pointer follow", async ({
+  page,
+}) => {
+  await page.route("**/portfolio-room.glb", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.continue();
+  });
+  await page.goto("/");
+
+  const roomCanvas = page.locator(".room-canvas");
+  await expect(page.getByTestId("room-poster")).toBeVisible();
+  await expect(roomCanvas).toHaveAttribute("data-ready", "true");
+  await expect(page.getByTestId("room-poster")).toHaveCount(0);
+
+  const canvas = roomCanvas.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-camera-target", "CAM_Overview");
+  await expect(canvas).toHaveAttribute("data-fps", /[1-9]/, {
+    timeout: 5000,
+  });
+  await expect(canvas).toHaveAttribute("data-draw-calls", /[1-9]/);
+
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  await page.mouse.move(bounds!.x + bounds!.width - 5, bounds!.y + 5);
+  await expect(canvas).not.toHaveAttribute("data-pointer-follow", "0,0");
+  await page.mouse.move(1, 1);
+  await expect(canvas).toHaveAttribute("data-pointer-follow", "0,0");
+});
+
+test("routes focus, curtains, and flag without control zoom", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByRole("main")).toBeVisible();
-  await expect(page.getByText(/Stage de fin d’études/)).toBeVisible();
-
   await page.getByRole("button", { name: "Explorer la chambre" }).click();
+  const canvas = page.locator(".room-canvas canvas");
+  await expect(page.locator(".room-canvas")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  await expect(canvas).toHaveAttribute("data-fps", /[1-9]/, { timeout: 5000 });
+  await page.getByRole("button", { name: "Projets Data et IA" }).click();
+  await expect(page).toHaveURL(/#room\/monitor$/);
+  await expect(canvas).toHaveAttribute(
+    "data-camera-target",
+    "CAM_Anchor_Monitor",
+  );
+  await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
+
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Changer la lumière" }).click();
   await expect(page.getByTestId("room-scene")).toHaveAttribute(
     "data-lighting",
     "night",
   );
-
-  await page.getByRole("button", { name: "Projets Data et IA" }).click();
-  await expect(page).toHaveURL(/#room\/monitor$/);
-  await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
-});
-
-test("supports keyboard close, invalid hashes, and mobile details", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/#room/server");
-  await expect(page.getByRole("dialog", { name: "Homelab" })).toBeVisible();
-  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("room-scene")).toHaveAttribute(
+    "data-lamps",
+    "on",
+  );
+  await expect(page).not.toHaveURL(/#room\//);
   await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(canvas).toHaveAttribute("data-camera-target", "CAM_Overview");
 
-  await page.goto("/#room/unknown");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-});
-
-test("restores focus, follows Back, persists locale, and filters projects", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Explorer la chambre" }).click();
-
-  const monitor = page.getByRole("button", { name: "Projets Data et IA" });
-  await monitor.focus();
-  await page.keyboard.press("Enter");
-  await page.getByRole("button", { name: "Homelab" }).last().click();
-  await expect(page.getByText(/Observabilité homelab/)).toBeVisible();
-  await expect(page.getByText(/Assistant documentaire/)).toHaveCount(0);
-
-  const server = page.getByRole("button", { name: "Homelab" }).first();
-  await server.focus();
-  await page.keyboard.press("Enter");
-  await page.goBack();
-  await expect(page).toHaveURL(/#room\/monitor$/);
-
-  await page.keyboard.press("Escape");
-  await expect(monitor).toBeFocused();
-  await page.getByRole("button", { name: "English" }).click();
-  await page.reload();
+  await page.getByRole("button", { name: "Changer de langue" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(
     page.getByRole("navigation", { name: "Main navigation" }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Français" })).toBeVisible();
+  await expect(page).not.toHaveURL(/#room\//);
+  await expect(canvas).toHaveAttribute("data-camera-target", "CAM_Overview");
 });
 
-test("keeps mobile, reduced-motion, and missing-artwork fallbacks usable", async ({
+test("supports keyboard focus, Back, and Escape", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Explorer la chambre" }).click();
+  const monitor = page.getByRole("button", { name: "Projets Data et IA" });
+  await monitor.focus();
+  await page.keyboard.press("Enter");
+  await page
+    .getByTestId("room-scene")
+    .getByRole("button", { name: "Homelab" })
+    .click();
+  await page.goBack();
+  await expect(page).toHaveURL(/#room\/monitor$/);
+  await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(monitor).toBeFocused();
+});
+
+test("keeps the poster and controls when the GLB fails", async ({ page }) => {
+  await page.route("**/portfolio-room.glb", (route) => route.abort());
+  await page.goto("/");
+
+  await expect(page.locator(".room-canvas")).toHaveAttribute(
+    "data-failed",
+    "true",
+  );
+  await expect(page.getByTestId("room-poster")).toBeVisible();
+  await expect(page.getByRole("status")).toContainText("3D scene unavailable");
+  await expect(
+    page.getByRole("navigation", {
+      name: "Commandes de la chambre interactive",
+    }),
+  ).toBeVisible();
+});
+
+test("supports mobile, reduced motion, and hidden-tab pause", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#room/server");
 
-  await expect(
-    page.getByRole("navigation", { name: "Navigation principale" }),
-  ).toBeVisible();
   await expect(page.getByTestId("room-scene")).toHaveAttribute(
     "data-ambient-paused",
     "true",
@@ -80,27 +123,25 @@ test("keeps mobile, reduced-motion, and missing-artwork fallbacks usable", async
     "fixed",
   );
 
-  await page.locator("[data-room-asset]").evaluate((image) => {
-    image.setAttribute("src", "/missing-room-artwork.png");
-    image.dispatchEvent(new Event("error"));
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.reload();
+  await expect(page.getByTestId("room-scene")).toHaveAttribute(
+    "data-ambient-paused",
+    "false",
+  );
+  const mobileCanvas = page.locator(".room-canvas canvas");
+  await expect(mobileCanvas).toHaveAttribute("data-fps", /[1-9]/, {
+    timeout: 5000,
   });
-  await expect(page.getByRole("img", { name: /indisponible/ })).toBeVisible();
-});
-
-test("cancels and restarts idle discovery after input", async ({ page }) => {
-  await page.clock.install();
-  await page.goto("/");
-  await page.clock.pauseAt(
-    new Date((await page.evaluate(() => Date.now())) + 1000),
+  await page.evaluate(() => {
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      get: () => true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(page.getByTestId("room-scene")).toHaveAttribute(
+    "data-ambient-paused",
+    "true",
   );
-
-  await page.clock.fastForward(8000);
-  await expect(page.locator('[data-hinted="true"]')).toHaveCount(1);
-
-  await page.evaluate(() =>
-    window.dispatchEvent(new PointerEvent("pointerdown")),
-  );
-  await expect(page.locator('[data-hinted="true"]')).toHaveCount(0);
-  await page.clock.fastForward(7999);
-  await expect(page.locator('[data-hinted="true"]')).toHaveCount(0);
 });

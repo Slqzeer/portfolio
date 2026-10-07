@@ -7,14 +7,17 @@ import { RoomCanvas } from "./RoomCanvas";
 const canvas = vi.hoisted(() => ({ fails: false }));
 
 vi.mock("@react-three/fiber", () => ({
-  Canvas: ({
-    children,
-    fallback,
-  }: {
-    children: ReactNode;
-    fallback: ReactNode;
-  }) =>
-    canvas.fails ? fallback : <div data-testid="webgl-canvas">{children}</div>,
+  Canvas: ({ children }: { children: ReactNode }) => {
+    if (canvas.fails) throw new Error("WebGL is unavailable");
+    return <div data-testid="webgl-canvas">{children}</div>;
+  },
+  useFrame: () => undefined,
+  useThree: () => ({
+    gl: {
+      domElement: document.createElement("canvas"),
+      info: { render: { calls: 1 } },
+    },
+  }),
 }));
 
 vi.mock("./RoomModel", () => ({
