@@ -10,22 +10,19 @@ vi.mock("@react-three/fiber", () => ({
   Canvas: ({
     children,
     fallback,
-    onCreated,
   }: {
     children: ReactNode;
     fallback: ReactNode;
-    onCreated: () => void;
   }) =>
-    canvas.fails ? (
-      fallback
-    ) : (
-      <div data-testid="webgl-canvas">
-        {children}
-        <button type="button" onClick={onCreated}>
-          ready
-        </button>
-      </div>
-    ),
+    canvas.fails ? fallback : <div data-testid="webgl-canvas">{children}</div>,
+}));
+
+vi.mock("./RoomModel", () => ({
+  RoomModel: ({ onReady }: { onReady: () => void }) => (
+    <button type="button" onClick={onReady}>
+      ready
+    </button>
+  ),
 }));
 
 const defaultProps = {

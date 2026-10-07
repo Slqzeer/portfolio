@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { Lighting } from "../app/appState";
 import type { RoomObjectId } from "../content/types";
+import { RoomModel } from "./RoomModel";
 
 export interface RoomCanvasProps {
   lighting: Lighting;
@@ -66,10 +67,10 @@ export function RoomCanvas(props: RoomCanvasProps) {
     [props.onError],
   );
 
-  const reportReady = () => {
+  const reportReady = useCallback(() => {
     setReady(true);
     props.onReady();
-  };
+  }, [props.onReady]);
 
   return (
     <div
@@ -88,9 +89,14 @@ export function RoomCanvas(props: RoomCanvasProps) {
         <Canvas
           dpr={[1, 2]}
           fallback={<CanvasUnavailable onError={reportError} />}
-          onCreated={reportReady}
         >
-          <Suspense fallback={null} />
+          <Suspense fallback={null}>
+            <RoomModel
+              activeObject={props.activeObject}
+              onInteract={props.onInteract}
+              onReady={reportReady}
+            />
+          </Suspense>
         </Canvas>
       </CanvasErrorBoundary>
     </div>

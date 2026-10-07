@@ -1,10 +1,7 @@
-import type { CSSProperties } from "react";
 import type { Lighting } from "../app/appState";
-import { localize, portfolioContent } from "../content/portfolioContent";
 import type { Locale, RoomObjectId } from "../content/types";
-import { RoomArtwork } from "./RoomArtwork";
 import { RoomCanvas } from "./RoomCanvas";
-import { roomObjects } from "./roomObjects";
+import { sceneManifest } from "./sceneManifest";
 import { useIdleRoom } from "./useIdleRoom";
 import "./room.css";
 
@@ -16,8 +13,7 @@ interface RoomSceneProps {
   onToggleLighting: () => void;
 }
 
-type RoomSceneStyle = CSSProperties & { "--room-hit-target": string };
-const roomObjectIds = roomObjects.map(({ id }) => id);
+const roomObjectIds = Object.keys(sceneManifest) as RoomObjectId[];
 
 export function RoomScene({
   locale,
@@ -26,8 +22,7 @@ export function RoomScene({
   onSelect,
   onToggleLighting,
 }: RoomSceneProps) {
-  const sceneStyle: RoomSceneStyle = { "--room-hit-target": "44px" };
-  const { hintedObject, ambientPaused } = useIdleRoom({
+  const { ambientPaused } = useIdleRoom({
     objectIds: roomObjectIds,
   });
 
@@ -40,46 +35,18 @@ export function RoomScene({
       data-window={lighting === "day" ? "daylight" : "dark"}
       data-lamps={lighting === "day" ? "off" : "on"}
       data-ambient-paused={ambientPaused}
-      style={sceneStyle}
       aria-label={locale === "fr" ? "Chambre interactive" : "Interactive room"}
     >
-      <div className="room-renderer">
-        <RoomArtwork lighting={lighting} />
-        <RoomCanvas
-          lighting={lighting}
-          activeObject={activeObject}
-          onInteract={onSelect}
-          onReady={() => undefined}
-          onError={() => undefined}
-        />
-      </div>
-      <div className="room-hotspots">
-        {roomObjects.map(({ id, hotspot, layerIndex }) => (
-          <button
-            className="room-hotspot"
-            key={id}
-            type="button"
-            aria-label={localize(
-              portfolioContent.roomObjects[id].label,
-              locale,
-            )}
-            aria-pressed={activeObject === id}
-            data-room-object={id}
-            data-hinted={hintedObject === id || undefined}
-            style={{
-              left: `${hotspot.x}%`,
-              top: `${hotspot.y}%`,
-              width: `${hotspot.width}%`,
-              height: `${hotspot.height}%`,
-              zIndex: layerIndex,
-            }}
-            onClick={() => {
-              onSelect(id);
-              if (id === "window") onToggleLighting();
-            }}
-          />
-        ))}
-      </div>
+      <RoomCanvas
+        lighting={lighting}
+        activeObject={activeObject}
+        onInteract={(id) => {
+          onSelect(id);
+          if (id === "window") onToggleLighting();
+        }}
+        onReady={() => undefined}
+        onError={() => undefined}
+      />
     </section>
   );
 }

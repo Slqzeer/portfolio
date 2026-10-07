@@ -1,35 +1,57 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { localize, portfolioContent } from "../content/portfolioContent";
+import type { Lighting } from "../app/appState";
 import type { RoomObjectId } from "../content/types";
 import { RoomScene } from "./RoomScene";
 
+vi.mock("./RoomCanvas", () => ({
+  RoomCanvas: ({
+    lighting,
+    activeObject,
+    onInteract,
+  }: {
+    lighting: Lighting;
+    activeObject: RoomObjectId | null;
+    onInteract: (id: RoomObjectId) => void;
+  }) => (
+    <div
+      data-testid="room-canvas"
+      data-lighting={lighting}
+      data-active-object={activeObject ?? undefined}
+    >
+      <button type="button" onClick={() => onInteract("server")}>
+        interact-server
+      </button>
+      <button type="button" onClick={() => onInteract("window")}>
+        interact-window
+      </button>
+    </div>
+  ),
+}));
+
 describe("RoomScene", () => {
-  it("renders one localized native button for every room object", () => {
+  it("hosts the 3D canvas with localized scene labeling", () => {
     render(
       <RoomScene
         locale="fr"
         lighting="day"
-        activeObject={null}
+        activeObject="server"
         onSelect={() => undefined}
         onToggleLighting={() => undefined}
       />,
     );
 
-    for (const [id, object] of Object.entries(portfolioContent.roomObjects)) {
-      const button = screen.getByRole("button", {
-        name: localize(object.label, "fr"),
-      });
-
-      expect(button).toHaveAttribute("data-room-object", id);
-    }
+    expect(screen.getByLabelText("Chambre interactive")).toBeInTheDocument();
+    expect(screen.getByTestId("room-canvas")).toHaveAttribute(
+      "data-active-object",
+      "server",
+    );
   });
 
-  it("selects the activated object", async () => {
+  it("routes model interactions", async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn<(id: RoomObjectId) => void>();
-
     render(
       <RoomScene
         locale="en"
@@ -40,77 +62,40 @@ describe("RoomScene", () => {
       />,
     );
 
-    await user.click(
-      screen.getByRole("button", {
-        name: localize(portfolioContent.roomObjects.server.label, "en"),
-      }),
-    );
-
+    await user.click(screen.getByRole("button", { name: "interact-server" }));
     expect(onSelect).toHaveBeenCalledWith("server");
   });
 
-  it("exposes the minimum 44px hotspot token", () => {
-    render(
-      <RoomScene
-        locale="fr"
-        lighting="day"
-        activeObject={null}
-        onSelect={() => undefined}
-        onToggleLighting={() => undefined}
-      />,
-    );
+  it.each([
+    ["day", "open", "daylight", "off"],
+    ["night", "closed", "dark", "on"],
+  ] as const)(
+    "derives the complete %s lighting state",
+    (lighting, curtains, windowState, lamps) => {
+      render(
+        <RoomScene
+          locale="fr"
+          lighting={lighting}
+          activeObject={null}
+          onSelect={() => undefined}
+          onToggleLighting={() => undefined}
+        />,
+      );
 
-    expect(screen.getByTestId("room-scene")).toHaveStyle({
-      "--room-hit-target": "44px",
-    });
-  });
+      const scene = screen.getByTestId("room-scene");
+      expect(scene).toHaveAttribute("data-curtains", curtains);
+      expect(scene).toHaveAttribute("data-window", windowState);
+      expect(scene).toHaveAttribute("data-lamps", lamps);
+      expect(screen.getByTestId("room-canvas")).toHaveAttribute(
+        "data-lighting",
+        lighting,
+      );
+    },
+  );
 
-  it("derives every daylight state from day lighting", () => {
-    render(
-      <RoomScene
-        locale="fr"
-        lighting="day"
-        activeObject={null}
-        onSelect={() => undefined}
-        onToggleLighting={() => undefined}
-      />,
-    );
-
-    const scene = screen.getByTestId("room-scene");
-    expect(scene).toHaveAttribute("data-curtains", "open");
-    expect(scene).toHaveAttribute("data-window", "daylight");
-    expect(scene).toHaveAttribute("data-lamps", "off");
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      "/assets/room/room-day.png",
-    );
-  });
-
-  it("derives every dark state from night lighting", () => {
-    render(
-      <RoomScene
-        locale="fr"
-        lighting="night"
-        activeObject={null}
-        onSelect={() => undefined}
-        onToggleLighting={() => undefined}
-      />,
-    );
-
-    const scene = screen.getByTestId("room-scene");
-    expect(scene).toHaveAttribute("data-curtains", "closed");
-    expect(scene).toHaveAttribute("data-window", "dark");
-    expect(scene).toHaveAttribute("data-lamps", "on");
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      "/assets/room/room-night.png",
-    );
-  });
-
-  it("uses the window as the single lighting control", async () => {
+  it("uses the window as the lighting control", async () => {
     const user = userEvent.setup();
     const onToggleLighting = vi.fn();
-
     render(
       <RoomScene
         locale="fr"
@@ -121,12 +106,7 @@ describe("RoomScene", () => {
       />,
     );
 
-    await user.click(
-      screen.getByRole("button", {
-        name: localize(portfolioContent.roomObjects.window.label, "fr"),
-      }),
-    );
-
+    await user.click(screen.getByRole("button", { name: "interact-window" }));
     expect(onToggleLighting).toHaveBeenCalledOnce();
   });
 });
