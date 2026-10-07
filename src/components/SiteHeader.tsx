@@ -9,11 +9,11 @@ interface SiteHeaderProps {
 
 const navigationTargets = {
   home: "#home",
-  about: "#about",
-  projects: "#projects",
-  homelab: "#homelab",
-  experience: "#experience",
-  contact: "#contact",
+  about: "#room/volleyball",
+  projects: "#room/monitor",
+  homelab: "#room/server",
+  experience: "#room/education",
+  contact: "#room/contact",
 } as const;
 
 export function SiteHeader({

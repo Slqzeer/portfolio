@@ -80,7 +80,12 @@ export function ObjectDetails({
             <div className="detail-links">
               {Object.values(portfolioContent.social).map((link) =>
                 link.href ? (
-                  <a key={link.label.fr} href={link.href}>
+                  <a
+                    key={link.label.fr}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {localize(link.label, locale)}
                   </a>
                 ) : (

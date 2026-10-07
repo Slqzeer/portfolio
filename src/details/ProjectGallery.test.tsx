@@ -19,6 +19,7 @@ describe("ProjectGallery", () => {
 
     expect(screen.getByText(/Assistant documentaire/)).toBeInTheDocument();
     expect(screen.getByText("Python · PostgreSQL · React")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "GitHub" })).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: "Homelab" }));
     expect(onCategoryChange).toHaveBeenCalledWith("homelab");
@@ -33,5 +34,29 @@ describe("ProjectGallery", () => {
     );
     expect(screen.getByText(/Homelab observability/)).toBeInTheDocument();
     expect(screen.getByText(/Every alert should/)).toBeInTheDocument();
+  });
+
+  it("renders populated project links with safe external attributes", () => {
+    const project = {
+      ...portfolioContent.projects[0],
+      github: "https://github.com/example/project",
+      demo: "https://example.com/demo",
+    };
+
+    render(
+      <ProjectGallery
+        projects={[project]}
+        locale="en"
+        activeCategory="data-ai"
+        onCategoryChange={() => undefined}
+      />,
+    );
+
+    for (const name of ["GitHub", "Demo"]) {
+      expect(screen.getByRole("link", { name })).toMatchObject({
+        target: "_blank",
+        rel: "noopener noreferrer",
+      });
+    }
   });
 });

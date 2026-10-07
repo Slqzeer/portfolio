@@ -24,6 +24,18 @@ describe("appReducer", () => {
     ).toBe("game-development");
   });
 
+  it.each([
+    ["monitor", "data-ai"],
+    ["controller", "game-development"],
+    ["notebook", "experiments"],
+  ] as const)("opens %s on its project category", (objectId, category) => {
+    const state = { ...initialAppState, projectCategory: "software" as const };
+
+    expect(
+      appReducer(state, { type: "object.selected", objectId }).projectCategory,
+    ).toBe(category);
+  });
+
   it("toggles lighting as one synchronized state", () => {
     const night = appReducer(initialAppState, { type: "lighting.toggled" });
     const day = appReducer(night, { type: "lighting.toggled" });

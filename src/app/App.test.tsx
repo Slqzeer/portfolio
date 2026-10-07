@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -31,6 +31,18 @@ describe("App", () => {
     expect(
       screen.getByRole("button", { name: "Français" }),
     ).toBeInTheDocument();
+  });
+
+  it("uses the room flag to change language", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Changer de langue" }));
+
+    expect(
+      screen.getByRole("navigation", { name: "Main navigation" }),
+    ).toBeInTheDocument();
+    expect(window.location.hash).toBe("#room/flag");
   });
 
   it("minimizes the introduction before room exploration", async () => {
@@ -120,5 +132,23 @@ describe("App", () => {
       window.dispatchEvent(new PopStateEvent("popstate"));
     });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens the same content from conventional navigation", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(
+      within(
+        screen.getByRole("navigation", { name: "Navigation principale" }),
+      ).getByRole("link", { name: "Projets" }),
+    );
+
+    await waitFor(() => expect(window.location.hash).toBe("#room/monitor"));
+    expect(
+      screen.getByRole("dialog", {
+        name: localize(portfolioContent.details.projects.title, "fr"),
+      }),
+    ).toBeInTheDocument();
   });
 });

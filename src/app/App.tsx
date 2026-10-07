@@ -44,15 +44,22 @@ export function App() {
 
   useEffect(() => {
     const validIds = roomObjects.map(({ id }) => id);
-    const syncFromHistory = () =>
+    const syncFromHistory = () => {
+      const objectId = parseRoomHash(window.location.hash, validIds);
       dispatch({
         type: "object.selected",
-        objectId: parseRoomHash(window.location.hash, validIds),
+        objectId,
       });
+      if (objectId) dispatch({ type: "intro.minimized" });
+    };
 
     syncFromHistory();
     window.addEventListener("popstate", syncFromHistory);
-    return () => window.removeEventListener("popstate", syncFromHistory);
+    window.addEventListener("hashchange", syncFromHistory);
+    return () => {
+      window.removeEventListener("popstate", syncFromHistory);
+      window.removeEventListener("hashchange", syncFromHistory);
+    };
   }, []);
 
   const activeDefinition =
@@ -76,6 +83,12 @@ export function App() {
             onSelect={(objectId) => {
               window.history.pushState(null, "", hashForObject(objectId));
               dispatch({ type: "object.selected", objectId });
+              if (objectId === "flag") {
+                dispatch({
+                  type: "locale.changed",
+                  locale: state.locale === "fr" ? "en" : "fr",
+                });
+              }
             }}
             onToggleLighting={() => dispatch({ type: "lighting.toggled" })}
           />

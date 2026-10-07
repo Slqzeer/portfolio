@@ -25,6 +25,13 @@ export const initialAppState: AppState = {
   introExpanded: true,
 };
 
+const objectProjectCategories: Partial<Record<RoomObjectId, ProjectCategory>> =
+  {
+    monitor: "data-ai",
+    controller: "game-development",
+    notebook: "experiments",
+  };
+
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case "locale.changed":
@@ -32,7 +39,13 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case "lighting.toggled":
       return { ...state, lighting: state.lighting === "day" ? "night" : "day" };
     case "object.selected":
-      return { ...state, activeObject: action.objectId };
+      return {
+        ...state,
+        activeObject: action.objectId,
+        projectCategory: action.objectId
+          ? (objectProjectCategories[action.objectId] ?? state.projectCategory)
+          : state.projectCategory,
+      };
     case "category.changed":
       return { ...state, projectCategory: action.category };
     case "intro.minimized":

@@ -43,6 +43,27 @@ export function ProjectGallery({
             <p>{localize(project.learnings, locale)}</p>
             <p>{project.stack.join(" · ")}</p>
             <p>{localize(project.status, locale)}</p>
+            <div className="detail-links">
+              {[
+                { label: "GitHub", href: project.github },
+                { label: "Demo", href: project.demo ?? "" },
+              ].map(({ label, href }) =>
+                href ? (
+                  <a
+                    href={href}
+                    key={label}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {label}
+                  </a>
+                ) : (
+                  <button key={label} type="button" disabled>
+                    {label}
+                  </button>
+                ),
+              )}
+            </div>
           </article>
         ))}
     </div>

@@ -22,8 +22,12 @@ export function IntroCard({ content, locale, onExplore }: IntroCardProps) {
         <button className="primary-action" type="button" onClick={onExplore}>
           {localize(content.actions.explore, locale)}
         </button>
-        <a href="#projects">{localize(content.navigation.projects, locale)}</a>
-        <a href="#contact">{localize(content.navigation.contact, locale)}</a>
+        <a href="#room/monitor">
+          {localize(content.navigation.projects, locale)}
+        </a>
+        <a href="#room/contact">
+          {localize(content.navigation.contact, locale)}
+        </a>
       </div>
       <div className="social-actions">
         {Object.entries(content.social).map(([id, link]) =>
