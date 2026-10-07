@@ -9,7 +9,7 @@ export interface RoomObjectDefinition extends RoomGeometryEntry {
 const objectOrder: RoomObjectId[] = [
   "window",
   "monitor",
-  "notebook",
+  "smartphone",
   "server",
   "education",
   "bookshelf",

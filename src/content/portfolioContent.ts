@@ -200,7 +200,7 @@ export const portfolioContent: PortfolioContent = {
       label: text("Développement de jeux", "Game development"),
       detailId: "game-development",
     },
-    notebook: {
+    smartphone: {
       label: text("Applications personnelles", "Personal applications"),
       detailId: "experiments",
     },

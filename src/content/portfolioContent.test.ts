@@ -26,6 +26,19 @@ describe("portfolioContent", () => {
   });
 
   it("links every room object to an existing detail section", () => {
+    expect(Object.keys(portfolioContent.roomObjects)).toEqual([
+      "monitor",
+      "server",
+      "volleyball",
+      "education",
+      "controller",
+      "smartphone",
+      "bookshelf",
+      "contact",
+      "flag",
+      "window",
+    ]);
+
     Object.values(portfolioContent.roomObjects).forEach(({ detailId }) => {
       expect(portfolioContent.details[detailId]).toBeDefined();
     });

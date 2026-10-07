@@ -29,7 +29,7 @@ const objectProjectCategories: Partial<Record<RoomObjectId, ProjectCategory>> =
   {
     monitor: "data-ai",
     controller: "game-development",
-    notebook: "experiments",
+    smartphone: "experiments",
   };
 
 export function appReducer(state: AppState, action: AppAction): AppState {

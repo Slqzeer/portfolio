@@ -107,7 +107,7 @@ export const roomGeometry: RoomGeometry = {
     layerIndex: 27,
     assets: roomAssets,
   },
-  notebook: {
+  smartphone: {
     sourceElementRef: "figma:mESnsD8GuPIigFtJiQ29Ki:9:6",
     hotspot: normalizeCanvaBounds({
       left: 470,

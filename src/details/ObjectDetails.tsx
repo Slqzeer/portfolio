@@ -25,7 +25,7 @@ export function ObjectDetails({
     switch (objectId) {
       case "monitor":
       case "controller":
-      case "notebook":
+      case "smartphone":
         return (
           <ProjectGallery
             projects={portfolioContent.projects}

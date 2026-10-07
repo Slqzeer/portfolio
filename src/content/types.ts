@@ -8,7 +8,7 @@ export type RoomObjectId =
   | "volleyball"
   | "education"
   | "controller"
-  | "notebook"
+  | "smartphone"
   | "bookshelf"
   | "contact"
   | "flag"

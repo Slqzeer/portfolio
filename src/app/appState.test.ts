@@ -27,7 +27,7 @@ describe("appReducer", () => {
   it.each([
     ["monitor", "data-ai"],
     ["controller", "game-development"],
-    ["notebook", "experiments"],
+    ["smartphone", "experiments"],
   ] as const)("opens %s on its project category", (objectId, category) => {
     const state = { ...initialAppState, projectCategory: "software" as const };
 
