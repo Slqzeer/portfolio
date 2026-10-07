@@ -1,0 +1,36 @@
+.object-details {
+  position: absolute;
+  z-index: 40;
+  right: clamp(1rem, 4vw, 4rem);
+  bottom: clamp(1rem, 4vw, 4rem);
+  width: min(25rem, calc(100% - 2rem));
+  padding: 1.5rem;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 1.5rem;
+  background: rgb(13 23 36 / 92%);
+  color: #fffaf2;
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 36%);
+  backdrop-filter: blur(16px);
+}
+
+.detail-close {
+  float: right;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .object-details {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+}

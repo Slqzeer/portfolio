@@ -7,6 +7,19 @@
   background: #eee4cf;
 }
 
+.focus-view {
+  position: absolute;
+  inset: 0;
+  transform: translate(var(--focus-x), var(--focus-y)) scale(var(--focus-scale));
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .focus-view {
+    transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 .room-scene[data-lighting="night"] {
   background: #050b12;
 }

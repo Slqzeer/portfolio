@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -62,5 +62,63 @@ describe("App", () => {
         '"lighting":"night"',
       ),
     );
+  });
+
+  it("keeps one shareable focused object during rapid selection", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: localize(portfolioContent.roomObjects.server.label, "fr"),
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: localize(portfolioContent.roomObjects.monitor.label, "fr"),
+      }),
+    );
+
+    expect(window.location.hash).toBe("#room/monitor");
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    expect(
+      screen.getByRole("dialog", {
+        name: localize(portfolioContent.details.projects.title, "fr"),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("restores the trigger focus when Escape closes the detail", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const monitor = screen.getByRole("button", {
+      name: localize(portfolioContent.roomObjects.monitor.label, "fr"),
+    });
+
+    await user.click(monitor);
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(monitor).toHaveFocus();
+  });
+
+  it("synchronizes browser history and ignores unknown hashes", () => {
+    render(<App />);
+
+    act(() => {
+      window.history.replaceState(null, "", "#room/server");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+    expect(
+      screen.getByRole("dialog", {
+        name: localize(portfolioContent.details.homelab.title, "fr"),
+      }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      window.history.replaceState(null, "", "#room/unknown");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
