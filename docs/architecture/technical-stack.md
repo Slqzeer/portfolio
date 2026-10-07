@@ -35,7 +35,7 @@ Personal information, links, projects, skills, translations, and availability mu
 1. **Canva** — shared moodboard, composition board, palette, object inventory, and review notes.
 2. **Higgsfield** — concept exploration and controlled visual variations, not final unsliced interface artwork.
 3. **Figma, deferred** — introduce it only if Canva can no longer express precise interactive layers, responsive variants, or reusable component states.
-4. **Blender, excluded for the current scope** — reconsider it only if a validated requirement needs true 3D geometry or camera movement.
+4. **Blender, excluded for the current scope** — the current zoom and pan simulate camera movement in 2.5D; reconsider it only for changing view angles, free parallax, occlusion, or dynamic 3D lighting.
 5. Export final visual elements as optimized SVG where practical, otherwise transparent WebP/AVIF layers with PNG fallbacks only when required.
 
 Generated concept images are references. Final interactive objects must be separated into stable layers with predictable bounds and states.
@@ -60,7 +60,7 @@ Direct deployment remains a recovery/manual option through the Vercel integratio
 | Next.js | No server rendering, backend, or dynamic content requirement. | A blog, CMS preview, server routes, or per-page dynamic metadata becomes necessary. |
 | Tailwind CSS | The interface is a bespoke spatial composition rather than a repeated utility-driven application UI. | The project grows into many conventional screens with repeated layout patterns. |
 | Anime.js or Motion | Native CSS and Web Animations cover the planned transitions. | Coordinated timelines, complex sequencing, or gesture physics become hard to maintain natively. |
-| Three.js / React Three Fiber | A WebGL scene would increase asset, performance, accessibility, and mobile complexity. | Real camera movement, dynamic 3D lighting, or free object rotation becomes a validated product requirement. |
+| Three.js / React Three Fiber | A WebGL scene would increase asset, performance, accessibility, and mobile complexity. | Changing view angles, free parallax, dynamic 3D lighting, or free object rotation becomes a validated product requirement. |
 | Global state library | The state graph is small and local. | Cross-page state becomes complex enough that React state produces measurable coordination problems. |
 | react-i18next | Only two static languages are planned. | Pluralization, locale-aware message formatting, remote translations, or more languages are introduced. |
 | CMS / database | Content changes are developer-managed and deploy with the site. | A non-technical editor needs independent publishing. |
