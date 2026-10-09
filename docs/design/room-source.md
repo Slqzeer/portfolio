@@ -63,6 +63,7 @@ Export as GLB with transforms applied and cameras, lights, and animations enable
 
 - Penpot-aligned Blender desk zone: accepted from `CAM_Overview` after review on 2026-10-09; the 5.10 × 1.80 × 0.12 m desk sits 0.24 m from the wall, the recessed window is shifted right, the chair faces the desk, the laptop is left and coplanar with the monitor, the smartphone is right of the mouse, both displays use dark technical UI, the mug and under-desk tower are absent, and both plants match the approved placement with desk clearance
 - Desk interaction contract: `INT_Desk` contains 26 desk-surface children; `INT_Monitor`, `INT_Smartphone`, and `INT_ContactCard` remain independent roots; surface, grounding, window, curtain-animation, and clearance assertions passed
+- Blender Outliner: `StaticDecor` has no loose objects; its 83 objects are nested under `Desk`, `Chair`, `Living_Area`, `Floor_Plant`, and `Rug`, with smaller parts grouped beneath their owning assembly
 - First useful render: 2317 ms in headless Chromium
 - Draw calls: 144 desktop, 21 at 390 × 844
 - Observed FPS: 41 mobile; 7 desktop under the headless software renderer
