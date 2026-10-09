@@ -4,14 +4,16 @@ Status: **implemented in Blender and exported as the runtime GLB**
 
 ## Visual reference
 
-Canva remains the approved visual direction for the room.
+Penpot is the approved source of truth for room composition and interaction annotations.
 
-- Design ID: `DAHXRbROrBI`
-- Shared view: <https://canva.link/gqx5yi3auudqj5a>
-- Edit link: <https://www.canva.com/d/Hy2EbjsPEIPOa6D>
-- Pages: vision, isometric composition, day/night rule, object inventory, responsive/accessibility principles
+- Instance: <https://penpot.taildf6cd4.ts.net>
+- File ID: `222559c6-1a87-800d-8008-c3780ad3f78d`
+- Page: `Portfolio — Pièce canonique` (`222559c6-1a87-800d-8008-c3780ad3f78e`)
+- Board: `Pièce interactive — Disposition canonique — 1920×1080` (`6b785803-9d96-8041-8008-c378d404b6ec`)
+- Structure: 19 semantic groups and 177 editable native shapes
+- Review: independent structure and PNG review passed with no findings on 2026-10-09
 
-The Figma file [Portfolio — Chambre interactive — Production](https://www.figma.com/design/mESnsD8GuPIigFtJiQ29Ki) is retained only as an HTML/layout reference. It is not the source of the room geometry.
+The former Canva export remains in `assets/references/canva-room.png` only as migration history. Figma is no longer part of the production source chain.
 
 ## Production assets
 
@@ -49,7 +51,7 @@ Export as GLB with transforms applied and cameras, lights, and animations enable
 
 ## Validation snapshot
 
-- Canva-aligned Blender render: visually inspected after optimization
+- Penpot-aligned Blender render: pending after the next Blender correction increment
 - First useful render: 2317 ms in headless Chromium
 - Draw calls: 144 desktop, 21 at 390 × 844
 - Observed FPS: 41 mobile; 7 desktop under the headless software renderer

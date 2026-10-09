@@ -2,19 +2,18 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Align Canva, Figma, Blender, the exported GLB, and the website with the approved room composition and nested desk interaction, delivered through small independently reviewed branches.
+**Goal:** Align Penpot, Blender, the exported GLB, and the website with the approved room composition and nested desk interaction, delivered through small independently reviewed branches.
 
-**Architecture:** Work strictly downstream from the approved Canva source: synchronize Figma, correct the editable Blender master by room zone, validate and export one GLB, then adapt the existing manifest-driven React flow. Keep one active room-object ID as the current leaf; declare `desk` as the parent of `monitor` and `smartphone` in the scene manifest so closing and deep-link behavior are derived without a router or a new state library.
+**Architecture:** Work strictly downstream from the approved Penpot source: correct the editable Blender master by room zone, validate and export one GLB, then adapt the existing manifest-driven React flow. Keep one active room-object ID as the current leaf; declare `desk` as the parent of `monitor` and `smartphone` in the scene manifest so closing and deep-link behavior are derived without a router or a new state library.
 
-**Tech Stack:** Canva, Figma, Blender 5.1+, GLB/glTF 2.0, React 19, TypeScript, React Three Fiber, Three.js, Vitest, Playwright.
+**Tech Stack:** Penpot, Blender 5.1+, GLB/glTF 2.0, React 19, TypeScript, React Three Fiber, Three.js, Vitest, Playwright.
 
 **Spec:** `docs/superpowers/specs/2026-10-07-room-alignment-design.md`
 
 ## Global Constraints
 
-- Source order is `Canva → Figma → Blender → GLB → website`; downstream stages never redefine upstream placement.
-- Canva design `DAHXRbROrBI`, composition page `PBJZjL4025zP7qR5`, day/night page `PB0t5GKtxrdXyD6x`, and inventory page `PBxZGj9ln7xdLGlT` are the external source records.
-- Figma file `mESnsD8GuPIigFtJiQ29Ki`, page `0:1`, mirrors Canva; if MCP quota is exhausted, stop that task for user action instead of approximating.
+- Source order is `Penpot → Blender → GLB → website`; downstream stages never redefine upstream placement.
+- Penpot file `222559c6-1a87-800d-8008-c3780ad3f78d`, page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c378d404b6ec` is the external source record.
 - Keep one GLB, the existing React state approach, and the existing dependencies. Add no router, state library, animation library, or paid generated asset.
 - Keep every current `INT_*`, `CTL_*`, `CAM_Anchor_*`, `LIGHT_*`, `EMIT_*`, and idle node stable; add `INT_Desk`, `CAM_Anchor_Desk`, `Flag_FR`, and `Flag_EN`.
 - The day/night transition lasts exactly `0.9` seconds, within the approved 0.8–1.0 second range.
@@ -35,8 +34,8 @@
 
 ## File Map
 
-- `assets/references/canva-room.png`: exported canonical Canva composition.
-- `assets/references/figma-room.png`: Figma synchronization proof at the same 1920 × 1080 frame.
+- `assets/references/canva-room.png`: legacy migration reference retained for history.
+- `assets/references/penpot-room.png`: canonical Penpot export at 1920 × 1080.
 - `assets/blender/portfolio-room.blend`: editable Blender master changed zone by zone.
 - `assets/blender/portfolio-room-optimized.blend`: optimized derivative produced only after the master is approved.
 - `public/assets/room/portfolio-room.glb`: runtime scene.
@@ -51,85 +50,54 @@
 - `scripts/glb-contract.mjs`, `scripts/validate-room-glb.mjs`: exported-node contract.
 - `src/**/*.test.ts?(x)`, `scripts/glb-contract.test.ts`, `tests/e2e/portfolio.spec.ts`: focused unit, component, asset, and browser checks.
 
-### Task 1: Update the canonical Canva composition
+### Task 1: Migrate the canonical composition to Penpot
 
-**Branch:** `room/01-canva-composition`
-
-**Files:**
-
-- Modify: `assets/references/canva-room.png`
-- Modify: `docs/design/room-source.md`
-- External: Canva design `DAHXRbROrBI`, pages 2–4
-
-**Interfaces:**
-
-- Consumes: approved composition in the spec.
-- Produces: one approved 1920 × 1080 Canva reference used by every later task.
-
-- [ ] **Step 1: Create the isolated branch from updated `main`**
-
-Run: `git switch main && git pull --ff-only && git switch -c room/01-canva-composition`  
-Expected: clean branch based on commit `3067a26` or its merged descendant.
-
-- [ ] **Step 2: Update Canva composition page 2**
-
-Keep the server in the rear corner and the bookshelf on the right. Add the contact card above the smaller left-of-desk plant; keep laptop left and screen central; place the smartphone right of the screen; remove the under-desk tower; place volleyball left of the coffee table; place controller left and plant right on the coffee table; remove other table objects; replace the wall cabinet/books above the bookshelf with the current-language flag.
-
-- [ ] **Step 3: Synchronize Canva day/night and inventory pages**
-
-Apply the same object arrangement to page 3 day/night states and page 4 inventory. Preserve the current desk, chair, sofa, cushions, server corner, bookshelf location, palette, and room proportions.
-
-- [ ] **Step 4: Export and visually verify the canonical reference**
-
-Export composition page 2 at 1920 × 1080 to `assets/references/canva-room.png`. Check every placement against the spec and obtain visual approval before continuing.
-
-- [ ] **Step 5: Record the Canva receipt**
-
-Update `docs/design/room-source.md` with design ID, page IDs, edit/view links, export dimensions, retrieval date, and the approved object-placement list.
-
-- [ ] **Step 6: Commit, push, and stop for review**
-
-Run: `git add assets/references/canva-room.png docs/design/room-source.md && git commit -m "design: align canonical Canva room" && git push -u origin room/01-canva-composition`  
-Expected: one visual-source commit; do not begin Task 2 until this branch is reviewed and merged.
-
-### Task 2: Synchronize the Figma production page
-
-**Branch:** `room/02-figma-sync`
+**Branch:** `room/01-penpot-migration`
 
 **Files:**
 
-- Create: `assets/references/figma-room.png`
+- Create: `assets/references/penpot-room.png`
 - Modify: `docs/design/room-source.md`
-- External: Figma file `mESnsD8GuPIigFtJiQ29Ki`, page `0:1`
+- External: Penpot page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c378d404b6ec`
 
 **Interfaces:**
 
-- Consumes: Task 1 `canva-room.png`.
-- Produces: a Figma room frame matching Canva and preserving the existing HTML-panel/typography role.
+- Consumes: approved composition in the spec and the legacy Canva export.
+- Produces: one editable 1920 × 1080 Penpot reference used by every later task.
 
-- [ ] **Step 1: Create the branch after Task 1 is merged**
+- [x] **Step 1: Create one canonical Penpot board**
 
-Run: `git switch main && git pull --ff-only && git switch -c room/02-figma-sync`
+Use native editable shapes and semantic group names. Keep the room scene and interaction legend on a single 1920 × 1080 board.
 
-- [ ] **Step 2: Confirm Figma access before mutation**
+- [x] **Step 2: Apply the approved composition**
 
-Load `figma:figma-use`, inspect page `0:1`, and confirm the edit quota. If the Starter-plan limit remains active, stop and ask for quota renewal or a manual user edit; do not create a substitute file.
+Keep the server in the rear corner and the bookshelf on the right. Add the contact card above the smaller left-of-desk plant; keep laptop left and screen central; place the smartphone right of the screen; remove the under-desk tower; place volleyball left of the coffee table; place controller left and plant right on the coffee table; remove other table objects; place the current-language flag above the bookshelf.
 
-- [ ] **Step 3: Mirror the approved Canva frame**
+- [x] **Step 3: Add the interaction contract**
 
-Reproduce the Task 1 composition at 1920 × 1080. Keep HTML panel and typography components separate from the room-art frame. Use France/United Kingdom variants for the current-language flag.
+Document desk focus, monitor Data/IA projects, smartphone experiments, controller game projects, locale-driven flag behavior, and the synchronized 0.9-second curtain/light transition.
 
-- [ ] **Step 4: Compare and export**
+### Task 2: Review and record the Penpot source
 
-Export the room frame to `assets/references/figma-room.png`. Overlay it at 50% opacity with `canva-room.png`; object silhouettes and placements must coincide, allowing only Figma annotations outside the production frame.
+**Branch:** `room/02-penpot-review`
 
-- [ ] **Step 5: Record the Figma receipt and verify review**
+**Files:**
 
-Add file key, page/node IDs, export dimensions, comparison date, and approval result to `room-source.md`.
+- Create: `assets/references/penpot-room.png`
+- Modify: `docs/design/room-source.md`
 
-- [ ] **Step 6: Commit, push, and stop for review**
+**Interfaces:**
 
-Run: `git add assets/references/figma-room.png docs/design/room-source.md && git commit -m "design: synchronize Figma room" && git push -u origin room/02-figma-sync`
+- Consumes: Task 1 Penpot board.
+- Produces: a reviewed source receipt and exported reference for Blender comparisons.
+
+- [x] **Step 1: Review structure and visual output independently**
+
+Inspect semantic groups, export the board, and verify all approved placements, labels, and board bounds. The migration review passed with no blocking, important, or minor findings.
+
+- [ ] **Step 2: Save the export and receipt on the dedicated branch**
+
+Export the reviewed board to `assets/references/penpot-room.png`, record its identifiers and review result in `room-source.md`, then commit only those two files before Blender work begins.
 
 ### Task 3: Correct the Blender desk zone
 
@@ -142,7 +110,7 @@ Run: `git add assets/references/figma-room.png docs/design/room-source.md && git
 
 **Interfaces:**
 
-- Consumes: approved Canva/Figma frames.
+- Consumes: approved Penpot board and export.
 - Produces: `INT_Desk`, corrected desk furniture, and the desk-area interactive children required by later code.
 
 - [ ] **Step 1: Create the branch and inspect the live master**
@@ -151,7 +119,7 @@ Run: `git switch main && git pull --ff-only && git switch -c room/03-blender-des
 
 - [ ] **Step 2: Correct only the desk-zone geometry**
 
-Flatten and enlarge the desk to the Canva dimensions; face the chair toward it; keep the laptop left; correct the central screen; place smartphone right of the screen; remove the under-desk tower; shrink the left floor plant; place the contact card above that plant.
+Flatten and enlarge the desk to the Penpot dimensions; face the chair toward it; keep the laptop left; correct the central screen; place smartphone right of the screen; remove the under-desk tower; shrink the left floor plant; place the contact card above that plant.
 
 - [ ] **Step 3: Establish stable desk roots**
 
@@ -159,7 +127,7 @@ Create `INT_Desk` around the desk interaction surface without renaming `INT_Moni
 
 - [ ] **Step 4: Validate the zone visually and structurally**
 
-Render through `CAM_Overview`, compare the desk zone with Canva/Figma, and query the four `INT_*` roots for bounds, children, and transforms. No modified object may intersect the desk surface or floor unintentionally.
+Render through `CAM_Overview`, compare the desk zone with Penpot, and query the four `INT_*` roots for bounds, children, and transforms. No modified object may intersect the desk surface or floor unintentionally.
 
 - [ ] **Step 5: Save, document, commit, push, and stop**
 
@@ -185,7 +153,7 @@ Run: `git switch main && git pull --ff-only && git switch -c room/04-blender-rea
 
 - [ ] **Step 2: Align the rear corner and bookshelf**
 
-Move and reshape `INT_Homelab` to the rear corner. Preserve the bookshelf on the right, fill it, and align its silhouette to Canva.
+Move and reshape `INT_Homelab` to the rear corner. Preserve the bookshelf on the right, fill it, and align its silhouette to Penpot.
 
 - [ ] **Step 3: Replace the wall shelf with language variants**
 
@@ -193,7 +161,7 @@ Remove the small wall cabinet/shelf and books above the bookshelf. Under `CTL_Fl
 
 - [ ] **Step 4: Correct diploma and lamp**
 
-Rebuild the `INT_Diploma` visual as blue-and-white EPITA artwork and place it from Canva. Move the purple lamp and `LIGHT_Lamp` to the approved position without changing the stable light name.
+Rebuild the `INT_Diploma` visual as blue-and-white EPITA artwork and place it from Penpot. Move the purple lamp and `LIGHT_Lamp` to the approved position without changing the stable light name.
 
 - [ ] **Step 5: Validate, save, document, commit, and push**
 
@@ -219,7 +187,7 @@ Run: `git switch main && git pull --ff-only && git switch -c room/05-blender-liv
 
 - [ ] **Step 2: Match the sofa and cushions**
 
-Align the sofa to Canva. Resize and reposition every cushion so its world bounds remain inside the sofa bounds.
+Align the sofa to Penpot. Resize and reposition every cushion so its world bounds remain inside the sofa bounds.
 
 - [ ] **Step 3: Match the coffee table contents**
 
@@ -253,7 +221,7 @@ Run: `git switch main && git pull --ff-only && git switch -c room/06-blender-cam
 
 - [ ] **Step 2: Raise and align `CAM_Overview`**
 
-Match the Canva overview while keeping every approved object inside the desktop frame and leaving no unnecessary empty border.
+Match the Penpot overview while keeping every approved object inside the desktop frame and leaving no unnecessary empty border.
 
 - [ ] **Step 3: Add and frame the desk anchor**
 
@@ -540,7 +508,7 @@ Expected: every command exits 0.
 
 - [ ] **Step 4: Perform the visual acceptance pass**
 
-Capture desktop day, desktop night, 390 × 844 overview, desk, and every focus anchor. Overlay the desktop overview with `canva-room.png`; verify no approved object is cropped and no focus view shows mostly empty space.
+Capture desktop day, desktop night, 390 × 844 overview, desk, and every focus anchor. Overlay the desktop overview with `penpot-room.png`; verify no approved object is cropped and no focus view shows mostly empty space.
 
 - [ ] **Step 5: Record performance and handoff**
 

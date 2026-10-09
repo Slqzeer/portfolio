@@ -6,16 +6,15 @@ Supersedes: conflicting room-layout, object-interaction, camera, lighting, and d
 
 ## Goal
 
-Bring Canva, Figma, Blender, and the website back into one coherent room design without shipping the work as one large branch. The approved Canva composition is the visual source of truth. Figma mirrors it, Blender realizes it in 3D, and the website consumes the exported scene without redefining object placement.
+Bring Penpot, Blender, and the website back into one coherent room design without shipping the work as one large branch. The approved Penpot composition is the visual source of truth. Blender realizes it in 3D, and the website consumes the exported scene without redefining object placement.
 
 ## Source-of-truth chain
 
 The synchronization order is one-way:
 
-`approved Canva → synchronized Figma → aligned Blender → validated GLB → website`
+`approved Penpot → aligned Blender → validated GLB → website`
 
-- Canva owns composition, proportions, silhouettes, palette, and object placement.
-- Figma mirrors the approved room and owns HTML-panel and typography designs. It does not override room geometry.
+- Penpot owns composition, proportions, silhouettes, palette, object placement, and interaction annotations.
 - Blender owns geometry, materials, lighting, camera anchors, and physical animation clips.
 - The GLB preserves stable named nodes and anchors.
 - TypeScript owns interaction state, bilingual content, URL state, accessibility, and runtime animation control.
@@ -24,7 +23,7 @@ A downstream stage cannot redefine an upstream visual decision. Each stage recei
 
 ## Canonical room composition
 
-The current Canva page remains the base composition. Its existing desk, chair, sofa, cushions, server corner, bookshelf position, room proportions, and camera-facing layout are already correct.
+The Penpot board `6b785803-9d96-8041-8008-c378d404b6ec` on page `222559c6-1a87-800d-8008-c3780ad3f78e` is the base composition. Its desk, chair, sofa, cushions, server corner, bookshelf position, room proportions, and camera-facing layout are the approved reference.
 
 The approved additions and replacements are:
 
@@ -42,19 +41,19 @@ The approved additions and replacements are:
 - The coffee-table plant sits on the right side.
 - All other coffee-table objects are removed.
 
-The Blender scene, not Canva, currently needs these corrections:
+The Blender scene, not Penpot, currently needs these corrections:
 
-- enlarge and flatten the desk to match Canva, removing the extra slope;
+- enlarge and flatten the desk to match Penpot, removing the extra slope;
 - rotate the chair so it faces the desk;
-- match the Canva floor plant at the left of the desk;
-- match the Canva screen silhouette and proportions;
+- match the Penpot floor plant at the left of the desk;
+- match the Penpot screen silhouette and proportions;
 - move and redesign the server rack to match the rear-corner reference;
-- recreate the diploma as a recognizable blue-and-white EPITA diploma and place it as shown in Canva;
-- fill, position, and reshape the bookshelf to match Canva;
-- place the purple lamp and its light origin as shown in Canva;
-- reposition and reshape the sofa to match Canva;
+- recreate the diploma as a recognizable blue-and-white EPITA diploma and place it as shown in Penpot;
+- fill, position, and reshape the bookshelf to match Penpot;
+- place the purple lamp and its light origin as shown in Penpot;
+- reposition and reshape the sofa to match Penpot;
 - resize and reposition the cushions so they remain fully inside the sofa;
-- match the coffee table and its plant to Canva;
+- match the coffee table and its plant to Penpot;
 - move the controller from its current location to the left side of the coffee table;
 - add or expose the approved contact card and volleyball placement.
 
@@ -99,7 +98,7 @@ Keyboard users receive the same destinations and hierarchy as pointer users. The
 
 ## Camera behavior
 
-The overview camera moves higher and is reframed so no approved Canva element is cropped at the reference desktop viewport. Mobile uses its own verified framing rather than scaling the desktop pose blindly.
+The overview camera moves higher and is reframed so no approved Penpot element is cropped at the reference desktop viewport. Mobile uses its own verified framing rather than scaling the desktop pose blindly.
 
 Every focus anchor is adjusted in Blender and visually validated. A valid focus view must:
 
@@ -140,8 +139,8 @@ Idle animation pauses while the document is hidden. Reduced motion freezes non-e
 This work must not be implemented or pushed as one large branch. It is delivered as the following ordered, independently reviewable increments:
 
 1. specification and source-of-truth contract;
-2. Canva composition update;
-3. Figma synchronization;
+2. Penpot canonical composition migration;
+3. Penpot independent visual review;
 4. Blender desk zone: desk, chair, screen, laptop, smartphone, left plant, and contact card;
 5. Blender rear and right zones: server, bookshelf, flag, diploma, and lamp;
 6. Blender living zone: sofa, cushions, coffee table, controller, table plant, and volleyball;
@@ -152,11 +151,11 @@ This work must not be implemented or pushed as one large branch. It is delivered
 11. website camera, lighting, and ambient runtime animation;
 12. responsive, accessibility, fallback, and performance validation.
 
-Each increment has its own branch, focused verification, visual evidence where applicable, and commit. An increment is reviewed before work begins on the next one. External Canva or Figma edits are recorded in the matching repository increment with links, page or node identifiers, and before/after captures.
+Each increment has its own branch, focused verification, visual evidence where applicable, and commit. An increment is reviewed before work begins on the next one. External Penpot edits are recorded in the matching repository increment with file, page, and board identifiers plus an exported review image.
 
 ## Validation
 
-Visual stages use the approved Canva export behind the locked Blender camera. Each affected zone receives a before/after capture, and the final overview receives an opacity overlay against Canva.
+Visual stages use the approved Penpot export behind the locked Blender camera. Each affected zone receives a before/after capture, and the final overview receives an opacity overlay against Penpot.
 
 The GLB validator rejects missing or renamed contract nodes and anchors. Website tests cover:
 
@@ -172,10 +171,8 @@ The GLB validator rejects missing or renamed contract nodes and anchors. Website
 - mobile framing and bottom-sheet presentation;
 - GLB failure with usable poster and HTML controls.
 
-Final acceptance requires the room to match Canva at the overview, every focused object to remain visible, all required animations to run, and the existing format, unit, build, asset, and browser checks to pass.
+Final acceptance requires the room to match Penpot at the overview, every focused object to remain visible, all required animations to run, and the existing format, unit, build, asset, and browser checks to pass.
 
 ## External tooling and limits
 
-The connected Canva and Blender tools are sufficient for inspecting and updating the approved sources. Paid 3D generation is not required for the initial correction pass; existing geometry should be edited or rebuilt with Blender primitives where practical.
-
-Figma synchronization requires either renewed Figma MCP quota or a manual user edit based on the approved Canva page. If access remains rate-limited at that increment, work stops before Figma mutation rather than approximating or silently skipping synchronization.
+The connected Penpot and Blender tools are sufficient for inspecting and updating the approved sources. Paid 3D generation is not required for the initial correction pass; existing geometry should be edited or rebuilt with Blender primitives where practical. The Penpot MCP plugin window must remain open while external design changes are made.
