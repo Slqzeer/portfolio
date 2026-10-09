@@ -35,6 +35,9 @@
 ## File Map
 
 - `assets/references/canva-room.png`: legacy migration reference retained for history.
+- `assets/references/canva-room-updated.png`: corrected canonical room composition derived from the Canva visual direction.
+- `assets/references/canva-day-night-current.png`: Canva day/night source receipt.
+- `assets/references/canva-interactive-inventory-current.png`: Canva interactive-object inventory receipt.
 - `assets/references/penpot-room.png`: canonical Penpot export at 1920 × 1080.
 - `assets/blender/portfolio-room.blend`: editable Blender master changed zone by zone.
 - `assets/blender/portfolio-room-optimized.blend`: optimized derivative produced only after the master is approved.
