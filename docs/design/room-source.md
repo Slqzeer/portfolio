@@ -13,6 +13,7 @@ Penpot is the approved source of truth for room composition and interaction anno
 - Structure: Canva HD room asset, 95 editable native elements, and 6 semantic hotspots
 - Source capture: `assets/references/canva-room-current.png`; HD room asset: `assets/references/canva-room.png`
 - Updated composition asset: `assets/references/canva-room-updated.png`
+- Reviewed Penpot board export: `assets/references/penpot-room.png` (1920×1080; SHA-256 `de0c56a2d603cf6845d85faf0dd315aa55ffdb11c28eeba6d8eb32fcb02c7ec3`)
 - Dark composition asset: `assets/references/canva-room-updated-night.png`
 - Dark composition board: `Canva — migration fidèle — mode sombre — 1920×1080` (`0e1dca44-00fb-8039-8008-c389fc1a4327`)
 - Day/night board: `Canva — États jour / nuit — 1920×1080` (`0e1dca44-00fb-8039-8008-c386a24a79ef`), sourced from Canva page `PB0t5GKtxrdXyD6x`
