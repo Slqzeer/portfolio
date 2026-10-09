@@ -9,9 +9,11 @@ Penpot is the approved source of truth for room composition and interaction anno
 - Instance: <https://penpot.taildf6cd4.ts.net>
 - File ID: `222559c6-1a87-800d-8008-c3780ad3f78d`
 - Page: `Portfolio — Pièce canonique` (`222559c6-1a87-800d-8008-c3780ad3f78e`)
-- Board: `Pièce interactive — Disposition canonique — 1920×1080` (`6b785803-9d96-8041-8008-c378d404b6ec`)
-- Structure: 19 semantic groups and 177 editable native shapes
-- Review: independent structure and PNG review passed with no findings on 2026-10-09
+- Board: `Canva — migration fidèle — 1920×1080` (`6b785803-9d96-8041-8008-c380eb623863`)
+- Structure: Canva HD room asset, 95 editable native elements, and 6 semantic hotspots
+- Source capture: `assets/references/canva-room-current.png`; HD room asset: `assets/references/canva-room.png`
+- Review: structure and 1920×1080 PNG export verified on 2026-10-09
+- Archive: the earlier schematic board is retained with the `ARCHIVE —` prefix
 
 The former Canva export remains in `assets/references/canva-room.png` only as migration history. Figma is no longer part of the production source chain.
 

@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Source order is `Penpot → Blender → GLB → website`; downstream stages never redefine upstream placement.
-- Penpot file `222559c6-1a87-800d-8008-c3780ad3f78d`, page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c378d404b6ec` is the external source record.
+- Penpot file `222559c6-1a87-800d-8008-c3780ad3f78d`, page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c380eb623863` is the external source record.
 - Keep one GLB, the existing React state approach, and the existing dependencies. Add no router, state library, animation library, or paid generated asset.
 - Keep every current `INT_*`, `CTL_*`, `CAM_Anchor_*`, `LIGHT_*`, `EMIT_*`, and idle node stable; add `INT_Desk`, `CAM_Anchor_Desk`, `Flag_FR`, and `Flag_EN`.
 - The day/night transition lasts exactly `0.9` seconds, within the approved 0.8–1.0 second range.
@@ -58,7 +58,7 @@
 
 - Create: `assets/references/penpot-room.png`
 - Modify: `docs/design/room-source.md`
-- External: Penpot page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c378d404b6ec`
+- External: Penpot page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c380eb623863`
 
 **Interfaces:**
 

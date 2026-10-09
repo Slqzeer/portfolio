@@ -23,7 +23,7 @@ A downstream stage cannot redefine an upstream visual decision. Each stage recei
 
 ## Canonical room composition
 
-The Penpot board `6b785803-9d96-8041-8008-c378d404b6ec` on page `222559c6-1a87-800d-8008-c3780ad3f78e` is the base composition. Its desk, chair, sofa, cushions, server corner, bookshelf position, room proportions, and camera-facing layout are the approved reference.
+The Penpot board `6b785803-9d96-8041-8008-c380eb623863` on page `222559c6-1a87-800d-8008-c3780ad3f78e` is the base composition. It reproduces the Canva page direction with the original HD room asset, dark palette, callouts, typography, and connectors. Its room proportions and camera-facing layout are the approved reference.
 
 The approved additions and replacements are:
 
