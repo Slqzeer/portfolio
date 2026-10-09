@@ -13,10 +13,13 @@ Penpot is the approved source of truth for room composition and interaction anno
 - Structure: Canva HD room asset, 95 editable native elements, and 6 semantic hotspots
 - Source capture: `assets/references/canva-room-current.png`; HD room asset: `assets/references/canva-room.png`
 - Updated composition asset: `assets/references/canva-room-updated.png`
+- Dark composition asset: `assets/references/canva-room-updated-night.png`
+- Dark composition board: `Canva — migration fidèle — mode sombre — 1920×1080` (`0e1dca44-00fb-8039-8008-c389fc1a4327`)
 - Day/night board: `Canva — États jour / nuit — 1920×1080` (`0e1dca44-00fb-8039-8008-c386a24a79ef`), sourced from Canva page `PB0t5GKtxrdXyD6x`
 - Interactive inventory board: `Canva — Inventaire interactif — 1920×1080` (`0e1dca44-00fb-8039-8008-c386a35ab053`), sourced from Canva page `PBxZGj9ln7xdLGlT`
 - Source captures: `assets/references/canva-day-night-current.png` and `assets/references/canva-interactive-inventory-current.png`
 - Review: structure and 1920×1080 PNG export verified on 2026-10-09
+- Dark-state contract: curtains closed, natural light off, purple lamp on, transition metadata set to 900 ms
 - Archive: the earlier schematic board is retained with the `ARCHIVE —` prefix
 
 The original Canva exports remain as migration sources and visual receipts. Figma is no longer part of the production source chain.
