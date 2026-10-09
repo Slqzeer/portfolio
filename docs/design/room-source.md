@@ -61,7 +61,8 @@ Export as GLB with transforms applied and cameras, lights, and animations enable
 
 ## Validation snapshot
 
-- Penpot-aligned Blender render: pending after the next Blender correction increment
+- Penpot-aligned Blender desk zone: accepted from `CAM_Overview` on 2026-10-09; 5.10 × 1.80 × 0.12 m desktop, chair facing the desk, laptop left, monitor central, smartphone right, contact card above the reduced floor plant, and no under-desk tower
+- Desk interaction contract: `INT_Desk` contains 19 desk-surface children; `INT_Monitor`, `INT_Smartphone`, and `INT_ContactCard` remain independent roots; surface, grounding, and clearance assertions passed
 - First useful render: 2317 ms in headless Chromium
 - Draw calls: 144 desktop, 21 at 390 × 844
 - Observed FPS: 41 mobile; 7 desktop under the headless software renderer
