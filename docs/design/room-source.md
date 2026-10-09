@@ -4,14 +4,25 @@ Status: **implemented in Blender and exported as the runtime GLB**
 
 ## Visual reference
 
-Canva remains the approved visual direction for the room.
+Penpot is the approved source of truth for room composition and interaction annotations.
 
-- Design ID: `DAHXRbROrBI`
-- Shared view: <https://canva.link/gqx5yi3auudqj5a>
-- Edit link: <https://www.canva.com/d/Hy2EbjsPEIPOa6D>
-- Pages: vision, isometric composition, day/night rule, object inventory, responsive/accessibility principles
+- Instance: <https://penpot.taildf6cd4.ts.net>
+- File ID: `222559c6-1a87-800d-8008-c3780ad3f78d`
+- Page: `Portfolio — Pièce canonique` (`222559c6-1a87-800d-8008-c3780ad3f78e`)
+- Board: `Canva — migration fidèle — 1920×1080` (`6b785803-9d96-8041-8008-c380eb623863`)
+- Structure: Canva HD room asset, 95 editable native elements, and 6 semantic hotspots
+- Source capture: `assets/references/canva-room-current.png`; HD room asset: `assets/references/canva-room.png`
+- Updated composition asset: `assets/references/canva-room-updated.png`
+- Dark composition asset: `assets/references/canva-room-updated-night.png`
+- Dark composition board: `Canva — migration fidèle — mode sombre — 1920×1080` (`0e1dca44-00fb-8039-8008-c389fc1a4327`)
+- Day/night board: `Canva — États jour / nuit — 1920×1080` (`0e1dca44-00fb-8039-8008-c386a24a79ef`), sourced from Canva page `PB0t5GKtxrdXyD6x`
+- Interactive inventory board: `Canva — Inventaire interactif — 1920×1080` (`0e1dca44-00fb-8039-8008-c386a35ab053`), sourced from Canva page `PBxZGj9ln7xdLGlT`
+- Source captures: `assets/references/canva-day-night-current.png` and `assets/references/canva-interactive-inventory-current.png`
+- Review: structure and 1920×1080 PNG export verified on 2026-10-09
+- Dark-state contract: curtains closed, natural light off, purple lamp on, transition metadata set to 900 ms
+- Archive: the earlier schematic board is retained with the `ARCHIVE —` prefix
 
-The Figma file [Portfolio — Chambre interactive — Production](https://www.figma.com/design/mESnsD8GuPIigFtJiQ29Ki) is retained only as an HTML/layout reference. It is not the source of the room geometry.
+The original Canva exports remain as migration sources and visual receipts. Figma is no longer part of the production source chain.
 
 ## Production assets
 
@@ -49,7 +60,7 @@ Export as GLB with transforms applied and cameras, lights, and animations enable
 
 ## Validation snapshot
 
-- Canva-aligned Blender render: visually inspected after optimization
+- Penpot-aligned Blender render: pending after the next Blender correction increment
 - First useful render: 2317 ms in headless Chromium
 - Draw calls: 144 desktop, 21 at 390 × 844
 - Observed FPS: 41 mobile; 7 desktop under the headless software renderer
