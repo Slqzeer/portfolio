@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Align Penpot, Blender, the exported GLB, and the website with the approved room composition and nested desk interaction, delivered through small independently reviewed branches.
+**Goal:** Rebuild each room asset from its dedicated image reference, place it against the approved Penpot composition only after asset approval, then align Blender, the exported GLB, and the website through independently reviewed increments.
 
-**Architecture:** Work strictly downstream from the approved Penpot source: correct the editable Blender master by room zone, validate and export one GLB, then adapt the existing manifest-driven React flow. Keep one active room-object ID as the current leaf; declare `desk` as the parent of `monitor` and `smartphone` in the scene manifest so closing and deep-link behavior are derived without a router or a new state library.
+**Architecture:** The individual reference PNG owns each asset's shape, materials, and recognizable details; the approved Penpot board owns scale, placement, orientation, and composition. For every asset, finish and review the isolated model first, then place it in the editable Blender master, render a Penpot comparison, and stop for user approval before touching the next asset. After the full master is approved, validate and export one GLB, then adapt the existing manifest-driven React flow. Keep one active room-object ID as the current leaf; declare `desk` as the parent of `monitor` and `smartphone` in the scene manifest.
 
 **Tech Stack:** Penpot, Blender 5.1+, GLB/glTF 2.0, React 19, TypeScript, React Three Fiber, Three.js, Vitest, Playwright.
 
@@ -12,7 +12,12 @@
 
 ## Global Constraints
 
-- Source order is `Penpot → Blender → GLB → website`; downstream stages never redefine upstream placement.
+- Source order is `asset reference PNGs + Penpot → Blender → GLB → website`; downstream stages never redefine approved asset appearance or placement.
+- For asset appearance, the matching `assets/references/<asset>.png` is authoritative; for scene composition, `assets/references/penpot-room.png` is authoritative.
+- Process exactly one asset at a time: isolated model review → user approval → scene placement → Penpot comparison review → user approval. Do not begin the next asset while either gate is open.
+- Asset approval covers geometry and materials. Placement approval separately covers transform, scale, grounding, overlap, and appearance from `CAM_Overview`.
+- Save the Blender master after every approved placement and record the reference, accepted render, dimensions, and world transform in `docs/design/room-source.md`.
+- If an object has no dedicated reference PNG, preserve its current model and use Penpot only for placement; request a dedicated reference before rebuilding its appearance.
 - Penpot file `222559c6-1a87-800d-8008-c3780ad3f78d`, page `222559c6-1a87-800d-8008-c3780ad3f78e`, board `6b785803-9d96-8041-8008-c380eb623863` is the external source record.
 - Keep one GLB, the existing React state approach, and the existing dependencies. Add no router, state library, animation library, or paid generated asset.
 - Keep every current `INT_*`, `CTL_*`, `CAM_Anchor_*`, `LIGHT_*`, `EMIT_*`, and idle node stable; add `INT_Desk`, `CAM_Anchor_Desk`, `Flag_FR`, and `Flag_EN`.
@@ -24,6 +29,9 @@
 
 ## Review Focus
 
+- Each isolated model must match the silhouette, proportions, principal materials, and recognizable details of its dedicated PNG before it enters the room.
+- Each placed asset must be reviewed with a local crop and the full `CAM_Overview` render against Penpot.
+- Any later change that moves, rescales, rematerials, or replaces an approved asset reopens that asset's placement review.
 - A direct `#room/monitor` or `#room/smartphone` load must retain `desk` as its close target; pin this in Task 9 application tests.
 - Browser Back and `Escape` must traverse `detail → desk → overview` without skipping or duplicating history; pin this in Tasks 9 and 12.
 - Repeated curtain clicks inside 900 ms must not reverse or desynchronize the room and HTML theme; pin this in Task 11.
@@ -40,7 +48,11 @@
 - `assets/references/canva-day-night-current.png`: Canva day/night source receipt.
 - `assets/references/canva-interactive-inventory-current.png`: Canva interactive-object inventory receipt.
 - `assets/references/penpot-room.png`: canonical Penpot export at 1920 × 1080.
-- `assets/blender/portfolio-room.blend`: editable Blender master changed zone by zone.
+- `assets/references/room_walls.png`, `room_floor.png`, `window.png`, `area_rug.png`: architectural and floor references.
+- `assets/references/desk_table.png`, `office_chair.png`, `monitor.png`, `large_potted_plant.png`: desk-zone references.
+- `assets/references/server_rack.png`, `bookshelf.png`, `french_flag_frame.png`, `table_lamp.png`: rear/right-zone references.
+- `assets/references/sofa.png`, `coffee_table.png`, `game_controller.png`, `volleyball.png`: living-zone references.
+- `assets/blender/portfolio-room.blend`: editable Blender master changed and approved one asset at a time.
 - `assets/blender/portfolio-room-optimized.blend`: optimized derivative produced only after the master is approved.
 - `public/assets/room/portfolio-room.glb`: runtime scene.
 - `public/assets/room/room-poster-day.webp`, `room-poster-night.webp`: loading and failure posters from the approved overview.
@@ -99,11 +111,11 @@ Document desk focus, monitor Data/IA projects, smartphone experiments, controlle
 
 Inspect semantic groups, export the board, and verify all approved placements, labels, and board bounds. The migration review passed with no blocking, important, or minor findings.
 
-- [ ] **Step 2: Save the export and receipt on the dedicated branch**
+- [x] **Step 2: Save the export and receipt on the dedicated branch**
 
 Export the reviewed board to `assets/references/penpot-room.png`, record its identifiers and review result in `room-source.md`, then commit only those two files before Blender work begins.
 
-### Task 3: Correct the Blender desk zone
+### Task 3: Rebuild and place the Blender shell and desk assets
 
 **Branch:** `room/03-blender-desk-zone`
 
@@ -114,28 +126,48 @@ Export the reviewed board to `assets/references/penpot-room.png`, record its ide
 
 **Interfaces:**
 
-- Consumes: approved Penpot board and export.
-- Produces: `INT_Desk`, corrected desk furniture, and the desk-area interactive children required by later code.
+- Consumes: approved Penpot export plus `room_walls.png`, `room_floor.png`, `window.png`, `desk_table.png`, `office_chair.png`, `monitor.png`, and `large_potted_plant.png`.
+- Produces: approved shell and desk assets, `INT_Desk`, and the desk-area interactive children required by later code.
 
 - [ ] **Step 1: Create the branch and inspect the live master**
 
-Run: `git switch main && git pull --ff-only && git switch -c room/03-blender-desk-zone`. Open `portfolio-room.blend`; use Blender scene info and a camera render to record the current desk-zone bounds.
+Run: `git switch main && git pull --ff-only && git switch -c room/03-blender-desk-zone`. Open `portfolio-room.blend`; use Blender scene info and a camera render to record the current shell and desk-zone bounds. Do not alter an approved object while working on a later one.
 
-- [ ] **Step 2: Correct only the desk-zone geometry**
+- [ ] **Step 2: Rebuild and review the room walls**
 
-Flatten and enlarge the desk to the Penpot dimensions; face the chair toward it; keep the laptop left; correct the central screen; place smartphone right of the screen; remove the under-desk tower; shrink the left floor plant; place the contact card above that plant.
+Match `room_walls.png` in an isolated collection. Render the same three-quarter view and stop for user review. After approval, place and scale the walls from Penpot, render a local crop plus full overview, and stop again for placement approval.
 
-- [ ] **Step 3: Establish stable desk roots**
+- [ ] **Step 3: Rebuild and review the room floor**
 
-Create `INT_Desk` around the desk interaction surface without renaming `INT_Monitor`, `INT_Smartphone`, or `INT_ContactCard`. Keep those three nodes independently pickable.
+Match `room_floor.png` in isolation, including thickness and wood direction. After model approval, place it from Penpot, verify wall contact and visible floor bounds, render both comparison views, and stop for placement approval.
 
-- [ ] **Step 4: Validate the zone visually and structurally**
+- [ ] **Step 4: Rebuild and review the window**
 
-Render through `CAM_Overview`, compare the desk zone with Penpot, and query the four `INT_*` roots for bounds, children, and transforms. No modified object may intersect the desk surface or floor unintentionally.
+Match `window.png` in isolation with a simple web-suitable construction. After model approval, place it from Penpot, verify recess, wall contact, and curtain clearance, render both comparison views, and stop for placement approval.
 
-- [ ] **Step 5: Save, document, commit, push, and stop**
+- [ ] **Step 5: Rebuild and review the desk**
 
-Save the master, add the visual-review result to `room-source.md`, then run: `git add assets/blender/portfolio-room.blend docs/design/room-source.md && git commit -m "art: align Blender desk zone" && git push -u origin room/03-blender-desk-zone`.
+Match `desk_table.png` in isolation, including the flat wood top and rectangular dark legs. After model approval, place and scale it from Penpot, then stop for placement approval. Create `INT_Desk` around its interaction surface without renaming `INT_Monitor`, `INT_Smartphone`, or `INT_ContactCard`.
+
+- [ ] **Step 6: Rebuild and review the office chair**
+
+Match `office_chair.png` in isolation, prioritizing its mesh back, armrests, five-star base, and casters. After model approval, place it facing the desk from Penpot, verify floor contact and desk clearance, render both comparison views, and stop for placement approval.
+
+- [ ] **Step 7: Rebuild and review the monitor**
+
+Match `monitor.png` in isolation, preserving `INT_Monitor` as the stable pick root. After model approval, place it centrally on the desk from Penpot, verify surface contact and screen visibility, render both comparison views, and stop for placement approval.
+
+- [ ] **Step 8: Rebuild and review the large floor plant**
+
+Match `large_potted_plant.png` in isolation with a web-suitable leaf count. After model approval, place and scale it left of the desk from Penpot, verify floor and desk clearance, render both comparison views, and stop for placement approval.
+
+- [ ] **Step 9: Place desk-zone assets without dedicated references**
+
+Preserve the existing laptop, smartphone, contact card, keyboard, and mouse models. Place them from Penpot: laptop left, monitor central, smartphone right, contact card above the floor plant; remove the under-desk tower. Stop for one composition review because these assets are not being rebuilt.
+
+- [ ] **Step 10: Validate, document, commit, push, and stop**
+
+Query `INT_Desk`, `INT_Monitor`, `INT_Smartphone`, and `INT_ContactCard` for bounds, children, and transforms. Confirm no modified object intersects the desk, wall, or floor unintentionally. Record every accepted asset and placement in `room-source.md`, then run: `git add assets/blender/portfolio-room.blend docs/design/room-source.md && git commit -m "art: align Blender desk zone" && git push -u origin room/03-blender-desk-zone`.
 
 ### Task 4: Correct the Blender rear and right zones
 
@@ -148,26 +180,34 @@ Save the master, add the visual-review result to `room-source.md`, then run: `gi
 
 **Interfaces:**
 
-- Consumes: Task 3 master.
+- Consumes: Task 3 master plus `server_rack.png`, `bookshelf.png`, `french_flag_frame.png`, and `table_lamp.png`.
 - Produces: aligned homelab, bookshelf, language flag variants, EPITA diploma, and purple lamp.
 
 - [ ] **Step 1: Create the branch after Task 3 is merged**
 
 Run: `git switch main && git pull --ff-only && git switch -c room/04-blender-rear-zone`.
 
-- [ ] **Step 2: Align the rear corner and bookshelf**
+- [ ] **Step 2: Rebuild and review the server rack**
 
-Move and reshape `INT_Homelab` to the rear corner. Preserve the bookshelf on the right, fill it, and align its silhouette to Penpot.
+Match `server_rack.png` in isolation, preserving `INT_Homelab` and separate runtime light/emitter nodes. After model approval, place it in the rear corner from Penpot, render a local crop plus full overview, and stop for placement approval.
 
-- [ ] **Step 3: Replace the wall shelf with language variants**
+- [ ] **Step 3: Rebuild and review the bookshelf**
 
-Remove the small wall cabinet/shelf and books above the bookshelf. Under `CTL_Flag`, create child meshes `Flag_FR` and `Flag_EN` at the approved position; both occupy identical bounds and only one will be visible at runtime.
+Match `bookshelf.png` in isolation, including the filled shelves, while preserving `INT_Bookshelf`. After model approval, place it on the right from Penpot, render both comparison views, and stop for placement approval.
 
-- [ ] **Step 4: Correct diploma and lamp**
+- [ ] **Step 4: Rebuild and review the framed flag**
 
-Rebuild the `INT_Diploma` visual as blue-and-white EPITA artwork and place it from Penpot. Move the purple lamp and `LIGHT_Lamp` to the approved position without changing the stable light name.
+Match `french_flag_frame.png` in isolation. After model approval, remove the small wall shelf and books, then place the frame above the bookshelf from Penpot. Under `CTL_Flag`, keep `Flag_FR` and `Flag_EN` at identical bounds; review the French appearance now and defer the English texture swap to the runtime task.
 
-- [ ] **Step 5: Validate, save, document, commit, and push**
+- [ ] **Step 5: Rebuild and review the purple lamp**
+
+Match `table_lamp.png` in isolation, preserving the emissive surface and `LIGHT_Lamp`. After model approval, place it from Penpot, render the day and night local crop plus full overview, and stop for placement approval.
+
+- [ ] **Step 6: Place the diploma without rebuilding it**
+
+Preserve the current `INT_Diploma` model because no dedicated diploma reference exists. Place it from Penpot and stop for review. Rebuild its artwork only after a dedicated reference is added.
+
+- [ ] **Step 7: Validate, save, document, commit, and push**
 
 Render the rear/right zone and inspect `INT_Homelab`, `INT_Bookshelf`, `INT_Diploma`, `CTL_Flag`, `Flag_FR`, `Flag_EN`, and `LIGHT_Lamp`. Save, then run: `git add assets/blender/portfolio-room.blend docs/design/room-source.md && git commit -m "art: align Blender rear zone" && git push -u origin room/04-blender-rear-zone`. Stop for review.
 
@@ -182,26 +222,38 @@ Render the rear/right zone and inspect `INT_Homelab`, `INT_Bookshelf`, `INT_Dipl
 
 **Interfaces:**
 
-- Consumes: Task 4 master.
-- Produces: aligned sofa, contained cushions, coffee table, controller, plant, and volleyball.
+- Consumes: Task 4 master plus `sofa.png`, `coffee_table.png`, `game_controller.png`, `volleyball.png`, and `area_rug.png`.
+- Produces: individually approved sofa, contained cushions, coffee table, controller, plant, volleyball, and rug.
 
 - [ ] **Step 1: Create the branch after Task 4 is merged**
 
 Run: `git switch main && git pull --ff-only && git switch -c room/05-blender-living-zone`.
 
-- [ ] **Step 2: Match the sofa and cushions**
+- [ ] **Step 2: Rebuild and review the area rug**
 
-Align the sofa to Penpot. Resize and reposition every cushion so its world bounds remain inside the sofa bounds.
+Match `area_rug.png` in isolation. After model approval, place and scale it from Penpot, verify floor contact, render both comparison views, and stop for placement approval.
 
-- [ ] **Step 3: Match the coffee table contents**
+- [ ] **Step 3: Rebuild and review the sofa**
 
-Correct the table silhouette and placement. Put `INT_Controller` on the left and the small plant on the right; remove all other table objects.
+Match `sofa.png` in isolation, including three seat/back sections and two contained cushions. After model approval, place it from Penpot, verify every cushion remains inside the sofa bounds, render both comparison views, and stop for placement approval.
 
-- [ ] **Step 4: Place the volleyball**
+- [ ] **Step 4: Rebuild and review the coffee table**
 
-Move `INT_Volleyball` to the floor left of the coffee table, visibly clear of the rug, sofa, and table geometry.
+Match `coffee_table.png` in isolation. After model approval, place it from Penpot, verify rug and sofa clearance, render both comparison views, and stop for placement approval.
 
-- [ ] **Step 5: Validate, save, document, commit, and push**
+- [ ] **Step 5: Rebuild and review the controller**
+
+Match `game_controller.png` in isolation with enough silhouette and control detail to remain recognizable at overview distance, preserving `INT_Controller`. After model approval, place it on the left of the coffee table from Penpot, render both comparison views, and stop for placement approval.
+
+- [ ] **Step 6: Rebuild and review the volleyball**
+
+Match `volleyball.png` in isolation, including the blue/yellow panel pattern, preserving `INT_Volleyball`. After model approval, place it on the floor left of the coffee table, verify rug, sofa, and table clearance, render both comparison views, and stop for placement approval.
+
+- [ ] **Step 7: Place the table plant and remove extras**
+
+Preserve the existing small table-plant model because no dedicated reference exists. Place it on the right of the coffee table from Penpot, remove every other table object, render both comparison views, and stop for placement approval.
+
+- [ ] **Step 8: Validate, save, document, commit, and push**
 
 Render the living zone, inspect object bounds for overlap and grounding, save, then run: `git add assets/blender/portfolio-room.blend docs/design/room-source.md && git commit -m "art: align Blender living zone" && git push -u origin room/05-blender-living-zone`. Stop for review.
 
