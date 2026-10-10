@@ -61,6 +61,7 @@ Export as GLB with transforms applied and cameras, lights, and animations enable
 
 ## Validation snapshot
 
+- Room floor: approved on 2026-10-10 from `assets/references/room_floor.png`; the Blender assembly has a 12.00 × 10.00 m light procedural wood surface at `z=0` over a 12.08 × 10.08 × 0.26 m dark base, with the former slab and twelve decorative plank-line meshes removed.
 - Room walls: approved on 2026-10-10 from `assets/references/room_walls.png`; the Blender assembly is 12.00 × 10.00 × 5.80 m with full-length light baseboards, dark top/exposed-edge trim, and eight manifold box meshes under `Room_Walls` in `RoomShell`.
 - Penpot-aligned Blender desk zone: accepted from `CAM_Overview` after review on 2026-10-09; the 5.10 × 1.80 × 0.12 m desk sits 0.24 m from the wall, the recessed window is shifted right, the chair faces the desk, the laptop is left and coplanar with the monitor, the smartphone is right of the mouse, both displays use dark technical UI, the mug and under-desk tower are absent, and both plants match the approved placement with desk clearance
 - Desk interaction contract: `INT_Desk` contains 26 desk-surface children; `INT_Monitor`, `INT_Smartphone`, and `INT_ContactCard` remain independent roots; surface, grounding, window, curtain-animation, and clearance assertions passed
