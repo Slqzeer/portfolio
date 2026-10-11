@@ -6,15 +6,18 @@ Supersedes: conflicting room-layout, object-interaction, camera, lighting, and d
 
 ## Goal
 
-Bring Penpot, Blender, and the website back into one coherent room design without shipping the work as one large branch. The approved Penpot composition is the visual source of truth. Blender realizes it in 3D, and the website consumes the exported scene without redefining object placement.
+Bring the image references, Penpot, Blender, and the website into one coherent room design without shipping the work as one large branch. Each dedicated image reference defines its asset's appearance; the approved Penpot composition defines where that asset belongs. Blender realizes both in 3D, and the website consumes the exported scene without redefining object placement.
 
 ## Source-of-truth chain
 
 The synchronization order is one-way:
 
-`approved Penpot → aligned Blender → validated GLB → website`
+`approved asset references + approved Penpot → aligned Blender → validated GLB → website`
 
-- Penpot owns composition, proportions, silhouettes, palette, object placement, and interaction annotations.
+- A dedicated `assets/references/<asset>.png` owns that asset's silhouette, proportions, principal materials, and recognizable details.
+- Penpot owns room composition, relative scale, object placement, orientation, palette integration, and interaction annotations.
+- An asset is modeled and approved in isolation before placement. Its placement is then reviewed separately against Penpot before work begins on the next asset.
+- An object without a dedicated reference keeps its current model; Penpot may reposition it but does not authorize an appearance redesign.
 - Blender owns geometry, materials, lighting, camera anchors, and physical animation clips.
 - The GLB preserves stable named nodes and anchors.
 - TypeScript owns interaction state, bilingual content, URL state, accessibility, and runtime animation control.
@@ -155,7 +158,7 @@ Each increment has its own branch, focused verification, visual evidence where a
 
 ## Validation
 
-Visual stages use the approved Penpot export behind the locked Blender camera. Each affected zone receives a before/after capture, and the final overview receives an opacity overlay against Penpot.
+Each reference-backed asset first receives an isolated render compared with its dedicated PNG. After approval, its placement receives a local crop and full locked-camera overview compared with Penpot; work stops for user review at both gates. Each affected zone receives a before/after capture, and the final overview receives an opacity overlay against Penpot.
 
 The GLB validator rejects missing or renamed contract nodes and anchors. Website tests cover:
 
