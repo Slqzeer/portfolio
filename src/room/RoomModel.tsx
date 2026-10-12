@@ -107,7 +107,7 @@ export function RoomModel({
   reducedMotion = false,
   pointerEnabled = true,
 }: RoomModelProps) {
-  const { animations, scene: source } = useGLTF(ROOM_GLTF_URL, false);
+  const { animations, scene: source } = useGLTF(ROOM_GLTF_URL, "/draco/");
   const scene = useMemo(() => prepareRoomScene(source), [source]);
   const [hovered, setHovered] = useState(false);
   const ready = useRef(false);
