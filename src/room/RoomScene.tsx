@@ -12,6 +12,7 @@ interface RoomSceneProps {
   lighting: Lighting;
   activeObject: RoomObjectId | null;
   onInteract: (id: RoomObjectId) => void;
+  onClose: () => void;
 }
 
 const roomObjectIds = Object.keys(sceneManifest) as RoomObjectId[];
@@ -21,6 +22,7 @@ export function RoomScene({
   lighting,
   activeObject,
   onInteract,
+  onClose,
 }: RoomSceneProps) {
   const [canvasFailed, setCanvasFailed] = useState(false);
   const { ambientPaused, reducedMotion } = useIdleRoom({
@@ -39,6 +41,7 @@ export function RoomScene({
       aria-label={locale === "fr" ? "Chambre interactive" : "Interactive room"}
     >
       <RoomCanvas
+        locale={locale}
         lighting={lighting}
         activeObject={activeObject}
         ambientPaused={ambientPaused}
@@ -52,6 +55,7 @@ export function RoomScene({
         activeObject={activeObject}
         canvasFailed={canvasFailed}
         onInteract={onInteract}
+        onClose={onClose}
       />
     </section>
   );

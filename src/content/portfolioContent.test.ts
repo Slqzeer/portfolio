@@ -27,6 +27,7 @@ describe("portfolioContent", () => {
 
   it("links every room object to an existing detail section", () => {
     expect(Object.keys(portfolioContent.roomObjects)).toEqual([
+      "desk",
       "monitor",
       "server",
       "volleyball",
@@ -42,6 +43,13 @@ describe("portfolioContent", () => {
     Object.values(portfolioContent.roomObjects).forEach(({ detailId }) => {
       expect(portfolioContent.details[detailId]).toBeDefined();
     });
+  });
+
+  it("labels the desk zone in French and English", () => {
+    const { label } = portfolioContent.roomObjects.desk;
+
+    expect(label.fr.trim()).not.toBe("");
+    expect(label.en.trim()).not.toBe("");
   });
 
   it("uses unique project IDs and clearly marks placeholder content", () => {

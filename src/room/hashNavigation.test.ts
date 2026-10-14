@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { RoomObjectId } from "../content/types";
-import { hashForObject, parseRoomHash } from "./hashNavigation";
+import {
+  hashForObject,
+  isRoomHistoryState,
+  parseRoomHash,
+  roomHistoryState,
+} from "./hashNavigation";
 
 const validIds: RoomObjectId[] = ["monitor", "server", "window"];
 
@@ -16,5 +21,21 @@ describe("room hash navigation", () => {
 
   it("builds a shareable object hash", () => {
     expect(hashForObject("monitor")).toBe("#room/monitor");
+  });
+});
+
+describe("room history state", () => {
+  it("recognizes only the in-app entry recorded for an object", () => {
+    const state = roomHistoryState("monitor", "desk");
+
+    expect(state).toEqual({ roomObjectId: "monitor", parentId: "desk" });
+    expect(isRoomHistoryState(state, "monitor", "desk")).toBe(true);
+    expect(isRoomHistoryState(state, "monitor", null)).toBe(false);
+    expect(isRoomHistoryState(state, "smartphone", "desk")).toBe(false);
+  });
+
+  it("treats direct external hashes as unrecorded", () => {
+    expect(isRoomHistoryState(null, "monitor", "desk")).toBe(false);
+    expect(isRoomHistoryState("monitor", "monitor", "desk")).toBe(false);
   });
 });

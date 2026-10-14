@@ -40,6 +40,10 @@ test("routes focus, curtains, and flag without control zoom", async ({
     "true",
   );
   await expect(canvas).toHaveAttribute("data-fps", /[1-9]/, { timeout: 5000 });
+  await page.getByRole("button", { name: "Bureau et projets" }).click();
+  await expect(page).toHaveURL(/#room\/desk$/);
+  await expect(canvas).toHaveAttribute("data-camera-target", "CAM_Anchor_Desk");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Projets Data et IA" }).click();
   await expect(page).toHaveURL(/#room\/monitor$/);
   await expect(canvas).toHaveAttribute(
@@ -49,6 +53,10 @@ test("routes focus, curtains, and flag without control zoom", async ({
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
 
   await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/#room\/desk$/);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(page).not.toHaveURL(/#room\//);
   await page.getByRole("button", { name: "Changer la lumière" }).click();
   await expect(page.getByTestId("room-scene")).toHaveAttribute(
     "data-lighting",
@@ -74,6 +82,9 @@ test("routes focus, curtains, and flag without control zoom", async ({
 test("supports keyboard focus, Back, and Escape", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Explorer la chambre" }).click();
+  await page.getByRole("button", { name: "Bureau et projets" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#room\/desk$/);
   const monitor = page.getByRole("button", { name: "Projets Data et IA" });
   await monitor.focus();
   await page.keyboard.press("Enter");
@@ -87,7 +98,17 @@ test("supports keyboard focus, Back, and Escape", async ({ page }) => {
 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(/#room\/desk$/);
   await expect(monitor).toBeFocused();
+
+  await monitor.press("Enter");
+  await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/#room\/desk$/);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.goBack();
+  await expect(page).not.toHaveURL(/#room\//);
+  await expect(monitor).toHaveCount(0);
 });
 
 test("keeps the poster and controls when the GLB fails", async ({ page }) => {

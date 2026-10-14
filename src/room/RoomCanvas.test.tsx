@@ -29,6 +29,7 @@ vi.mock("./RoomModel", () => ({
 }));
 
 const defaultProps = {
+  locale: "fr" as const,
   lighting: "day" as const,
   activeObject: null,
   onInteract: vi.fn(),

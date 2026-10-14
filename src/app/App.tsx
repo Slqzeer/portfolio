@@ -3,9 +3,18 @@ import { IntroCard } from "../components/IntroCard";
 import { SiteHeader } from "../components/SiteHeader";
 import { portfolioContent } from "../content/portfolioContent";
 import { ObjectDetails } from "../details/ObjectDetails";
-import { hashForObject, parseRoomHash } from "../room/hashNavigation";
+import {
+  hashForObject,
+  isRoomHistoryState,
+  parseRoomHash,
+  roomHistoryState,
+} from "../room/hashNavigation";
 import { RoomScene } from "../room/RoomScene";
-import { sceneManifest } from "../room/sceneManifest";
+import {
+  parentRoomObjectId,
+  sceneManifest,
+  selectionTarget,
+} from "../room/sceneManifest";
 import { appReducer, initialAppState } from "./appState";
 import { readPreferences, writePreferences } from "./preferences";
 
@@ -32,17 +41,23 @@ export function App() {
 
   const closeObject = useCallback(() => {
     const objectId = state.activeObject;
-    window.history.pushState(
-      null,
-      "",
-      window.location.pathname + window.location.search,
-    );
-    dispatch({ type: "object.selected", objectId: null });
-    if (objectId) {
-      document
-        .querySelector<HTMLElement>(`[data-room-object="${objectId}"]`)
-        ?.focus();
+    if (!objectId) return;
+    const parentId = parentRoomObjectId(objectId);
+    if (isRoomHistoryState(window.history.state, objectId, parentId)) {
+      window.history.back();
+    } else {
+      window.history.replaceState(
+        null,
+        "",
+        parentId
+          ? hashForObject(parentId)
+          : window.location.pathname + window.location.search,
+      );
     }
+    dispatch({ type: "object.selected", objectId: parentId });
+    document
+      .querySelector<HTMLElement>(`[data-room-object="${objectId}"]`)
+      ?.focus();
   }, [state.activeObject]);
 
   useEffect(() => {
@@ -56,7 +71,7 @@ export function App() {
 
   useEffect(() => {
     const validIds = Object.values(sceneManifest)
-      .filter(({ action }) => action === "focus")
+      .filter(({ action }) => action === "focus" || action === "focus-zone")
       .map(({ id }) => id);
     const syncFromHistory = () => {
       const objectId = parseRoomHash(window.location.hash, validIds);
@@ -91,11 +106,17 @@ export function App() {
         return;
       }
 
-      window.history.pushState(null, "", hashForObject(objectId));
-      dispatch({ type: "object.selected", objectId });
+      const target = selectionTarget(objectId, state.activeObject);
+      if (target === state.activeObject) return;
+      window.history.pushState(
+        roomHistoryState(target, state.activeObject),
+        "",
+        hashForObject(target),
+      );
+      dispatch({ type: "object.selected", objectId: target });
       dispatch({ type: "intro.minimized" });
     },
-    [state.locale],
+    [state.activeObject, state.locale],
   );
 
   return (
@@ -113,18 +134,20 @@ export function App() {
           lighting={state.lighting}
           activeObject={state.activeObject}
           onInteract={handleRoomInteract}
+          onClose={closeObject}
         />
-        {state.activeObject && (
-          <ObjectDetails
-            objectId={state.activeObject}
-            locale={state.locale}
-            onClose={closeObject}
-            activeCategory={state.projectCategory}
-            onCategoryChange={(category) =>
-              dispatch({ type: "category.changed", category })
-            }
-          />
-        )}
+        {state.activeObject &&
+          sceneManifest[state.activeObject].action === "focus" && (
+            <ObjectDetails
+              objectId={state.activeObject}
+              locale={state.locale}
+              onClose={closeObject}
+              activeCategory={state.projectCategory}
+              onCategoryChange={(category) =>
+                dispatch({ type: "category.changed", category })
+              }
+            />
+          )}
         {state.introExpanded && (
           <IntroCard
             content={portfolioContent}

@@ -183,6 +183,10 @@ export const portfolioContent: PortfolioContent = {
     ),
   },
   roomObjects: {
+    desk: {
+      label: text("Bureau et projets", "Desk and projects"),
+      detailId: "projects",
+    },
     monitor: {
       label: text("Projets Data et IA", "Data and AI projects"),
       detailId: "projects",

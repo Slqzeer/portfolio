@@ -2,16 +2,18 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { Lighting } from "../app/appState";
-import type { RoomObjectId } from "../content/types";
+import type { Locale, RoomObjectId } from "../content/types";
 import { RoomScene } from "./RoomScene";
 
 vi.mock("./RoomCanvas", () => ({
   RoomCanvas: ({
+    locale,
     lighting,
     activeObject,
     onInteract,
     onError,
   }: {
+    locale: Locale;
     lighting: Lighting;
     activeObject: RoomObjectId | null;
     onInteract: (id: RoomObjectId) => void;
@@ -19,6 +21,7 @@ vi.mock("./RoomCanvas", () => ({
   }) => (
     <div
       data-testid="room-canvas"
+      data-locale={locale}
       data-lighting={lighting}
       data-active-object={activeObject ?? undefined}
     >
@@ -40,6 +43,7 @@ describe("RoomScene", () => {
         lighting="day"
         activeObject="server"
         onInteract={() => undefined}
+        onClose={() => undefined}
       />,
     );
 
@@ -63,6 +67,7 @@ describe("RoomScene", () => {
         lighting="day"
         activeObject={null}
         onInteract={onInteract}
+        onClose={() => undefined}
       />,
     );
 
@@ -83,6 +88,7 @@ describe("RoomScene", () => {
           lighting={lighting}
           activeObject={null}
           onInteract={() => undefined}
+          onClose={() => undefined}
         />,
       );
 
@@ -101,6 +107,7 @@ describe("RoomScene", () => {
         lighting="day"
         activeObject={null}
         onInteract={() => undefined}
+        onClose={() => undefined}
       />,
     );
 
@@ -108,5 +115,26 @@ describe("RoomScene", () => {
     expect(
       screen.getByRole("navigation", { name: "Interactive room controls" }),
     ).toHaveAttribute("data-canvas-failed", "true");
+  });
+
+  it("passes the locale to the canvas and Back to onClose", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(
+      <RoomScene
+        locale="en"
+        lighting="day"
+        activeObject="desk"
+        onInteract={() => undefined}
+        onClose={onClose}
+      />,
+    );
+
+    expect(screen.getByTestId("room-canvas")).toHaveAttribute(
+      "data-locale",
+      "en",
+    );
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });
