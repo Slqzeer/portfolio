@@ -6,3 +6,5 @@ dist/
 coverage/
 playwright-report/
 test-results/
+public/draco/
+public/assets/room/lightmaps/scales.json
