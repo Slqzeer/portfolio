@@ -1,19 +1,54 @@
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   AmbientLight,
   AnimationClip,
   AnimationMixer,
   DirectionalLight,
+  Material,
+  Mesh,
+  MeshStandardMaterial,
   Object3D,
   PointLight,
   SpotLight,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
 } from "three";
 import type { Lighting } from "../app/appState";
 
-const DAYLIGHT = 2.4;
-const WINDOW_LIGHT = 4;
-const LAMP_LIGHT = 80;
+// Baked lightmaps carry the direct light; these only light unbaked meshes.
+const DAYLIGHT = 0.6;
+const WINDOW_LIGHT = 0.5;
+const LAMP_LIGHT = 6;
+
+// Mirrors public/assets/room/lightmaps/scales.json (written by encode-room-lightmaps.py).
+export const LIGHTMAP_SCALES = {
+  LM_props_day: 28.18025,
+  LM_props_night: 5.43002,
+  LM_shell_day: 9.94105,
+  LM_shell_night: 1.26289,
+} as const;
+type LightmapKey = keyof typeof LIGHTMAP_SCALES;
+const LIGHTMAP_KEYS = Object.keys(LIGHTMAP_SCALES) as LightmapKey[];
+const LIGHTMAP_URLS = LIGHTMAP_KEYS.map(
+  (key) => `/assets/room/lightmaps/${key}.webp`,
+);
+
+export function applyLightmaps(
+  materials: Material[],
+  textures: Record<LightmapKey, Texture>,
+  { dayMap, nightMap }: { dayMap: number; nightMap: number },
+) {
+  const [state, weight] = dayMap > 0 ? ["day", dayMap] : ["night", nightMap];
+  for (const material of materials) {
+    const key = `LM_${material.userData.lightmapAtlas}_${state}` as LightmapKey;
+    const lit = material as MeshStandardMaterial;
+    if (!lit.lightMap) lit.needsUpdate = true;
+    lit.lightMap = textures[key];
+    lit.lightMapIntensity = LIGHTMAP_SCALES[key] * weight;
+  }
+}
 
 export interface RoomLightingProps {
   lighting: Lighting;
@@ -32,15 +67,19 @@ export function lightingFrame(lighting: Lighting, progress: number) {
         daylight: DAYLIGHT * (1 - firstHalf),
         window: WINDOW_LIGHT * (1 - firstHalf),
         lamp: LAMP_LIGHT * secondHalf,
-        fill: 0.14 + 0.36 * (1 - value),
+        fill: 0.25 + 0.75 * (1 - value),
         curtainProgress: value,
+        dayMap: 1 - firstHalf,
+        nightMap: secondHalf,
       }
     : {
         daylight: DAYLIGHT * secondHalf,
         window: WINDOW_LIGHT * secondHalf,
         lamp: LAMP_LIGHT * (1 - firstHalf),
-        fill: 0.14 + 0.36 * value,
+        fill: 0.25 + 0.75 * value,
         curtainProgress: 1 - value,
+        dayMap: secondHalf,
+        nightMap: 1 - firstHalf,
       };
 }
 
@@ -56,6 +95,27 @@ export function RoomLighting({
   const fill = useRef<AmbientLight>(null);
   const progress = useRef(1);
   const previousLighting = useRef(lighting);
+  const loaded = useLoader(TextureLoader, LIGHTMAP_URLS);
+  const lightmaps = useMemo(() => {
+    for (const texture of loaded) {
+      texture.flipY = false;
+      texture.channel = 1;
+      texture.colorSpace = SRGBColorSpace;
+    }
+    return Object.fromEntries(
+      LIGHTMAP_KEYS.map((key, index) => [key, loaded[index]]),
+    ) as Record<LightmapKey, Texture>;
+  }, [loaded]);
+  const bakedMaterials = useMemo(() => {
+    const materials = new Set<Material>();
+    scene.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      for (const material of [object.material].flat() as Material[]) {
+        if (material.userData.lightmapAtlas) materials.add(material);
+      }
+    });
+    return [...materials];
+  }, [scene]);
   const curtainActions = useMemo(() => {
     const mixer = new AnimationMixer(scene);
     const actions = animations
@@ -104,6 +164,7 @@ export function RoomLighting({
     if (windowLight.current) windowLight.current.intensity = frame.window;
     if (lamp.current) lamp.current.intensity = frame.lamp;
     if (fill.current) fill.current.intensity = frame.fill;
+    applyLightmaps(bakedMaterials, lightmaps, frame);
 
     for (const { action, duration } of curtainActions.actions) {
       action.time = duration * frame.curtainProgress;
@@ -123,12 +184,12 @@ export function RoomLighting({
       />
       <pointLight
         ref={lamp}
-        color="#ffb56b"
+        color="#e98cff"
         distance={7}
         decay={2}
         intensity={0}
       />
-      <ambientLight ref={fill} color="#8498b8" intensity={0} />
+      <ambientLight ref={fill} color="#c8d4e6" intensity={0} />
     </>
   );
 }

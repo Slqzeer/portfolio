@@ -11,7 +11,10 @@ test("loads the GLB behind its poster and enables pointer follow", async ({
 
   const roomCanvas = page.locator(".room-canvas");
   await expect(page.getByTestId("room-poster")).toBeVisible();
-  await expect(roomCanvas).toHaveAttribute("data-ready", "true");
+  // Ready waits for the GLB and its lightmaps; CI renders in software.
+  await expect(roomCanvas).toHaveAttribute("data-ready", "true", {
+    timeout: 20000,
+  });
   await expect(page.getByTestId("room-poster")).toHaveCount(0);
 
   const canvas = roomCanvas.locator("canvas");
@@ -38,6 +41,7 @@ test("routes focus, curtains, and flag without control zoom", async ({
   await expect(page.locator(".room-canvas")).toHaveAttribute(
     "data-ready",
     "true",
+    { timeout: 20000 },
   );
   await expect(canvas).toHaveAttribute("data-fps", /[1-9]/, { timeout: 5000 });
   await page.getByRole("button", { name: "Bureau et projets" }).click();
@@ -152,7 +156,7 @@ test("supports mobile, reduced motion, and hidden-tab pause", async ({
   );
   const mobileCanvas = page.locator(".room-canvas canvas");
   await expect(mobileCanvas).toHaveAttribute("data-fps", /[1-9]/, {
-    timeout: 5000,
+    timeout: 20000,
   });
   await page.evaluate(() => {
     Object.defineProperty(document, "hidden", {

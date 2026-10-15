@@ -1,5 +1,7 @@
 import {
   BoxGeometry,
+  BufferAttribute,
+  DirectionalLight,
   Group,
   Mesh,
   MeshStandardMaterial,
@@ -134,5 +136,54 @@ describe("RoomModel bindings", () => {
 
     showLocaleFlag(scene, "en");
     expect([fr.visible, en.visible]).toEqual([false, true]);
+  });
+
+  it("switches off Blender's lights but keeps them as anchors", () => {
+    const source = createScene();
+    const sun = new DirectionalLight("#ffffff", 683);
+    sun.name = "LIGHT_Daylight_Sun";
+    source.getObjectByName("CTL_Curtains")!.add(sun);
+
+    const scene = prepareRoomScene(source);
+
+    expect(scene.getObjectByName("LIGHT_Daylight_Sun")?.visible).toBe(false);
+    expect(sun.visible).toBe(true);
+  });
+
+  it("tags baked meshes with their lightmap atlas, one material per atlas", () => {
+    const source = createScene();
+    const shared = new MeshStandardMaterial();
+    const baked = (atlas: string) => {
+      const geometry = new BoxGeometry();
+      geometry.setAttribute(
+        "uv1",
+        new BufferAttribute(geometry.attributes.uv.array, 2),
+      );
+      const holder = new Group();
+      holder.userData.lightmap_atlas = atlas;
+      holder.add(new Mesh(geometry, shared));
+      source.add(holder);
+      return holder.children[0] as Mesh;
+    };
+    baked("shell").name = "Floor";
+    baked("props").name = "Desk";
+    const unbaked = new Mesh(new BoxGeometry(), shared);
+    unbaked.name = "Screen";
+    source.add(unbaked);
+
+    const scene = prepareRoomScene(source);
+    const floor = scene.getObjectByName("Floor") as Mesh;
+    const desk = scene.getObjectByName("Desk") as Mesh;
+    const screen = scene.getObjectByName("Screen") as Mesh;
+
+    expect(
+      (floor.material as MeshStandardMaterial).userData.lightmapAtlas,
+    ).toBe("shell");
+    expect((desk.material as MeshStandardMaterial).userData.lightmapAtlas).toBe(
+      "props",
+    );
+    expect(floor.material).not.toBe(desk.material);
+    expect(screen.material).toBe(shared);
+    expect(shared.userData.lightmapAtlas).toBeUndefined();
   });
 });
