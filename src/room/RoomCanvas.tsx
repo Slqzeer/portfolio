@@ -1,3 +1,4 @@
+import { useProgress } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
@@ -65,6 +66,29 @@ function SceneMetrics() {
   return null;
 }
 
+function RoomLoading({ locale }: { locale: Locale }) {
+  const progress = Math.round(useProgress().progress);
+  const label =
+    locale === "fr" ? "Chargement de la chambre" : "Loading the room";
+  return (
+    <div className="room-loading">
+      <div
+        className="room-loading-bar"
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+      >
+        <span style={{ width: `${progress}%` }} />
+      </div>
+      <p aria-hidden="true">
+        {label} · {progress} %
+      </p>
+    </div>
+  );
+}
+
 export function RoomCanvas(props: RoomCanvasProps) {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -96,13 +120,15 @@ export function RoomCanvas(props: RoomCanvasProps) {
       data-ready={ready}
       data-failed={failed}
     >
-      {(!ready || failed) && (
+      {failed ? (
         <img
           className="room-poster"
           data-testid="room-poster"
           src={`/assets/room/room-poster-${props.lighting}.webp`}
           alt=""
         />
+      ) : (
+        !ready && <RoomLoading locale={props.locale} />
       )}
       {failed && <p role="status">3D scene unavailable</p>}
       <CanvasErrorBoundary onError={reportError}>

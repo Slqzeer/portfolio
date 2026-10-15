@@ -1,9 +1,34 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { Euler, Object3D, Quaternion, Vector2, Vector3 } from "three";
+import {
+  Camera,
+  Euler,
+  Object3D,
+  OrthographicCamera,
+  Quaternion,
+  Vector2,
+  Vector3,
+} from "three";
 import type { RoomObjectId } from "../content/types";
 import { sceneManifest } from "./sceneManifest";
-import { clampPointer, frameLerpFactor, sceneMotion } from "./sceneMotion";
+import {
+  MOBILE_CAMERA_BREAKPOINT,
+  clampPointer,
+  frameLerpFactor,
+  sceneMotion,
+} from "./sceneMotion";
+
+// Blender exports camera objects already aimed down -Z, but anchor empties
+// keep Blender's camera axis, which arrives in glTF as local -Y.
+const EMPTY_AIM = new Quaternion().setFromAxisAngle(
+  new Vector3(1, 0, 0),
+  -Math.PI / 2,
+);
+
+// Anchors store their frame width (`ortho_scale`, 16:9) as glTF extras.
+export function frameZoom(orthoScale: number, width: number, height: number) {
+  return Math.min(width / orthoScale, height / ((orthoScale * 9) / 16));
+}
 
 export interface CameraRigProps {
   activeObject: RoomObjectId | null;
@@ -40,7 +65,16 @@ export function CameraRig({
     if (!overview) return;
     overview.getWorldPosition(camera.position);
     overview.getWorldQuaternion(camera.quaternion);
-  }, [camera, overview]);
+    const orthoScale = overview.userData.ortho_scale;
+    if (
+      camera instanceof OrthographicCamera &&
+      typeof orthoScale === "number"
+    ) {
+      const { width, height } = gl.domElement.getBoundingClientRect();
+      camera.zoom = frameZoom(orthoScale, width, height);
+      camera.updateProjectionMatrix();
+    }
+  }, [camera, gl.domElement, overview]);
 
   useEffect(() => {
     const canvas = gl.domElement;
@@ -85,8 +119,15 @@ export function CameraRig({
 
     target.getWorldPosition(scratch.position);
     target.getWorldQuaternion(scratch.quaternion);
+    if (!(target instanceof Camera)) scratch.quaternion.multiply(EMPTY_AIM);
+    const { width, height } = gl.domElement.getBoundingClientRect();
 
-    if (!anchorName && pointerEnabled && !reducedMotion) {
+    if (
+      !anchorName &&
+      pointerEnabled &&
+      !reducedMotion &&
+      width > MOBILE_CAMERA_BREAKPOINT
+    ) {
       scratch.right
         .set(1, 0, 0)
         .applyQuaternion(scratch.quaternion)
@@ -110,6 +151,15 @@ export function CameraRig({
     }
 
     const factor = reducedMotion ? 1 : frameLerpFactor(deltaSeconds);
+    const orthoScale = target.userData.ortho_scale;
+    if (
+      camera instanceof OrthographicCamera &&
+      typeof orthoScale === "number"
+    ) {
+      const zoom = frameZoom(orthoScale, width, height);
+      camera.zoom += (zoom - camera.zoom) * factor;
+      camera.updateProjectionMatrix();
+    }
     camera.position.lerp(scratch.position, factor);
     camera.quaternion.slerp(scratch.quaternion, factor);
   });

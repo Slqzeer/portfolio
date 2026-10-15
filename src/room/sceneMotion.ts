@@ -5,6 +5,8 @@ export const sceneMotion = {
   baseInterpolation: 0.075,
 } as const;
 
+export const MOBILE_CAMERA_BREAKPOINT = 640;
+
 export function clampPointer(value: number) {
   return Math.max(-1, Math.min(1, value));
 }

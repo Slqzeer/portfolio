@@ -70,3 +70,39 @@
 .room-canvas canvas {
   inset: 0;
 }
+
+.room-loading {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.75rem;
+  background: inherit;
+  text-align: center;
+}
+
+.room-loading p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.room-loading-bar {
+  width: min(16rem, 60vw);
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(98 218 198 / 20%);
+}
+
+.room-loading-bar span {
+  display: block;
+  height: 100%;
+  background: #62dac6;
+  transition: width 200ms ease-out;
+}
+
+.room-scene[data-lighting="night"] .room-loading {
+  color: #e8eef4;
+}
