@@ -1,6 +1,6 @@
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Material, Mesh, Object3D } from "three";
+import { Light, Material, Mesh, Object3D } from "three";
 import type { Locale, RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";
@@ -74,7 +74,42 @@ export function prepareRoomScene(source: Object3D) {
         : object.material.clone();
     });
   }
+  prepareLighting(scene);
   return scene;
+}
+
+function lightmapAtlas(object: Object3D): string | undefined {
+  for (let node: Object3D | null = object; node; node = node.parent) {
+    const atlas = node.userData.lightmap_atlas;
+    if (typeof atlas === "string") return atlas;
+  }
+}
+
+// Blender's lights stay as hidden anchors for RoomLighting, which recreates
+// them; baked meshes get one material clone per lightmap atlas.
+function prepareLighting(scene: Object3D) {
+  scene.traverse((object) => {
+    if (object instanceof Light) object.visible = false;
+  });
+
+  const baked = new Map<string, Material>();
+  scene.traverse((object) => {
+    if (!(object instanceof Mesh) || !object.geometry.attributes.uv1) return;
+    const atlas = lightmapAtlas(object);
+    if (!atlas) return;
+    const bake = (material: Material) => {
+      const key = `${material.uuid}:${atlas}`;
+      if (!baked.has(key)) {
+        const clone = material.clone();
+        clone.userData.lightmapAtlas = atlas;
+        baked.set(key, clone);
+      }
+      return baked.get(key)!;
+    };
+    object.material = Array.isArray(object.material)
+      ? object.material.map(bake)
+      : bake(object.material);
+  });
 }
 
 export function showLocaleFlag(scene: Object3D, locale: Locale) {
