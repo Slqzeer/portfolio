@@ -15,3 +15,25 @@ export function parseRoomHash(
 export function hashForObject(id: RoomObjectId): string {
   return `#room/${id}`;
 }
+
+export interface RoomHistoryState {
+  roomObjectId: RoomObjectId;
+  parentId: RoomObjectId | null;
+}
+
+export function roomHistoryState(
+  roomObjectId: RoomObjectId,
+  parentId: RoomObjectId | null,
+): RoomHistoryState {
+  return { roomObjectId, parentId };
+}
+
+export function isRoomHistoryState(
+  state: unknown,
+  roomObjectId: RoomObjectId,
+  parentId: RoomObjectId | null,
+): boolean {
+  if (!state || typeof state !== "object") return false;
+  const entry = state as Partial<RoomHistoryState>;
+  return entry.roomObjectId === roomObjectId && entry.parentId === parentId;
+}

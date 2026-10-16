@@ -4,6 +4,8 @@ const JSON_CHUNK = 0x4e4f534a;
 
 export const REQUIRED_ROOM_NODES = [
   "CAM_Overview",
+  "INT_Desk",
+  "CAM_Anchor_Desk",
   "INT_Monitor",
   "CAM_Anchor_Monitor",
   "INT_Homelab",
@@ -22,6 +24,8 @@ export const REQUIRED_ROOM_NODES = [
   "CAM_Anchor_ContactCard",
   "CTL_Curtains",
   "CTL_Flag",
+  "Flag_FR",
+  "Flag_EN",
 ];
 
 export function readGlbNodeNames(buffer) {

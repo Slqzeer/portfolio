@@ -1,7 +1,7 @@
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Material, Mesh, Object3D } from "three";
-import type { RoomObjectId } from "../content/types";
+import type { Locale, RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";
 import { RoomIdle } from "./RoomIdle";
@@ -13,6 +13,7 @@ const idByNodeName = new Map(
   Object.values(sceneManifest).map(({ id, nodeName }) => [nodeName, id]),
 );
 const originalIntensity = new WeakMap<Material, number>();
+const localeFlags: Record<Locale, string> = { fr: "Flag_FR", en: "Flag_EN" };
 
 interface RoomPointerEvent {
   object: Object3D;
@@ -23,6 +24,7 @@ export interface RoomModelProps {
   activeObject: RoomObjectId | null;
   onInteract: (id: RoomObjectId) => void;
   onReady: () => void;
+  locale: Locale;
   lighting: Lighting;
   ambientPaused?: boolean;
   reducedMotion?: boolean;
@@ -54,7 +56,10 @@ function setHighlighted(object: Object3D, highlighted: boolean) {
 }
 
 export function prepareRoomScene(source: Object3D) {
-  for (const { nodeName } of Object.values(sceneManifest)) {
+  for (const nodeName of [
+    ...Object.values(sceneManifest).map(({ nodeName }) => nodeName),
+    ...Object.values(localeFlags),
+  ]) {
     if (!source.getObjectByName(nodeName)) {
       throw new Error(`Missing required room node: ${nodeName}`);
     }
@@ -70,6 +75,12 @@ export function prepareRoomScene(source: Object3D) {
     });
   }
   return scene;
+}
+
+export function showLocaleFlag(scene: Object3D, locale: Locale) {
+  for (const [flagLocale, nodeName] of Object.entries(localeFlags)) {
+    scene.getObjectByName(nodeName)!.visible = flagLocale === locale;
+  }
 }
 
 export function createRoomInteractionHandlers(
@@ -102,6 +113,7 @@ export function RoomModel({
   activeObject,
   onInteract,
   onReady,
+  locale,
   lighting,
   ambientPaused = false,
   reducedMotion = false,
@@ -132,6 +144,10 @@ export function RoomModel({
   }, [scene]);
 
   useCursor(hovered);
+
+  useEffect(() => {
+    showLocaleFlag(scene, locale);
+  }, [locale, scene]);
 
   useEffect(() => {
     scene.userData.activeRoomObject = activeObject;

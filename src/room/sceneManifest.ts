@@ -1,20 +1,29 @@
 import type { RoomObjectId } from "../content/types";
 
-export type SceneAction = "focus" | "toggle-lighting" | "toggle-locale";
+export type SceneAction =
+  "focus" | "focus-zone" | "toggle-lighting" | "toggle-locale";
 
 export interface SceneObjectDefinition {
   id: RoomObjectId;
   nodeName: string;
   cameraAnchorName?: string;
   action: SceneAction;
+  parentId?: RoomObjectId;
 }
 
 export const sceneManifest: Record<RoomObjectId, SceneObjectDefinition> = {
+  desk: {
+    id: "desk",
+    nodeName: "INT_Desk",
+    cameraAnchorName: "CAM_Anchor_Desk",
+    action: "focus-zone",
+  },
   monitor: {
     id: "monitor",
     nodeName: "INT_Monitor",
     cameraAnchorName: "CAM_Anchor_Monitor",
     action: "focus",
+    parentId: "desk",
   },
   server: {
     id: "server",
@@ -45,6 +54,7 @@ export const sceneManifest: Record<RoomObjectId, SceneObjectDefinition> = {
     nodeName: "INT_Smartphone",
     cameraAnchorName: "CAM_Anchor_Smartphone",
     action: "focus",
+    parentId: "desk",
   },
   bookshelf: {
     id: "bookshelf",
@@ -69,3 +79,30 @@ export const sceneManifest: Record<RoomObjectId, SceneObjectDefinition> = {
     action: "toggle-locale",
   },
 };
+
+export function parentRoomObjectId(id: RoomObjectId): RoomObjectId | null {
+  return sceneManifest[id].parentId ?? null;
+}
+
+export function roomObjectIdsForContext(
+  activeObject: RoomObjectId | null,
+): RoomObjectId[] {
+  const context = activeObject
+    ? (parentRoomObjectId(activeObject) ?? activeObject)
+    : null;
+  return Object.values(sceneManifest)
+    .filter(({ parentId }) => !parentId || parentId === context)
+    .map(({ id }) => id);
+}
+
+export function selectionTarget(
+  id: RoomObjectId,
+  activeObject: RoomObjectId | null,
+): RoomObjectId {
+  const parentId = parentRoomObjectId(id);
+  if (!parentId || !activeObject) return parentId ?? id;
+  return activeObject === parentId ||
+    parentRoomObjectId(activeObject) === parentId
+    ? id
+    : parentId;
+}

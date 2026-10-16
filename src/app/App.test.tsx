@@ -1,11 +1,18 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { App } from "./App";
 import { localize, portfolioContent } from "../content/portfolioContent";
 
+const label = (id: keyof typeof portfolioContent.roomObjects) =>
+  localize(portfolioContent.roomObjects[id].label, "fr");
+
 describe("App", () => {
+  beforeEach(() => {
+    window.history.replaceState(null, "", "/");
+  });
+
   it("renders the first-screen portfolio shell", () => {
     render(<App />);
 
@@ -91,15 +98,18 @@ describe("App", () => {
     );
     await user.click(
       screen.getByRole("button", {
-        name: localize(portfolioContent.roomObjects.monitor.label, "fr"),
+        name: localize(portfolioContent.roomObjects.controller.label, "fr"),
       }),
     );
 
-    expect(window.location.hash).toBe("#room/monitor");
+    expect(window.location.hash).toBe("#room/controller");
     expect(screen.getAllByRole("dialog")).toHaveLength(1);
     expect(
       screen.getByRole("dialog", {
-        name: localize(portfolioContent.details.projects.title, "fr"),
+        name: localize(
+          portfolioContent.details["game-development"].title,
+          "fr",
+        ),
       }),
     ).toBeInTheDocument();
   });
@@ -107,15 +117,13 @@ describe("App", () => {
   it("restores the trigger focus when Escape closes the detail", async () => {
     const user = userEvent.setup();
     render(<App />);
-    const monitor = screen.getByRole("button", {
-      name: localize(portfolioContent.roomObjects.monitor.label, "fr"),
-    });
+    const server = screen.getByRole("button", { name: label("server") });
 
-    await user.click(monitor);
+    await user.click(server);
     await user.keyboard("{Escape}");
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(monitor).toHaveFocus();
+    expect(server).toHaveFocus();
   });
 
   it("synchronizes browser history and ignores unknown hashes", () => {
@@ -152,6 +160,74 @@ describe("App", () => {
     expect(
       screen.getByRole("dialog", {
         name: localize(portfolioContent.details.projects.title, "fr"),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("enters desk focus from the overview without a detail panel", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: label("desk") }));
+
+    expect(window.location.hash).toBe("#room/desk");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: label("monitor") }),
+    ).toBeInTheDocument();
+  });
+
+  it("closes a desk child to the desk, then the desk to the overview", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: label("desk") }));
+    await user.click(screen.getByRole("button", { name: label("monitor") }));
+    expect(window.location.hash).toBe("#room/monitor");
+    expect(
+      screen.getByRole("dialog", {
+        name: localize(portfolioContent.details.projects.title, "fr"),
+      }),
+    ).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(window.location.hash).toBe("#room/desk"));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(window.location.hash).toBe(""));
+    expect(
+      screen.queryByRole("button", { name: label("monitor") }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("closes a direct desk child URL to the desk", async () => {
+    const user = userEvent.setup();
+    window.history.replaceState(null, "", "#room/monitor");
+    render(<App />);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(window.location.hash).toBe("#room/desk");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(window.location.hash).toBe("");
+  });
+
+  it("opens game projects directly from the controller", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: label("controller") }));
+
+    expect(window.location.hash).toBe("#room/controller");
+    expect(
+      screen.getByRole("dialog", {
+        name: localize(
+          portfolioContent.details["game-development"].title,
+          "fr",
+        ),
       }),
     ).toBeInTheDocument();
   });

@@ -3,6 +3,7 @@ export type Locale = "fr" | "en";
 export type LocalizedText = Record<Locale, string>;
 
 export type RoomObjectId =
+  | "desk"
   | "monitor"
   | "server"
   | "volleyball"

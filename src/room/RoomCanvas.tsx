@@ -8,10 +8,11 @@ import {
   type ReactNode,
 } from "react";
 import type { Lighting } from "../app/appState";
-import type { RoomObjectId } from "../content/types";
+import type { Locale, RoomObjectId } from "../content/types";
 import { RoomModel } from "./RoomModel";
 
 export interface RoomCanvasProps {
+  locale: Locale;
   lighting: Lighting;
   activeObject: RoomObjectId | null;
   onInteract: (id: RoomObjectId) => void;
@@ -114,6 +115,7 @@ export function RoomCanvas(props: RoomCanvasProps) {
           <Suspense fallback={null}>
             <RoomModel
               activeObject={props.activeObject}
+              locale={props.locale}
               lighting={props.lighting}
               ambientPaused={props.ambientPaused}
               onInteract={props.onInteract}

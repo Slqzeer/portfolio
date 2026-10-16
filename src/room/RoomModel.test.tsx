@@ -8,7 +8,11 @@ import {
 import { describe, expect, it, vi } from "vitest";
 import type { RoomObjectId } from "../content/types";
 import { sceneManifest } from "./sceneManifest";
-import { createRoomInteractionHandlers, prepareRoomScene } from "./RoomModel";
+import {
+  createRoomInteractionHandlers,
+  prepareRoomScene,
+  showLocaleFlag,
+} from "./RoomModel";
 
 function createScene() {
   const scene = new Group();
@@ -28,6 +32,12 @@ function createScene() {
     const cameraAnchor = new Object3D();
     cameraAnchor.name = name;
     scene.add(cameraAnchor);
+  }
+
+  for (const name of ["Flag_FR", "Flag_EN"]) {
+    const flag = new Group();
+    flag.name = name;
+    scene.getObjectByName("CTL_Flag")!.add(flag);
   }
 
   const monitor = scene.getObjectByName("INT_Monitor") as Group;
@@ -102,5 +112,27 @@ describe("RoomModel bindings", () => {
 
     handlers.onPointerOut({ object: monitor, stopPropagation: vi.fn() });
     expect(monitorMaterial.emissiveIntensity).toBe(originalIntensity);
+  });
+
+  it("rejects an export missing a locale flag variant", () => {
+    const scene = createScene();
+    const flag = scene.getObjectByName("Flag_EN")!;
+    flag.parent!.remove(flag);
+
+    expect(() => prepareRoomScene(scene)).toThrow(
+      "Missing required room node: Flag_EN",
+    );
+  });
+
+  it("shows only the flag of the current language", () => {
+    const scene = prepareRoomScene(createScene());
+    const fr = scene.getObjectByName("Flag_FR")!;
+    const en = scene.getObjectByName("Flag_EN")!;
+
+    showLocaleFlag(scene, "fr");
+    expect([fr.visible, en.visible]).toEqual([true, false]);
+
+    showLocaleFlag(scene, "en");
+    expect([fr.visible, en.visible]).toEqual([false, true]);
   });
 });

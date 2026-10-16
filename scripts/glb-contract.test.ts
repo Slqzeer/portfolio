@@ -68,6 +68,19 @@ describe("GLB room contract", () => {
     );
   });
 
+  it("requires the desk zone and both locale flag variants", async () => {
+    const { REQUIRED_ROOM_NODES } = await requireContract();
+
+    expect(REQUIRED_ROOM_NODES).toEqual(
+      expect.arrayContaining([
+        "INT_Desk",
+        "CAM_Anchor_Desk",
+        "Flag_FR",
+        "Flag_EN",
+      ]),
+    );
+  });
+
   it("matches the runtime scene manifest", async () => {
     const { REQUIRED_ROOM_NODES } = await requireContract();
     const runtimeNames = [
@@ -76,6 +89,8 @@ describe("GLB room contract", () => {
         definition.nodeName,
         ...(definition.cameraAnchorName ? [definition.cameraAnchorName] : []),
       ]),
+      "Flag_FR",
+      "Flag_EN",
     ];
 
     expect(REQUIRED_ROOM_NODES).toEqual(runtimeNames);
