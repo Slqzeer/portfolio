@@ -74,6 +74,13 @@ export function prepareRoomScene(source: Object3D) {
         : object.material.clone();
     });
   }
+  // The GLB exports Flag_EN with a stray transform; both canvases share bounds.
+  const [fr, en] = Object.values(localeFlags).map(
+    (name) => scene.getObjectByName(name)!,
+  );
+  en.position.copy(fr.position);
+  en.quaternion.copy(fr.quaternion);
+  en.scale.copy(fr.scale);
   prepareLighting(scene);
   return scene;
 }
@@ -207,7 +214,6 @@ export function RoomModel({
         lighting={lighting}
         scene={scene}
         animations={animations}
-        reducedMotion={reducedMotion}
       />
       <RoomIdle
         scene={scene}

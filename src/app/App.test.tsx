@@ -30,13 +30,15 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "English" }));
+    await user.click(
+      screen.getByRole("button", { name: "Français, switch to English" }),
+    );
 
     expect(
       screen.getByText("End-of-study internship · February 2027"),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Français" }),
+      screen.getByRole("button", { name: "English, passer en français" }),
     ).toBeInTheDocument();
   });
 

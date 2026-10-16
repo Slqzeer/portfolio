@@ -39,6 +39,10 @@ export function App() {
     document.documentElement.lang = state.locale;
   }, [state.locale]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = state.lighting;
+  }, [state.lighting]);
+
   const closeObject = useCallback(() => {
     const objectId = state.activeObject;
     if (!objectId) return;

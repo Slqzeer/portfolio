@@ -49,9 +49,14 @@ export function SiteHeader({
       <button
         className="language-toggle"
         type="button"
+        aria-label={
+          locale === "fr"
+            ? "Français, switch to English"
+            : "English, passer en français"
+        }
         onClick={() => onLocaleChange(nextLocale)}
       >
-        {nextLocale === "en" ? "English" : "Français"}
+        {locale === "en" ? "English" : "Français"}
       </button>
     </header>
   );

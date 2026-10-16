@@ -127,7 +127,9 @@ describe("RoomModel bindings", () => {
   });
 
   it("shows only the flag of the current language", () => {
-    const scene = prepareRoomScene(createScene());
+    const source = createScene();
+    source.getObjectByName("Flag_EN")!.position.set(-0.4, -1.2, 1.4);
+    const scene = prepareRoomScene(source);
     const fr = scene.getObjectByName("Flag_FR")!;
     const en = scene.getObjectByName("Flag_EN")!;
 
@@ -136,6 +138,7 @@ describe("RoomModel bindings", () => {
 
     showLocaleFlag(scene, "en");
     expect([fr.visible, en.visible]).toEqual([false, true]);
+    expect(en.position.toArray()).toEqual(fr.position.toArray());
   });
 
   it("switches off Blender's lights but keeps them as anchors", () => {

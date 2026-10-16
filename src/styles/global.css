@@ -196,6 +196,48 @@ button:disabled {
   }
 }
 
+/* Night lighting switches the whole interface to dark. */
+:root[data-theme="night"] {
+  color: #e8eef4;
+  background: #050b12;
+  color-scheme: dark;
+}
+
+:root[data-theme="night"] .site-header {
+  border-bottom-color: rgb(232 238 244 / 12%);
+  background: rgb(9 17 27 / 88%);
+}
+
+:root[data-theme="night"] .brand,
+:root[data-theme="night"] .primary-action {
+  border-color: #e8eef4 !important;
+  background: #e8eef4 !important;
+  color: #09111b;
+}
+
+:root[data-theme="night"] .intro-card {
+  border-color: rgb(232 238 244 / 12%);
+  background: rgb(13 23 36 / 92%);
+  box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="night"] .availability {
+  background: rgb(98 218 198 / 18%);
+  color: #62dac6;
+}
+
+:root[data-theme="night"] .eyebrow {
+  color: #9aa7b2;
+}
+
+:root,
+.site-header,
+.intro-card {
+  transition:
+    background-color 600ms ease,
+    color 600ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
