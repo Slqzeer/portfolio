@@ -4,7 +4,11 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { RoomCanvas } from "./RoomCanvas";
 
-const canvas = vi.hoisted(() => ({ fails: false }));
+const canvas = vi.hoisted(() => ({ fails: false, progress: 0 }));
+
+vi.mock("@react-three/drei", () => ({
+  useProgress: () => ({ progress: canvas.progress }),
+}));
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: ({ children }: { children: ReactNode }) => {
@@ -44,19 +48,24 @@ describe("RoomCanvas", () => {
   });
 
   it.each([
-    ["day", "/assets/room/room-poster-day.webp"],
-    ["night", "/assets/room/room-poster-night.webp"],
+    ["fr", "Chargement de la chambre"],
+    ["en", "Loading the room"],
   ] as const)(
-    "keeps the %s poster until the canvas is ready",
-    async (lighting, src) => {
+    "shows a %s loading screen with progress until the canvas is ready",
+    async (locale, label) => {
       const user = userEvent.setup();
-      render(<RoomCanvas {...defaultProps} lighting={lighting} />);
+      canvas.progress = 42;
+      render(<RoomCanvas {...defaultProps} locale={locale} />);
 
-      expect(screen.getByTestId("room-poster")).toHaveAttribute("src", src);
+      expect(screen.getByRole("progressbar", { name: label })).toHaveAttribute(
+        "aria-valuenow",
+        "42",
+      );
+      expect(screen.queryByTestId("room-poster")).not.toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: "ready" }));
 
-      expect(screen.queryByTestId("room-poster")).not.toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
       expect(defaultProps.onReady).toHaveBeenCalledOnce();
     },
   );
@@ -65,7 +74,11 @@ describe("RoomCanvas", () => {
     canvas.fails = true;
     render(<RoomCanvas {...defaultProps} />);
 
-    expect(screen.getByTestId("room-poster")).toBeInTheDocument();
+    expect(screen.getByTestId("room-poster")).toHaveAttribute(
+      "src",
+      "/assets/room/room-poster-day.webp",
+    );
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(await screen.findByRole("status")).toHaveTextContent(
       "3D scene unavailable",
     );

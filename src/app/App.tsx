@@ -128,7 +128,7 @@ export function App() {
           dispatch({ type: "locale.changed", locale })
         }
       />
-      <main>
+      <main data-intro-open={state.introExpanded}>
         <RoomScene
           locale={state.locale}
           lighting={state.lighting}

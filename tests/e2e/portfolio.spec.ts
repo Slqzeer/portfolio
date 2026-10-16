@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("loads the GLB behind its poster and enables pointer follow", async ({
+test("loads the GLB behind a loading screen and enables pointer follow", async ({
   page,
 }) => {
   await page.route("**/portfolio-room.glb", async (route) => {
@@ -10,11 +10,15 @@ test("loads the GLB behind its poster and enables pointer follow", async ({
   await page.goto("/");
 
   const roomCanvas = page.locator(".room-canvas");
-  await expect(page.getByTestId("room-poster")).toBeVisible();
+  const loading = page.getByRole("progressbar", {
+    name: "Chargement de la chambre",
+  });
+  await expect(loading).toBeVisible();
   // Ready waits for the GLB and its lightmaps; CI renders in software.
   await expect(roomCanvas).toHaveAttribute("data-ready", "true", {
     timeout: 20000,
   });
+  await expect(loading).toHaveCount(0);
   await expect(page.getByTestId("room-poster")).toHaveCount(0);
 
   const canvas = roomCanvas.locator("canvas");
@@ -35,6 +39,9 @@ test("loads the GLB behind its poster and enables pointer follow", async ({
 test("routes focus, curtains, and flag without control zoom", async ({
   page,
 }) => {
+  // Zoomed views fill the canvas; CI's software renderer draws them at ~1 fps
+  // (60 fps on a GPU), so clicks wait seconds for animation frames.
+  test.slow();
   await page.goto("/");
   await page.getByRole("button", { name: "Explorer la chambre" }).click();
   const canvas = page.locator(".room-canvas canvas");

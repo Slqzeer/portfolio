@@ -189,6 +189,13 @@ button:disabled {
   }
 }
 
+/* Keep the room clear of the open introduction card on wide screens. */
+@media (min-width: 761px) {
+  main[data-intro-open="true"] .room-scene {
+    left: min(45rem, 50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

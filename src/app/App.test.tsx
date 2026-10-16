@@ -59,6 +59,7 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByText(/Je transforme des données/)).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveAttribute("data-intro-open", "true");
     await user.click(
       screen.getByRole("button", { name: "Explorer la chambre" }),
     );
@@ -66,6 +67,10 @@ describe("App", () => {
     expect(
       screen.queryByText(/Je transforme des données/),
     ).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveAttribute(
+      "data-intro-open",
+      "false",
+    );
   });
 
   it("persists the lighting selected from the window", async () => {
