@@ -26,10 +26,10 @@ const WINDOW_VIEW_NIGHT = 0.025;
 
 // Mirrors public/assets/room/lightmaps/scales.json (written by encode-room-lightmaps.py).
 export const LIGHTMAP_SCALES = {
-  LM_props_day: 16.38911,
-  LM_props_night: 1.35276,
-  LM_shell_day: 7.25617,
-  LM_shell_night: 2.28157,
+  LM_props_day: 16.52232,
+  LM_props_night: 1.35848,
+  LM_shell_day: 7.25733,
+  LM_shell_night: 2.28204,
 } as const;
 type LightmapKey = keyof typeof LIGHTMAP_SCALES;
 const LIGHTMAP_KEYS = Object.keys(LIGHTMAP_SCALES) as LightmapKey[];
