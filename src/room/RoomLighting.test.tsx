@@ -39,6 +39,12 @@ describe("RoomLighting", () => {
     expect(lightingFrame("day", 0.75).dayMap).toBeCloseTo(0.5);
   });
 
+  it("darkens the garden behind the window before the blind closes", () => {
+    expect(lightingFrame("day", 1).windowView).toBe(1);
+    expect(lightingFrame("night", 0.5).windowView).toBeCloseTo(0.025);
+    expect(lightingFrame("night", 1).windowView).toBeCloseTo(0.025);
+  });
+
   it("uses the encoded lightmap scales", () => {
     expect(LIGHTMAP_SCALES).toEqual(JSON.parse(scalesJson));
   });

@@ -21,13 +21,15 @@ import type { Lighting } from "../app/appState";
 const DAYLIGHT = 0.6;
 const WINDOW_LIGHT = 0.5;
 const LAMP_LIGHT = 6;
+// Mirrors MAT_WindowView: the garden glow drops to 0.05 / 2 before the blind closes.
+const WINDOW_VIEW_NIGHT = 0.025;
 
 // Mirrors public/assets/room/lightmaps/scales.json (written by encode-room-lightmaps.py).
 export const LIGHTMAP_SCALES = {
-  LM_props_day: 28.18025,
-  LM_props_night: 5.43002,
-  LM_shell_day: 9.94105,
-  LM_shell_night: 1.26289,
+  LM_props_day: 16.38911,
+  LM_props_night: 1.35276,
+  LM_shell_day: 7.25617,
+  LM_shell_night: 2.28157,
 } as const;
 type LightmapKey = keyof typeof LIGHTMAP_SCALES;
 const LIGHTMAP_KEYS = Object.keys(LIGHTMAP_SCALES) as LightmapKey[];
@@ -71,6 +73,7 @@ export function lightingFrame(lighting: Lighting, progress: number) {
         curtainProgress: value,
         dayMap: 1 - firstHalf,
         nightMap: secondHalf,
+        windowView: Math.max(1 - firstHalf, WINDOW_VIEW_NIGHT),
       }
     : {
         daylight: DAYLIGHT * secondHalf,
@@ -80,6 +83,7 @@ export function lightingFrame(lighting: Lighting, progress: number) {
         curtainProgress: 1 - value,
         dayMap: secondHalf,
         nightMap: 1 - firstHalf,
+        windowView: Math.max(secondHalf, WINDOW_VIEW_NIGHT),
       };
 }
 
@@ -115,6 +119,13 @@ export function RoomLighting({
       }
     });
     return [...materials];
+  }, [scene]);
+  const windowView = useMemo(() => {
+    const mesh = scene.getObjectByName("EMIT_WindowView");
+    const material = mesh instanceof Mesh ? mesh.material : undefined;
+    return material instanceof MeshStandardMaterial
+      ? { material, base: material.emissiveIntensity }
+      : undefined;
   }, [scene]);
   const curtainActions = useMemo(() => {
     const mixer = new AnimationMixer(scene);
@@ -165,6 +176,10 @@ export function RoomLighting({
     if (lamp.current) lamp.current.intensity = frame.lamp;
     if (fill.current) fill.current.intensity = frame.fill;
     applyLightmaps(bakedMaterials, lightmaps, frame);
+    if (windowView) {
+      windowView.material.emissiveIntensity =
+        windowView.base * frame.windowView;
+    }
 
     for (const { action, duration } of curtainActions.actions) {
       action.time = duration * frame.curtainProgress;
