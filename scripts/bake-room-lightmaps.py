@@ -33,7 +33,7 @@ bake.margin = 6
 
 
 def bake_atlas(atlas, state):
-    objs = [o for o in scene.objects if o.get("lightmap_atlas") == atlas]
+    objs = [o for o in scene.objects if o.get("lightmap_atlas") == atlas and not o.get("lightmap_decal")]
     size = SIZES[atlas]
     img = bpy.data.images.new(f"LM_{atlas}_{state}", size, size, float_buffer=True)
     added = []
@@ -59,6 +59,10 @@ def bake_atlas(atlas, state):
     print(f"[bake] {atlas} {state} {size}px {time.time() - started:.0f}s -> {path}", flush=True)
 
 
+# Decals (text, button symbols) read the base surface's texels; they must not shadow them.
+decals = [o for o in scene.objects if o.get("lightmap_decal")]
+for o in decals:
+    o.hide_render = True
 for state in args:
     scene.frame_set(STATES[state])
     for atlas in ("shell", "props"):

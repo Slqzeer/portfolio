@@ -1,11 +1,11 @@
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Light, Material, Mesh, Object3D } from "three";
+import { Light, Material, Mesh, MeshPhysicalMaterial, Object3D } from "three";
 import type { Locale, RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";
 import { RoomIdle } from "./RoomIdle";
-import { RoomLighting } from "./RoomLighting";
+import { RoomLighting, withoutIblDiffuse } from "./RoomLighting";
 import { sceneManifest } from "./sceneManifest";
 
 const ROOM_GLTF_URL = "/assets/room/portfolio-room.glb";
@@ -75,8 +75,8 @@ export function prepareRoomScene(source: Object3D) {
     });
   }
   // The GLB exports Flag_EN with a stray transform; both canvases share bounds.
-  const [fr, en] = Object.values(localeFlags).map(
-    (name) => scene.getObjectByName(name)!,
+  const [fr, en] = Object.values(localeFlags).map((name) =>
+    scene.getObjectByName(name)!,
   );
   en.position.copy(fr.position);
   en.quaternion.copy(fr.quaternion);
@@ -101,14 +101,19 @@ function prepareLighting(scene: Object3D) {
 
   const baked = new Map<string, Material>();
   scene.traverse((object) => {
-    if (!(object instanceof Mesh) || !object.geometry.attributes.uv1) return;
-    const atlas = lightmapAtlas(object);
-    if (!atlas) return;
+    if (!(object instanceof Mesh)) return;
+    // Unbaked meshes (blind, flags, glass, screens) get a flat white lightmap.
+    const atlas =
+      (object.geometry.attributes.uv1 && lightmapAtlas(object)) || "flat";
     const bake = (material: Material) => {
       const key = `${material.uuid}:${atlas}`;
       if (!baked.has(key)) {
         const clone = material.clone();
         clone.userData.lightmapAtlas = atlas;
+        // three.js lays sheen over the flat lightmap irradiance as a grey veil,
+        // turning the navy sofa and rug slate; the bake already shades them.
+        if (clone instanceof MeshPhysicalMaterial) clone.sheen = 0;
+        withoutIblDiffuse(clone);
         baked.set(key, clone);
       }
       return baked.get(key)!;
@@ -210,11 +215,7 @@ export function RoomModel({
         reducedMotion={reducedMotion}
         pointerEnabled={pointerEnabled}
       />
-      <RoomLighting
-        lighting={lighting}
-        scene={scene}
-        animations={animations}
-      />
+      <RoomLighting lighting={lighting} scene={scene} animations={animations} />
       <RoomIdle
         scene={scene}
         paused={ambientPaused}

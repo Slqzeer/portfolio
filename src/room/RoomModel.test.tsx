@@ -101,7 +101,9 @@ describe("RoomModel bindings", () => {
     const originalIntensity = monitorMaterial.emissiveIntensity;
 
     expect(monitor.material).not.toBe(sourceMonitor.material);
-    expect(decoration.material).toBe(sourceDecoration.material);
+    expect(
+      (sourceDecoration.material as MeshStandardMaterial).emissiveIntensity,
+    ).toBe(1);
 
     handlers.onPointerOver({ object: monitor, stopPropagation: vi.fn() });
 
@@ -153,7 +155,7 @@ describe("RoomModel bindings", () => {
     expect(sun.visible).toBe(true);
   });
 
-  it("tags baked meshes with their lightmap atlas, one material per atlas", () => {
+  it("tags meshes with their lightmap atlas (flat when unbaked), one material per atlas", () => {
     const source = createScene();
     const shared = new MeshStandardMaterial();
     const baked = (atlas: string) => {
@@ -186,7 +188,9 @@ describe("RoomModel bindings", () => {
       "props",
     );
     expect(floor.material).not.toBe(desk.material);
-    expect(screen.material).toBe(shared);
+    expect(
+      (screen.material as MeshStandardMaterial).userData.lightmapAtlas,
+    ).toBe("flat");
     expect(shared.userData.lightmapAtlas).toBeUndefined();
   });
 });

@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { AgXToneMapping } from "three";
 import type { Lighting } from "../app/appState";
 import type { Locale, RoomObjectId } from "../content/types";
 import { RoomModel } from "./RoomModel";
@@ -136,6 +137,8 @@ export function RoomCanvas(props: RoomCanvasProps) {
           orthographic
           camera={{ near: 0.1, far: 100, zoom: 65 }}
           dpr={[1, 2]}
+          // Blender renders the room with AgX; ACES (R3F's default) shifts its colours.
+          gl={{ toneMapping: AgXToneMapping }}
           fallback={<span>3D scene unavailable</span>}
         >
           <Suspense fallback={null}>
