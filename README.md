@@ -24,16 +24,16 @@ Le bouton **Lecture rapide** ouvre les mêmes contenus immédiatement sans atten
 ## Remplacer les visuels
 
 - Référence de composition : [Canva](https://www.canva.com/d/Hy2EbjsPEIPOa6D)
-- Source Blender éditable actuelle : `assets/blender/art-v2/portfolio-room.blend`
-- Source Blender optimisée actuelle : `assets/blender/art-v2/portfolio-room-optimized.blend`
-- Les deux sources précédentes restent conservées dans `assets/blender/`.
+- Source Blender éditable actuelle : `assets/blender/baseline/portfolio-room.blend`
+- Source Blender optimisée actuelle : `assets/blender/baseline/portfolio-room-optimized.blend`
+- Les sources d’origine restent conservées dans `assets/blender/` ; `art-v2` est une expérience non validée conservée pour comparaison.
 - Scène web : `public/assets/room/portfolio-room.glb`
 - Posters transparents de secours et de lecture : `public/assets/room/room-overview-day.png` et `room-overview-night.png`, régénérés par `scripts/render-room-posters.py` sans enregistrer le master Blender
 - Contrat des objets : `src/room/sceneManifest.ts`
 
-Après une modification Blender, conserver les noms `INT_*`, `CTL_*` et `CAM_Anchor_*`, exporter le GLB, puis exécuter `npm run assets:check`. Canva reste la référence visuelle ; Figma sert aux panneaux HTML et à la typographie.
+Blender est la source de vérité : modifier et vérifier les assets, matières, éclairages et animations dans Blender avant l’export. Conserver les noms `INT_*`, `CTL_*` et `CAM_Anchor_*` ainsi que les clips `Hover_*`, exporter le GLB, puis exécuter `npm run assets:check`. Les interactions web lisent les clips exportés ; elles ne créent pas les mouvements de la scène.
 
-La [finition des assets et des ambiances](docs/design/room-art-direction.md) décrit les matières, les animations, les contrôles de réduction des mouvements et la chaîne de recalcul des éclairages.
+Le [retour ciblé à la scène d’origine](docs/design/room-baseline-restore.md) précise la version restaurée, les textes conservés, les réactions Blender et les vérifications. La [passe art-v2](docs/design/room-art-direction.md) reste archivée.
 
 ## Déploiement
 

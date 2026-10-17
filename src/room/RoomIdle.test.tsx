@@ -8,7 +8,9 @@ const fiber = vi.hoisted(() => ({
   frame: undefined as ((state: unknown, delta: number) => void) | undefined,
 }));
 vi.mock("@react-three/fiber", () => ({
-  useFrame: (callback: typeof fiber.frame) => { fiber.frame = callback; },
+  useFrame: (callback: typeof fiber.frame) => {
+    fiber.frame = callback;
+  },
 }));
 
 function setup() {
@@ -19,14 +21,23 @@ function setup() {
   const decoration = new Object3D();
   decoration.name = "Plant_Large_Leaves";
   scene.add(decoration);
-  const clip = new AnimationClip("Hover_volleyball", .6, [
-    new VectorKeyframeTrack("INT_Volleyball.position", [0, .2, .6], [0, 0, 0, 0, .07, 0, 0, 0, 0]),
+  const clip = new AnimationClip("Hover_volleyball", 0.6, [
+    new VectorKeyframeTrack(
+      "INT_Volleyball.position",
+      [0, 0.2, 0.6],
+      [0, 0, 0, 0, 0.07, 0, 0, 0, 0],
+    ),
   ]);
-  const props: RoomIdleProps = { scene, animations: [clip], paused: false, reducedMotion: false };
+  const props: RoomIdleProps = {
+    scene,
+    animations: [clip],
+    paused: false,
+    reducedMotion: false,
+  };
   return { props, ball, decoration };
 }
 const advance = (count = 1) => {
-  for (let i = 0; i < count; i++) fiber.frame!({}, .1);
+  for (let i = 0; i < count; i++) fiber.frame!({}, 0.1);
 };
 
 describe("Blender animation playback", () => {
@@ -37,7 +48,7 @@ describe("Blender animation playback", () => {
     expect(ball.position.y).toBe(0);
     rerender(<RoomIdle {...props} hoveredObject="volleyball" />);
     advance(2);
-    expect(ball.position.y).toBeCloseTo(.07);
+    expect(ball.position.y).toBeCloseTo(0.07);
     expect(decoration.rotation.toArray()).toEqual([0, 0, 0, "XYZ"]);
     advance(20);
     expect(ball.position.y).toBe(0);
@@ -45,7 +56,9 @@ describe("Blender animation playback", () => {
 
   it("pauses without a hidden-tab time jump and restores rest on reduced motion", () => {
     const { props, ball } = setup();
-    const { rerender } = render(<RoomIdle {...props} hoveredObject="volleyball" />);
+    const { rerender } = render(
+      <RoomIdle {...props} hoveredObject="volleyball" />,
+    );
     advance();
     const before = ball.position.y;
     rerender(<RoomIdle {...props} hoveredObject="volleyball" paused />);
@@ -53,7 +66,7 @@ describe("Blender animation playback", () => {
     expect(ball.position.y).toBe(before);
     rerender(<RoomIdle {...props} hoveredObject="volleyball" />);
     fiber.frame!({}, 100);
-    expect(ball.position.y).toBeCloseTo(.07);
+    expect(ball.position.y).toBeCloseTo(0.07);
     rerender(<RoomIdle {...props} hoveredObject="volleyball" reducedMotion />);
     expect(ball.position.y).toBe(0);
     advance(10);
@@ -62,10 +75,18 @@ describe("Blender animation playback", () => {
 
   it("restores the authored pose on leave and still works after StrictMode cleanup", () => {
     const { props, ball } = setup();
-    const { rerender } = render(<StrictMode><RoomIdle {...props} hoveredObject="volleyball" /></StrictMode>);
+    const { rerender } = render(
+      <StrictMode>
+        <RoomIdle {...props} hoveredObject="volleyball" />
+      </StrictMode>,
+    );
     advance(2);
-    expect(ball.position.y).toBeCloseTo(.07);
-    rerender(<StrictMode><RoomIdle {...props} /></StrictMode>);
+    expect(ball.position.y).toBeCloseTo(0.07);
+    rerender(
+      <StrictMode>
+        <RoomIdle {...props} />
+      </StrictMode>,
+    );
     expect(ball.position.y).toBe(0);
   });
 });

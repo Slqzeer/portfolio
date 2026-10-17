@@ -8,7 +8,7 @@ async function openRoomMenu(page: Page) {
   await expect(menu).toHaveAttribute("open", "");
 }
 
-test("animates exported foliage and renders both ambient shaders without errors", async ({
+test("shows discreet hover information and renders both restored ambiences without errors", async ({
   page,
 }, testInfo) => {
   test.slow();
@@ -18,19 +18,27 @@ test("animates exported foliage and renders both ambient shaders without errors"
     if (message.type() === "error") errors.push(message.text());
   });
   await page.goto("/");
-  const canvas = page.locator(".room-canvas canvas");
   await expect(page.locator(".room-canvas")).toHaveAttribute(
     "data-ready",
     "true",
     { timeout: 20000 },
   );
-  await expect(canvas).toHaveAttribute("data-plant-sway", /-?0\.\d+/, {
-    timeout: 15000,
-  });
-  const first = await canvas.getAttribute("data-plant-sway");
-  await expect(canvas).not.toHaveAttribute("data-plant-sway", first!);
+  const marker = page.getByRole("button", { name: "Les projets", exact: true });
+  const label = marker.locator(".hotspot-label");
+  await expect(marker).toHaveCSS("width", "44px");
+  await expect(marker.locator(".hotspot-dot")).toHaveCSS("width", "7px");
+  await expect(label).toHaveCSS("opacity", "0");
+  await marker.hover();
+  await expect(marker).toHaveAttribute("data-hovered", "true");
+  await expect(label).toHaveCSS("opacity", "1");
+  await expect(page.locator("body")).toHaveCSS("cursor", "pointer");
+  await page.mouse.move(1, 1);
+  await expect(label).toHaveCSS("opacity", "0");
+  await marker.focus();
+  await expect(label).toHaveCSS("opacity", "1");
+  await page.screenshot({ path: testInfo.outputPath("baseline-hover.png") });
   await page.getByRole("button", { name: "Réduire les mouvements" }).click();
-  await expect(canvas).toHaveAttribute("data-plant-sway", "0.00000");
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
   await expect(

@@ -13,17 +13,25 @@ const buffer = bytes.buffer.slice(
 );
 const names = readGlbNodeNames(buffer);
 assertRequiredRoomNodes(names);
-for (const idle of [
-  "Plant_Large_Leaves",
-  "DeskPlant_Leaves",
-  "TablePlant_Leaves",
-  "Blind_Cord_01",
-  "Blind_Cord_02",
-  "IDLE_Monitor_Cursor",
-  "Lamp_Shade",
-  "Lamp_Bulb",
+const gltf = JSON.parse(
+  bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString(),
+);
+for (const id of [
+  "volleyball",
+  "controller",
+  "bookshelf",
+  "monitor",
+  "smartphone",
+  "education",
+  "contact",
+  "server",
 ]) {
-  if (!names.has(idle))
-    throw new Error(`Missing idle-animation target: ${idle}`);
+  const clip = gltf.animations?.find(({ name }) => name === `Hover_${id}`);
+  if (!clip?.channels.length)
+    throw new Error(`Missing Blender hover clip: Hover_${id}`);
+  for (const channel of clip.channels) {
+    if (!gltf.nodes[channel.target.node]?.name)
+      throw new Error(`Missing Blender hover target: Hover_${id}`);
+  }
 }
 console.log(`Valid room GLB: ${names.size} named nodes (${path})`);

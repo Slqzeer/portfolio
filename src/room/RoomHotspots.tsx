@@ -7,16 +7,15 @@ import type { Locale, RoomObjectId } from "../content/types";
 import { sceneManifest } from "./sceneManifest";
 
 const markers = [
-  { id: "monitor", fr: "Les projets", en: "The projects", number: "01" },
-  { id: "server", fr: "Le homelab", en: "The homelab", number: "02" },
-  { id: "bookshelf", fr: "Les compétences", en: "The skills", number: "03" },
-  { id: "education", fr: "Le parcours", en: "The journey", number: "04" },
-  { id: "volleyball", fr: "Un peu de moi", en: "A bit about me", number: "05" },
+  { id: "monitor", fr: "Les projets", en: "The projects" },
+  { id: "server", fr: "Le homelab", en: "The homelab" },
+  { id: "bookshelf", fr: "Les compétences", en: "The skills" },
+  { id: "education", fr: "Le parcours", en: "The journey" },
+  { id: "volleyball", fr: "Un peu de moi", en: "A bit about me" },
   {
     id: "contact",
     fr: "Restons en contact",
     en: "Let's connect",
-    number: "06",
   },
 ] as const;
 
@@ -37,15 +36,17 @@ export function RoomHotspots({
 }) {
   const positions = useMemo(
     () =>
-      Object.fromEntries(Object.values(sceneManifest).map(({ id, nodeName }) => {
-        const object = scene.getObjectByName(nodeName);
-        if (!object) return [id, null];
-        const box = new Box3().setFromObject(object);
-        if (box.isEmpty()) return [id, null];
-        const point = box.getCenter(new Vector3());
-        point.y = box.max.y + 0.16;
-        return [id, point];
-      })) as Record<RoomObjectId, Vector3 | null>,
+      Object.fromEntries(
+        Object.values(sceneManifest).map(({ id, nodeName }) => {
+          const object = scene.getObjectByName(nodeName);
+          if (!object) return [id, null];
+          const box = new Box3().setFromObject(object);
+          if (box.isEmpty()) return [id, null];
+          const point = box.getCenter(new Vector3());
+          point.y = box.max.y + 0.16;
+          return [id, point];
+        }),
+      ) as Record<RoomObjectId, Vector3 | null>,
     [scene],
   );
 
@@ -53,7 +54,8 @@ export function RoomHotspots({
     <>
       {markers.map(
         (marker, index) =>
-          showMarkers && positions[marker.id] && (
+          showMarkers &&
+          positions[marker.id] && (
             <Html
               key={marker.id}
               position={positions[marker.id]!}
@@ -93,9 +95,15 @@ export function RoomHotspots({
             </Html>
           ),
       )}
-      {hoveredObject && positions[hoveredObject] &&
+      {hoveredObject &&
+        positions[hoveredObject] &&
         (!showMarkers || !markers.some(({ id }) => id === hoveredObject)) && (
-          <Html position={positions[hoveredObject]!} center zIndexRange={[8, 2]} style={{ pointerEvents: "none" }}>
+          <Html
+            position={positions[hoveredObject]!}
+            center
+            zIndexRange={[8, 2]}
+            style={{ pointerEvents: "none" }}
+          >
             <span className="hotspot-label object-hover-label">
               {portfolioContent.roomObjects[hoveredObject].label[locale]}
             </span>

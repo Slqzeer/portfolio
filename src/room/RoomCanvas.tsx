@@ -25,7 +25,7 @@ function SceneMetrics() {
   const { gl } = useThree();
   const sample = useRef({ frames: 0, startedAt: performance.now() });
 
-  useFrame(({ scene }) => {
+  useFrame(() => {
     const now = performance.now();
     sample.current.frames += 1;
     const elapsed = now - sample.current.startedAt;
@@ -34,8 +34,6 @@ function SceneMetrics() {
       Math.round((sample.current.frames * 1000) / elapsed),
     );
     gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
-    const plant = scene.getObjectByName("IDLE_Plant_Large_Leaves");
-    if (plant) gl.domElement.dataset.plantSway = plant.rotation.z.toFixed(5);
     sample.current = { frames: 0, startedAt: now };
   });
 

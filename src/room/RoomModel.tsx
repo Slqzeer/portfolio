@@ -1,12 +1,6 @@
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Light,
-  Material,
-  Mesh,
-  MeshPhysicalMaterial,
-  Object3D,
-} from "three";
+import { Light, Material, Mesh, MeshPhysicalMaterial, Object3D } from "three";
 import type { Locale, RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";

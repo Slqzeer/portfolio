@@ -1,5 +1,7 @@
 # Chambre : matières, ambiance et visibilité
 
+**Passe expérimentale archivée, non validée.** La scène livrée revient désormais à la version Blender d’origine, en conservant les contenus personnalisés. Voir [le retour ciblé à la référence](room-baseline-restore.md). Les paragraphes ci-dessous décrivent l’expérience `art-v2`, pas la direction actuelle. Ne pas relancer ses scripts de reconstruction pour produire le site courant.
+
 17 octobre 2026. Cette passe répond au retour sur les assets, l’absence de vie et la cohérence des thèmes. Elle conserve l’agencement et les repères de caméra existants.
 
 ## Assets et palette

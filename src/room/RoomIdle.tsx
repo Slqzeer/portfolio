@@ -23,25 +23,36 @@ export function RoomIdle({
 }: RoomIdleProps) {
   const mixer = useMemo(() => new AnimationMixer(scene), [scene]);
 
-  useEffect(() => () => {
-    mixer.stopAllAction();
-    mixer.uncacheRoot(scene);
-  }, [mixer, scene]);
+  useEffect(
+    () => () => {
+      mixer.stopAllAction();
+      mixer.uncacheRoot(scene);
+    },
+    [mixer, scene],
+  );
 
   useEffect(() => {
     if (reducedMotion || activeObject === "monitor") return;
-    const clip = animations.find(({ name }) => name === "IDLE_Monitor_CursorAction");
+    const clip = animations.find(
+      ({ name }) => name === "IDLE_Monitor_CursorAction",
+    );
     if (!clip) return;
     const action = mixer.clipAction(clip).reset().play();
-    return () => { action.stop(); };
+    return () => {
+      action.stop();
+    };
   }, [animations, mixer, reducedMotion, activeObject]);
 
   useEffect(() => {
     if (reducedMotion || !hoveredObject) return;
-    const clip = animations.find(({ name }) => name === `Hover_${hoveredObject}`);
+    const clip = animations.find(
+      ({ name }) => name === `Hover_${hoveredObject}`,
+    );
     if (!clip) return;
     const action = mixer.clipAction(clip).reset().setLoop(LoopOnce, 1).play();
-    return () => { action.stop(); };
+    return () => {
+      action.stop();
+    };
   }, [animations, mixer, hoveredObject, reducedMotion]);
 
   useFrame((_, delta) => {

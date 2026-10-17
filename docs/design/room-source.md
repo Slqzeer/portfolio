@@ -2,9 +2,11 @@
 
 Status: **implemented in Blender and exported as the runtime GLB**
 
+Current production source (17 October 2026): **Blender is the source of truth** for assets, materials, lighting and animations. The original art has been restored in `assets/blender/baseline/portfolio-room.blend` and `portfolio-room-optimized.blend`, retaining personalized text and adding Blender-authored hover clips. See [the scoped restoration](room-baseline-restore.md). `art-v2` is an unapproved experiment retained for comparison. The original sources below remain intact.
+
 ## Visual reference
 
-Penpot is the approved source of truth for room composition and interaction annotations.
+Penpot records the historical room composition and interaction annotations. Production changes must now be authored and reviewed in Blender first.
 
 - Instance: <https://penpot.taildf6cd4.ts.net>
 - File ID: `222559c6-1a87-800d-8008-c3780ad3f78d`
@@ -27,8 +29,8 @@ The original Canva exports remain as migration sources and visual receipts. Figm
 
 ## Production assets
 
-- Editable master: `assets/blender/portfolio-room.blend`
-- Web-optimized derivative: `assets/blender/portfolio-room-optimized.blend`
+- Editable master: `assets/blender/baseline/portfolio-room.blend`
+- Web-optimized derivative: `assets/blender/baseline/portfolio-room-optimized.blend`
 - Runtime scene: `public/assets/room/portfolio-room.glb`
 - Loading posters: `public/assets/room/room-poster-day.webp` and `room-poster-night.webp`
 - Overview camera: `CAM_Overview`
