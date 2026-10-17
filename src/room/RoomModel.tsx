@@ -1,10 +1,17 @@
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Light, Material, Mesh, MeshPhysicalMaterial, Object3D } from "three";
+import {
+  Light,
+  Material,
+  Mesh,
+  MeshPhysicalMaterial,
+  Object3D,
+} from "three";
 import type { Locale, RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";
 import { RoomIdle } from "./RoomIdle";
+import { RoomHotspots } from "./RoomHotspots";
 import { RoomLighting, withoutIblDiffuse } from "./RoomLighting";
 import { sceneManifest } from "./sceneManifest";
 
@@ -12,7 +19,6 @@ const ROOM_GLTF_URL = "/assets/room/portfolio-room.glb";
 const idByNodeName = new Map(
   Object.values(sceneManifest).map(({ id, nodeName }) => [nodeName, id]),
 );
-const originalIntensity = new WeakMap<Material, number>();
 const localeFlags: Record<Locale, string> = { fr: "Flag_FR", en: "Flag_EN" };
 
 interface RoomPointerEvent {
@@ -29,29 +35,15 @@ export interface RoomModelProps {
   ambientPaused?: boolean;
   reducedMotion?: boolean;
   pointerEnabled?: boolean;
+  transitionId?: number;
+  onArrive?: (transitionId: number) => void;
+  interactionEnabled?: boolean;
 }
 
 function roomObjectIdForNode(object: Object3D) {
   for (let node: Object3D | null = object; node; node = node.parent) {
     const id = idByNodeName.get(node.name);
     if (id) return id;
-  }
-}
-
-function setHighlighted(object: Object3D, highlighted: boolean) {
-  if (!(object instanceof Mesh)) return;
-  const materials = Array.isArray(object.material)
-    ? object.material
-    : [object.material];
-
-  for (const material of materials) {
-    if (!("emissiveIntensity" in material)) continue;
-    const emissive = material as Material & { emissiveIntensity: number };
-    if (!originalIntensity.has(material)) {
-      originalIntensity.set(material, emissive.emissiveIntensity);
-    }
-    const base = originalIntensity.get(material)!;
-    emissive.emissiveIntensity = highlighted ? base + 0.35 : base;
   }
 }
 
@@ -132,7 +124,7 @@ export function showLocaleFlag(scene: Object3D, locale: Locale) {
 
 export function createRoomInteractionHandlers(
   onInteract: (id: RoomObjectId) => void,
-  onHover: (hovered: boolean) => void,
+  onHover: (hovered: RoomObjectId | null) => void,
 ) {
   return {
     onClick(event: RoomPointerEvent) {
@@ -142,16 +134,15 @@ export function createRoomInteractionHandlers(
       onInteract(id);
     },
     onPointerOver(event: RoomPointerEvent) {
-      if (!roomObjectIdForNode(event.object)) return;
+      const id = roomObjectIdForNode(event.object);
+      if (!id) return;
       event.stopPropagation();
-      setHighlighted(event.object, true);
-      onHover(true);
+      onHover(id);
     },
     onPointerOut(event: RoomPointerEvent) {
       if (!roomObjectIdForNode(event.object)) return;
       event.stopPropagation();
-      setHighlighted(event.object, false);
-      onHover(false);
+      onHover(null);
     },
   };
 }
@@ -165,10 +156,13 @@ export function RoomModel({
   ambientPaused = false,
   reducedMotion = false,
   pointerEnabled = true,
+  transitionId,
+  onArrive,
+  interactionEnabled = true,
 }: RoomModelProps) {
   const { animations, scene: source } = useGLTF(ROOM_GLTF_URL, "/draco/");
   const scene = useMemo(() => prepareRoomScene(source), [source]);
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState<RoomObjectId | null>(null);
   const ready = useRef(false);
   const handlers = useMemo(
     () => createRoomInteractionHandlers(onInteract, setHovered),
@@ -190,7 +184,11 @@ export function RoomModel({
     );
   }, [scene]);
 
-  useCursor(hovered);
+  useCursor(!!hovered && interactionEnabled);
+
+  useEffect(() => {
+    setHovered(null);
+  }, [activeObject, interactionEnabled]);
 
   useEffect(() => {
     showLocaleFlag(scene, locale);
@@ -206,20 +204,60 @@ export function RoomModel({
     onReady();
   }, [onReady]);
 
+  useEffect(
+    () => () => {
+      const materials = new Set<Material>();
+      scene.traverse((object) => {
+        if (object instanceof Mesh)
+          (Array.isArray(object.material)
+            ? object.material
+            : [object.material]
+          ).forEach((material) => materials.add(material));
+      });
+      materials.forEach((material) => material.dispose());
+    },
+    [scene],
+  );
+
   return (
     <>
-      <primitive object={scene} {...handlers} />
+      <primitive
+        object={scene}
+        {...handlers}
+        onClick={interactionEnabled ? handlers.onClick : undefined}
+        onPointerOver={interactionEnabled ? handlers.onPointerOver : undefined}
+      />
       <CameraRig
         activeObject={activeObject}
         anchors={anchors}
         reducedMotion={reducedMotion}
         pointerEnabled={pointerEnabled}
+        transitionId={transitionId}
+        onArrive={onArrive}
       />
-      <RoomLighting lighting={lighting} scene={scene} animations={animations} />
+      {interactionEnabled && (
+        <RoomHotspots
+          scene={scene}
+          locale={locale}
+          onInteract={onInteract}
+          onHover={setHovered}
+          hoveredObject={hovered}
+          showMarkers={!activeObject}
+        />
+      )}
+      <RoomLighting
+        lighting={lighting}
+        scene={scene}
+        animations={animations}
+        reducedMotion={reducedMotion}
+      />
       <RoomIdle
         scene={scene}
+        animations={animations}
         paused={ambientPaused}
         reducedMotion={reducedMotion}
+        activeObject={activeObject}
+        hoveredObject={interactionEnabled ? hovered : null}
       />
     </>
   );

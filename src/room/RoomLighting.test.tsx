@@ -1,5 +1,11 @@
 import scalesJson from "../../public/assets/room/lightmaps/scales.json?raw";
-import { MeshStandardMaterial, ShaderChunk, Texture } from "three";
+import {
+  MeshStandardMaterial,
+  ShaderChunk,
+  Texture,
+  type Material,
+  type WebGLRenderer,
+} from "three";
 import { describe, expect, it } from "vitest";
 import {
   IBL_DIFFUSE,
@@ -18,12 +24,11 @@ describe("RoomLighting", () => {
     });
   });
 
-  it("removes the day light before raising the night lamp", () => {
-    expect(lightingFrame("night", 0.49).lamp).toBe(0);
+  it("crossfades both baked ambiences without a blackout", () => {
+    expect(lightingFrame("night", 0.49).lamp).toBeGreaterThan(0);
     expect(lightingFrame("night", 0.5)).toMatchObject({
-      lamp: 0,
-      dayMap: 0,
-      nightMap: 0,
+      dayMap: 0.5,
+      nightMap: 0.5,
     });
     expect(lightingFrame("night", 1)).toMatchObject({
       nightMap: 1,
@@ -34,7 +39,7 @@ describe("RoomLighting", () => {
 
   it("darkens the garden behind the window before the blind closes", () => {
     expect(lightingFrame("day", 1).windowView).toBe(1);
-    expect(lightingFrame("night", 0.5).windowView).toBeCloseTo(0.025);
+    expect(lightingFrame("night", 0.5).windowView).toBeCloseTo(0.5);
     expect(lightingFrame("night", 1).windowView).toBeCloseTo(0.025);
   });
 
@@ -59,10 +64,19 @@ describe("RoomLighting", () => {
     );
 
     applyLightmaps([shell, props], textures, { dayMap: 0, nightMap: 1 });
-    expect(props.lightMap).toBe(textures.LM_props_night);
-    expect(props.lightMapIntensity).toBeCloseTo(
+    expect(props.lightMap).toBe(textures.LM_props_day);
+    expect(props.lightMapIntensity).toBe(0);
+    const shader = {
+      fragmentShader: "#include <lights_fragment_maps>",
+      uniforms: {},
+    } as Parameters<Material["onBeforeCompile"]>[0];
+    props.onBeforeCompile(shader, {} as WebGLRenderer);
+    expect(shader.uniforms.roomNightMap.value).toBe(textures.LM_props_night);
+    expect(shader.uniforms.roomNightGain.value).toBeCloseTo(
       LIGHTMAP_SCALES.LM_props_night * Math.PI,
     );
+    expect(shader.fragmentShader).not.toContain(IBL_DIFFUSE);
+    expect(shader.fragmentShader).toContain("texture2D( roomNightMap");
   });
 
   it("finds the IBL diffuse line it strips from three.js", () => {

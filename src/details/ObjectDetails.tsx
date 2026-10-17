@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+import { Icon } from "../components/Icon";
 import { localize, portfolioContent } from "../content/portfolioContent";
 import type { Locale, ProjectCategory, RoomObjectId } from "../content/types";
 import { ProjectGallery } from "./ProjectGallery";
@@ -21,6 +23,12 @@ export function ObjectDetails({
   const detail =
     portfolioContent.details[portfolioContent.roomObjects[objectId].detailId];
   const titleId = `room-detail-${objectId}`;
+  const heading = useRef<HTMLHeadingElement>(null);
+  const body = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    heading.current?.focus();
+    if (body.current) body.current.scrollTop = 0;
+  }, [objectId]);
   const details = (() => {
     switch (objectId) {
       case "monitor":
@@ -37,27 +45,77 @@ export function ObjectDetails({
       case "server":
         return (
           <>
+            <div className="homelab-cover">
+              <svg viewBox="0 0 480 220" aria-hidden="true">
+                <rect width="480" height="220" fill="#dce4d8" />
+                <g transform="translate(160 28)">
+                  {[0, 1, 2, 3].map((row) => (
+                    <g key={row} transform={`translate(0 ${row * 38})`}>
+                      <rect width="160" height="30" rx="4" fill="#304a40" />
+                      <path d="M12 10h70m-70 5h70m-70 5h70" stroke="#6d8678" />
+                      <circle cx="140" cy="15" r="3" fill="#b7d59e" />
+                    </g>
+                  ))}
+                </g>
+                <path d="M240 186v18m-90 0h180" stroke="#6d8678" fill="none" />
+              </svg>
+            </div>
+            <h3 className="homelab-intro">
+              {locale === "fr"
+                ? "Comprendre ce qui se passe derrière l’écran."
+                : "Understand what happens behind the screen."}
+            </h3>
             <p>{localize(portfolioContent.homelab.description, locale)}</p>
-            <ul>
+            <div className="service-tags">
               {portfolioContent.homelab.services.map((service) => (
-                <li key={service}>{service}</li>
+                <span key={service}>{service}</span>
               ))}
-            </ul>
+            </div>
           </>
         );
       case "education":
-        return portfolioContent.timeline.map((entry) => (
-          <article key={entry.id}>
-            <p>{entry.period}</p>
-            <h3>{localize(entry.title, locale)}</h3>
-            <p>{localize(entry.description, locale)}</p>
-          </article>
-        ));
+        return portfolioContent.timeline.length ? (
+          <ol className="journey-list">
+            {portfolioContent.timeline.map((entry) => (
+              <li key={entry.id}>
+                <span className="journey-period">
+                  {localize(entry.period, locale)}
+                </span>
+                <h3>{localize(entry.title, locale)}</h3>
+                <p>{localize(entry.description, locale)}</p>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <div className="project-empty">
+            <Icon name="book" />
+            <h3>
+              {locale === "fr"
+                ? "Un parcours à raconter."
+                : "A journey to share."}
+            </h3>
+            <p>
+              {locale === "fr"
+                ? "Les étapes de formation et les expériences seront ajoutées ici."
+                : "Education and experience will be added here."}
+            </p>
+            <a
+              href={portfolioContent.social.linkedin.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LinkedIn ↗
+            </a>
+          </div>
+        );
       case "volleyball":
         return (
           <>
+            <blockquote className="personal-quote">
+              {localize(portfolioContent.volleyball.title, locale)}
+            </blockquote>
             <p>{localize(portfolioContent.volleyball.narrative, locale)}</p>
-            <ul>
+            <ul className="quality-list">
               {portfolioContent.volleyball.qualities.map((quality) => (
                 <li key={quality.fr}>{localize(quality, locale)}</li>
               ))}
@@ -66,53 +124,117 @@ export function ObjectDetails({
         );
       case "bookshelf":
         return (
-          <ul>
-            {portfolioContent.explorationTopics.map((topic) => (
-              <li key={topic}>{topic}</li>
+          <>
+            <p className="section-kicker">
+              {locale === "fr"
+                ? "DANS LES COULISSES DE CE PORTFOLIO"
+                : "BEHIND THIS PORTFOLIO"}
+            </p>
+            {portfolioContent.skills.map((group, index) => (
+              <section className="skill-group" key={group.group.fr}>
+                <div className="skill-heading">
+                  <span>0{index + 1}</span>
+                  <h3>{localize(group.group, locale)}</h3>
+                </div>
+                <div className="skill-tags">
+                  {group.items.map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
+                </div>
+              </section>
             ))}
-          </ul>
+            <p className="section-kicker">
+              {locale === "fr" ? "À EXPLORER" : "TO EXPLORE"}
+            </p>
+            <ul className="topic-list">
+              {portfolioContent.explorationTopics.map((topic) => (
+                <li key={topic.fr}>{localize(topic, locale)}</li>
+              ))}
+            </ul>
+          </>
         );
       case "contact":
         return (
           <>
-            <p>{localize(portfolioContent.contact.invitation, locale)}</p>
-            <p>{localize(portfolioContent.contact.location, locale)}</p>
-            <div className="detail-links">
-              {Object.values(portfolioContent.social).map((link) =>
-                link.href ? (
+            <h3 className="contact-intro">
+              {localize(portfolioContent.contact.invitation, locale)}
+            </h3>
+            <p className="contact-location">
+              {localize(portfolioContent.contact.location, locale)}
+            </p>
+            <div className="contact-links">
+              {Object.entries(portfolioContent.social)
+                .filter(([, link]) => link.href)
+                .map(([id, link]) => (
                   <a
-                    key={link.label.fr}
+                    key={id}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {localize(link.label, locale)}
+                    <span className="contact-link-mark" aria-hidden="true">
+                      {id === "linkedin" ? "in" : id === "github" ? "⌘" : "↗"}
+                    </span>
+                    <span>
+                      {localize(link.label, locale)}
+                      <small>
+                        {id === "github"
+                          ? "@Slqzeer"
+                          : portfolioContent.identity.name}
+                      </small>
+                    </span>
+                    <Icon name="external" />
                   </a>
-                ) : (
-                  <button key={link.label.fr} type="button" disabled>
-                    {localize(link.label, locale)}
-                  </button>
-                ),
-              )}
+                ))}
             </div>
+            <p className="contact-note">
+              {locale === "fr"
+                ? "Merci d’avoir pris le temps de visiter mon univers."
+                : "Thank you for taking the time to explore my world."}
+            </p>
           </>
         );
       default:
         return null;
     }
   })();
-
   return (
     <aside className="object-details" role="dialog" aria-labelledby={titleId}>
-      <button type="button" className="detail-close" onClick={onClose}>
-        {locale === "fr" ? "Fermer" : "Close"}
-      </button>
-      <h2 id={titleId}>{localize(detail.title, locale)}</h2>
-      <p>{localize(detail.summary, locale)}</p>
-      {portfolioContent.isSample && (
-        <small>{locale === "fr" ? "Données exemples" : "Sample data"}</small>
-      )}
-      {details}
+      <header className="detail-header">
+        <p className="detail-eyebrow">
+          <span>↗</span>
+          {portfolioContent.identity.name} /{" "}
+          {locale === "fr" ? "DANS MA CHAMBRE" : "IN MY ROOM"}
+        </p>
+        <button
+          type="button"
+          className="detail-close"
+          aria-label={locale === "fr" ? "Fermer" : "Close"}
+          onClick={onClose}
+        >
+          <Icon name="close" />
+        </button>
+        <h2 id={titleId} ref={heading} tabIndex={-1}>
+          {localize(detail.title, locale)}
+        </h2>
+        <p className="detail-summary">{localize(detail.summary, locale)}</p>
+        {portfolioContent.isSample && (
+          <small className="sample-label">
+            {locale === "fr" ? "Données exemples" : "Sample data"}
+          </small>
+        )}
+      </header>
+      <div className="detail-body" ref={body}>
+        {details}
+      </div>
+      <footer className="detail-footer">
+        <span>MC — PORTFOLIO</span>
+        <span>
+          {locale === "fr"
+            ? "EXPLORER. COMPRENDRE. ÉCHANGER."
+            : "EXPLORE. UNDERSTAND. CONNECT."}
+        </span>
+      </footer>
     </aside>
   );
 }

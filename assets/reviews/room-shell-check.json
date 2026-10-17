@@ -1,0 +1,102 @@
+{
+  "portfolio-room.blend": {
+    "meshes": {
+      "Wall_Envelope": {
+        "bounds": [
+          [-6.02, -4.62, 0.0],
+          [3.71, 5.11, 5.84]
+        ],
+        "volume": 22.129212,
+        "faces": 216,
+        "bevel": 0.003
+      },
+      "Baseboard_Continuous": {
+        "bounds": [
+          [-6.02, -4.62, 0.0],
+          [3.49, 4.89, 0.16]
+        ],
+        "volume": 0.075958,
+        "faces": 80,
+        "bevel": 0.001
+      },
+      "Floor": {
+        "bounds": [
+          [-6.02, -4.62, -0.025],
+          [3.71, 5.11, 0.0]
+        ],
+        "volume": 2.3668,
+        "faces": 54,
+        "bevel": 0.001
+      },
+      "Floor_Base": {
+        "bounds": [
+          [-6.02, -4.62, -0.145],
+          [3.71, 5.11, -0.025]
+        ],
+        "volume": 11.360696,
+        "faces": 54,
+        "bevel": 0.0015
+      }
+    },
+    "probes": {
+      "right wall": [3.490000009536743, 4.0, 0.5],
+      "back wall": [2.0, 4.889999866485596, 0.5],
+      "right baseboard": [3.4649999141693115, 4.0, 0.07999999821186066],
+      "back baseboard": [2.0, 4.864999771118164, 0.07999999821186066],
+      "window opening": null,
+      "floor level": [-5.0, -3.0, 0.0],
+      "foundation contact": [-5.0, -3.0, -0.02500000223517418]
+    },
+    "preservedCameraAndInteractionTransforms": 19
+  },
+  "portfolio-room-optimized.blend": {
+    "meshes": {
+      "Wall_Envelope": {
+        "bounds": [
+          [-6.02, -4.62, 0.0],
+          [3.71, 5.11, 5.84]
+        ],
+        "volume": 22.129212,
+        "faces": 216,
+        "bevel": 0.003
+      },
+      "Baseboard_Continuous": {
+        "bounds": [
+          [-6.02, -4.62, 0.0],
+          [3.49, 4.89, 0.16]
+        ],
+        "volume": 0.075958,
+        "faces": 80,
+        "bevel": 0.001
+      },
+      "Floor": {
+        "bounds": [
+          [-6.02, -4.62, -0.025],
+          [3.71, 5.11, 0.0]
+        ],
+        "volume": 2.3668,
+        "faces": 54,
+        "bevel": 0.001
+      },
+      "Floor_Base": {
+        "bounds": [
+          [-6.02, -4.62, -0.145],
+          [3.71, 5.11, -0.025]
+        ],
+        "volume": 11.360696,
+        "faces": 54,
+        "bevel": 0.0015
+      }
+    },
+    "probes": {
+      "right wall": [3.490000009536743, 4.0, 0.5],
+      "back wall": [2.0, 4.889999866485596, 0.5],
+      "right baseboard": [3.4649999141693115, 4.0, 0.07999999821186066],
+      "back baseboard": [2.0, 4.864999771118164, 0.07999999821186066],
+      "window opening": null,
+      "floor level": [-5.0, -3.0, 0.0],
+      "foundation contact": [-5.0, -3.0, -0.02500000223517418]
+    },
+    "preservedCameraAndInteractionTransforms": 19
+  }
+}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import { IntroCard } from "../components/IntroCard";
 import { SiteHeader } from "../components/SiteHeader";
 import { portfolioContent } from "../content/portfolioContent";
@@ -10,15 +10,13 @@ import {
   roomHistoryState,
 } from "../room/hashNavigation";
 import { RoomScene } from "../room/RoomScene";
-import {
-  parentRoomObjectId,
-  sceneManifest,
-  selectionTarget,
-} from "../room/sceneManifest";
+import { sceneManifest } from "../room/sceneManifest";
 import { appReducer, initialAppState } from "./appState";
 import { readPreferences, writePreferences } from "./preferences";
 
 export function App() {
+  const restoreFocus = useRef<keyof typeof sceneManifest | null>(null);
+  const triggers = useRef(new Map<string, HTMLElement>());
   const [state, dispatch] = useReducer(
     appReducer,
     initialAppState,
@@ -46,7 +44,13 @@ export function App() {
   const closeObject = useCallback(() => {
     const objectId = state.activeObject;
     if (!objectId) return;
-    const parentId = parentRoomObjectId(objectId);
+    const previous = window.history.state?.parentId;
+    const parentId =
+      typeof previous === "string" &&
+      sceneManifest[previous as keyof typeof sceneManifest]?.cameraAnchorName
+        ? (previous as keyof typeof sceneManifest)
+        : null;
+    restoreFocus.current = objectId;
     if (isRoomHistoryState(window.history.state, objectId, parentId)) {
       window.history.back();
     } else {
@@ -59,10 +63,58 @@ export function App() {
       );
     }
     dispatch({ type: "object.selected", objectId: parentId });
-    document
-      .querySelector<HTMLElement>(`[data-room-object="${objectId}"]`)
-      ?.focus();
   }, [state.activeObject]);
+
+  useEffect(() => {
+    if (state.navigationPhase === "FOCUS" || !restoreFocus.current) return;
+    const objectId = restoreFocus.current;
+    restoreFocus.current = null;
+    const saved = triggers.current.get(objectId);
+    const focus = (trigger: HTMLElement | null) => {
+      const menu = trigger?.closest("details");
+      if (menu) menu.open = true;
+      trigger?.focus();
+    };
+    const fallback = () =>
+      focus(
+        (saved?.isConnected
+          ? saved
+          : saved?.id
+            ? document.getElementById(saved.id)
+            : null) ??
+          document.querySelector<HTMLElement>(`a[href="#room/${objectId}"]`),
+      );
+    if (!saved?.id.startsWith("room-hotspot-")) {
+      fallback();
+      return;
+    }
+    // Drei mounts its HTML markers in a separate React root after camera arrival.
+    const restoreMarker = () => {
+      const marker = document.getElementById(saved.id);
+      if (!marker) return false;
+      focus(marker);
+      return true;
+    };
+    if (restoreMarker()) return;
+    const observer = new MutationObserver(() => {
+      if (restoreMarker()) {
+        observer.disconnect();
+        clearTimeout(timeout);
+      }
+    });
+    const timeout = window.setTimeout(() => {
+      observer.disconnect();
+      fallback();
+    }, 5000);
+    observer.observe(document.getElementById("root")!, {
+      childList: true,
+      subtree: true,
+    });
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+    };
+  }, [state.navigationPhase, state.activeObject]);
 
   useEffect(() => {
     if (!state.activeObject) return;
@@ -78,6 +130,10 @@ export function App() {
       .filter(({ action }) => action === "focus" || action === "focus-zone")
       .map(({ id }) => id);
     const syncFromHistory = () => {
+      if (window.location.hash === "#home") {
+        dispatch({ type: "home.opened" });
+        return;
+      }
       const objectId = parseRoomHash(window.location.hash, validIds);
       dispatch({
         type: "object.selected",
@@ -110,8 +166,14 @@ export function App() {
         return;
       }
 
-      const target = selectionTarget(objectId, state.activeObject);
+      const target = objectId;
       if (target === state.activeObject) return;
+      const trigger = document.activeElement;
+      if (
+        trigger instanceof HTMLElement &&
+        trigger.dataset.roomObject === target
+      )
+        triggers.current.set(target, trigger);
       window.history.pushState(
         roomHistoryState(target, state.activeObject),
         "",
@@ -122,25 +184,62 @@ export function App() {
     },
     [state.activeObject, state.locale],
   );
+  const introVisible =
+    state.introExpanded || (state.readingMode && !state.activeObject);
 
   return (
-    <div className="app-shell" id="home">
+    <div
+      className="app-shell"
+      id="home"
+      onClickCapture={(event) => {
+        const trigger = (event.target as Element).closest<HTMLElement>(
+          "[data-room-object], a[href^='#room/']",
+        );
+        const id =
+          trigger?.dataset.roomObject ??
+          trigger?.getAttribute("href")?.slice(6);
+        if (trigger && id) triggers.current.set(id, trigger);
+      }}
+    >
       <SiteHeader
         content={portfolioContent}
         locale={state.locale}
+        activeObject={state.activeObject}
+        readingMode={state.readingMode}
+        onReadingToggle={() => {
+          if (!state.readingMode && !state.activeObject)
+            handleRoomInteract("monitor");
+          dispatch({ type: "reading.toggled" });
+        }}
         onLocaleChange={(locale) =>
           dispatch({ type: "locale.changed", locale })
         }
       />
-      <main data-intro-open={state.introExpanded}>
+      <main
+        data-intro-open={introVisible}
+        data-navigation-phase={state.navigationPhase}
+        data-reading-mode={state.readingMode}
+        data-detail-open={
+          !!state.activeObject &&
+          sceneManifest[state.activeObject].action === "focus"
+        }
+      >
         <RoomScene
           locale={state.locale}
           lighting={state.lighting}
           activeObject={state.activeObject}
           onInteract={handleRoomInteract}
           onClose={closeObject}
+          transitionId={state.transitionId}
+          navigationPhase={state.navigationPhase}
+          readingMode={state.readingMode}
+          onArrive={(transitionId) =>
+            dispatch({ type: "camera.arrived", transitionId })
+          }
+          onUnavailable={() => dispatch({ type: "scene.unavailable" })}
         />
         {state.activeObject &&
+          state.navigationPhase === "INTERACT" &&
           sceneManifest[state.activeObject].action === "focus" && (
             <ObjectDetails
               objectId={state.activeObject}
@@ -152,11 +251,14 @@ export function App() {
               }
             />
           )}
-        {state.introExpanded && (
+        {introVisible && (
           <IntroCard
             content={portfolioContent}
             locale={state.locale}
-            onExplore={() => dispatch({ type: "intro.minimized" })}
+            onExplore={() => {
+              if (state.readingMode) dispatch({ type: "reading.toggled" });
+              dispatch({ type: "intro.minimized" });
+            }}
           />
         )}
       </main>

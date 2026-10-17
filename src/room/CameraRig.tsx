@@ -12,6 +12,14 @@ import {
 import type { RoomObjectId } from "../content/types";
 import { sceneManifest } from "./sceneManifest";
 import {
+  cameraPath,
+  cameraRoute,
+  cameraTravel,
+  HOME_CAMERA,
+  overviewFrameScale,
+  travelEase,
+} from "./cameraPaths";
+import {
   MOBILE_CAMERA_BREAKPOINT,
   clampPointer,
   frameLerpFactor,
@@ -35,6 +43,21 @@ export interface CameraRigProps {
   anchors: Record<string, Object3D>;
   reducedMotion: boolean;
   pointerEnabled: boolean;
+  transitionId?: number;
+  onArrive?: (transitionId: number) => void;
+}
+
+interface CameraPose {
+  position: Vector3;
+  quaternion: Quaternion;
+  scale: number;
+}
+
+interface CameraLeg {
+  name: string;
+  from: CameraPose;
+  to: CameraPose;
+  duration: number;
 }
 
 export function CameraRig({
@@ -42,6 +65,8 @@ export function CameraRig({
   anchors,
   reducedMotion,
   pointerEnabled,
+  transitionId = 0,
+  onArrive,
 }: CameraRigProps) {
   const { camera, gl } = useThree((state) => ({
     camera: state.camera,
@@ -60,6 +85,21 @@ export function CameraRig({
     [],
   );
   const overview = anchors.CAM_Overview;
+  const arrival = useRef(onArrive);
+  const lastAnchor = useRef(HOME_CAMERA);
+  const travel = useRef<{
+    legs: CameraLeg[];
+    index: number;
+    elapsed: number;
+    id: number;
+  } | null>(null);
+  const destination = activeObject
+    ? (sceneManifest[activeObject].cameraAnchorName ?? HOME_CAMERA)
+    : HOME_CAMERA;
+
+  useLayoutEffect(() => {
+    arrival.current = onArrive;
+  }, [onArrive]);
 
   useLayoutEffect(() => {
     if (!overview) return;
@@ -71,10 +111,95 @@ export function CameraRig({
       typeof orthoScale === "number"
     ) {
       const { width, height } = gl.domElement.getBoundingClientRect();
-      camera.zoom = frameZoom(orthoScale, width, height);
+      camera.zoom = frameZoom(
+        orthoScale * overviewFrameScale(width, height),
+        width,
+        height,
+      );
       camera.updateProjectionMatrix();
     }
   }, [camera, gl.domElement, overview]);
+
+  useLayoutEffect(() => {
+    if (!overview) return;
+    const { width, height } = gl.domElement.getBoundingClientRect();
+    const readPose = (name: string): CameraPose => {
+      const anchor = anchors[name] ?? overview;
+      const quaternion = anchor.getWorldQuaternion(new Quaternion());
+      if (!(anchor instanceof Camera)) quaternion.multiply(EMPTY_AIM);
+      return {
+        position: anchor.getWorldPosition(new Vector3()),
+        quaternion,
+        scale:
+          typeof anchor.userData.ortho_scale === "number"
+            ? anchor.userData.ortho_scale *
+              (name === HOME_CAMERA ? overviewFrameScale(width, height) : 1)
+            : 1,
+      };
+    };
+    let from: CameraPose = {
+      position: camera.position.clone(),
+      quaternion: camera.quaternion.clone(),
+      scale:
+        camera instanceof OrthographicCamera && camera.zoom > 0
+          ? frameZoom(1, width, height) / camera.zoom
+          : 1,
+    };
+    const nextAnchor = travel.current?.legs[travel.current.index]?.name;
+    // Continue the current edge if it belongs to the new path; otherwise retrace it.
+    const first =
+      nextAnchor && cameraPath(destination).includes(nextAnchor)
+        ? nextAnchor
+        : lastAnchor.current;
+    const names = cameraRoute(first, destination).filter(
+      (name) => anchors[name],
+    );
+    const legs: CameraLeg[] = [];
+    for (const name of names) {
+      const to = readPose(name);
+      const distance = from.position.distanceTo(to.position);
+      if (
+        distance > 0.0001 ||
+        from.quaternion.angleTo(to.quaternion) > 0.0001 ||
+        Math.abs(from.scale - to.scale) > 0.0001
+      ) {
+        legs.push({ name, from, to, duration: Math.max(0.5, distance) });
+      } else {
+        lastAnchor.current = name;
+      }
+      from = to;
+    }
+    const weight = legs.reduce((sum, leg) => sum + leg.duration, 0);
+    const duration =
+      destination === HOME_CAMERA
+        ? cameraTravel.returnSeconds
+        : legs.length > 2
+          ? cameraTravel.crossZoneSeconds
+          : cameraTravel.focusSeconds;
+    const minimum = Math.min(
+      cameraTravel.minimumLegSeconds,
+      duration / legs.length,
+    );
+    legs.forEach((leg) => {
+      leg.duration =
+        minimum + ((duration - minimum * legs.length) * leg.duration) / weight;
+    });
+    travel.current = legs.length
+      ? { legs, index: 0, elapsed: 0, id: transitionId }
+      : null;
+    pointer.current.set(0, 0);
+    gl.domElement.dataset.cameraTarget = destination;
+    gl.domElement.dataset.cameraMoving = legs.length ? "true" : "false";
+    if (!legs.length) arrival.current?.(transitionId);
+  }, [
+    activeObject,
+    transitionId,
+    anchors,
+    camera,
+    destination,
+    gl.domElement,
+    overview,
+  ]);
 
   useEffect(() => {
     const canvas = gl.domElement;
@@ -104,13 +229,53 @@ export function CameraRig({
     };
   }, [gl.domElement, pointerEnabled, reducedMotion]);
 
-  useEffect(() => {
-    gl.domElement.dataset.cameraTarget = activeObject
-      ? (sceneManifest[activeObject].cameraAnchorName ?? "CAM_Overview")
-      : "CAM_Overview";
-  }, [activeObject, gl.domElement]);
-
   useFrame((_, deltaSeconds) => {
+    const journey = travel.current;
+    if (journey) {
+      journey.elapsed += deltaSeconds;
+      let leg = journey.legs[journey.index];
+      while (leg && (reducedMotion || journey.elapsed >= leg.duration)) {
+        camera.position.copy(leg.to.position);
+        camera.quaternion.copy(leg.to.quaternion);
+        lastAnchor.current = leg.name;
+        journey.elapsed -= leg.duration;
+        journey.index++;
+        leg = journey.legs[journey.index];
+      }
+      const pose = leg
+        ? {
+            position: scratch.position.lerpVectors(
+              leg.from.position,
+              leg.to.position,
+              travelEase(journey.elapsed / leg.duration),
+            ),
+            quaternion: scratch.quaternion.slerpQuaternions(
+              leg.from.quaternion,
+              leg.to.quaternion,
+              travelEase(journey.elapsed / leg.duration),
+            ),
+            scale:
+              leg.from.scale +
+              (leg.to.scale - leg.from.scale) *
+                travelEase(journey.elapsed / leg.duration),
+          }
+        : journey.legs[journey.legs.length - 1]?.to;
+      if (pose) {
+        camera.position.copy(pose.position);
+        camera.quaternion.copy(pose.quaternion);
+        if (camera instanceof OrthographicCamera) {
+          const { width, height } = gl.domElement.getBoundingClientRect();
+          camera.zoom = frameZoom(pose.scale, width, height);
+          camera.updateProjectionMatrix();
+        }
+      }
+      if (!leg) {
+        travel.current = null;
+        gl.domElement.dataset.cameraMoving = "false";
+        arrival.current?.(journey.id);
+      }
+      return;
+    }
     const anchorName = activeObject
       ? sceneManifest[activeObject].cameraAnchorName
       : undefined;
@@ -156,7 +321,12 @@ export function CameraRig({
       camera instanceof OrthographicCamera &&
       typeof orthoScale === "number"
     ) {
-      const zoom = frameZoom(orthoScale, width, height);
+      const zoom = frameZoom(
+        orthoScale *
+          (target === overview ? overviewFrameScale(width, height) : 1),
+        width,
+        height,
+      );
       camera.zoom += (zoom - camera.zoom) * factor;
       camera.updateProjectionMatrix();
     }

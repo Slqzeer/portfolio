@@ -17,6 +17,7 @@ import {
 } from "three";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import type { Lighting } from "../app/appState";
+import scalesJson from "../../public/assets/room/lightmaps/scales.json?raw";
 
 // The baked lightmaps carry all light and shadow, so there is no ambient light (it
 // washed the bake out). Unbaked meshes (blind, flags, glass) get this flat light.
@@ -30,13 +31,11 @@ const LAMP_LIGHT = 6;
 const WINDOW_VIEW_NIGHT = 0.025;
 
 // Mirrors public/assets/room/lightmaps/scales.json (written by encode-room-lightmaps.py).
-export const LIGHTMAP_SCALES = {
-  LM_props_day: 16.5737,
-  LM_props_night: 1.71722,
-  LM_shell_day: 7.68879,
-  LM_shell_night: 2.32144,
-} as const;
-type LightmapKey = keyof typeof LIGHTMAP_SCALES;
+type LightmapKey = `LM_${"props" | "shell"}_${Lighting}`;
+export const LIGHTMAP_SCALES = JSON.parse(scalesJson) as Record<
+  LightmapKey,
+  number
+>;
 const LIGHTMAP_KEYS = Object.keys(LIGHTMAP_SCALES) as LightmapKey[];
 const LIGHTMAP_URLS = LIGHTMAP_KEYS.map(
   (key) => `/assets/room/lightmaps/${key}.webp`,
@@ -54,14 +53,28 @@ const LIGHTS_WITHOUT_IBL_DIFFUSE = ShaderChunk.lights_fragment_maps.replace(
   IBL_DIFFUSE,
   "",
 );
+const blends = new WeakMap<
+  Material,
+  { map: { value: Texture }; gain: { value: number } }
+>();
 
 // The lightmap already holds all diffuse light; three.js would add the
 // environment's diffuse on top and wash the bake out. Keep only its reflections.
 export function withoutIblDiffuse(material: Material) {
+  const blend = { map: { value: WHITE as Texture }, gain: { value: 0 } };
+  blends.set(material, blend);
   material.onBeforeCompile = (shader) => {
+    shader.uniforms.roomNightMap = blend.map;
+    shader.uniforms.roomNightGain = blend.gain;
+    shader.fragmentShader =
+      "uniform sampler2D roomNightMap;\nuniform float roomNightGain;\n" +
+      shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <lights_fragment_maps>",
-      LIGHTS_WITHOUT_IBL_DIFFUSE,
+      LIGHTS_WITHOUT_IBL_DIFFUSE.replace(
+        "vec3 lightMapIrradiance = lightMapTexel.rgb * lightMapIntensity;",
+        "vec3 lightMapIrradiance = lightMapTexel.rgb * lightMapIntensity + texture2D( roomNightMap, vLightMapUv ).rgb * roomNightGain;",
+      ),
     );
   };
 }
@@ -72,26 +85,33 @@ export function applyLightmaps(
   { dayMap, nightMap }: { dayMap: number; nightMap: number },
   environments?: Environments,
 ) {
-  const [state, weight] =
-    dayMap > 0 ? (["day", dayMap] as const) : (["night", nightMap] as const);
   for (const material of materials) {
     const lit = material as MeshStandardMaterial;
+    if (!blends.has(material)) withoutIblDiffuse(material);
+    const blend = blends.get(material)!;
     if (!lit.lightMap || (environments && !lit.envMap)) lit.needsUpdate = true;
     if (environments) {
-      lit.envMap = environments[state];
-      lit.envMapIntensity = EXPOSURE[state] * weight;
+      lit.envMap = environments[dayMap >= nightMap ? "day" : "night"];
+      lit.envMapIntensity = EXPOSURE.day * dayMap + EXPOSURE.night * nightMap;
     }
     if (material.userData.lightmapAtlas === "flat") {
       lit.lightMap = WHITE;
-      lit.lightMapIntensity = FLAT_LIGHT[state] * EXPOSURE[state] * weight;
+      lit.lightMapIntensity = FLAT_LIGHT.day * EXPOSURE.day * dayMap;
+      blend.map.value = WHITE;
+      blend.gain.value = FLAT_LIGHT.night * EXPOSURE.night * nightMap;
       continue;
     }
-    const key = `LM_${material.userData.lightmapAtlas}_${state}` as LightmapKey;
-    lit.lightMap = textures[key];
+    const dayKey = `LM_${material.userData.lightmapAtlas}_day` as LightmapKey;
+    const nightKey =
+      `LM_${material.userData.lightmapAtlas}_night` as LightmapKey;
+    lit.lightMap = textures[dayKey];
+    blend.map.value = textures[nightKey];
+    blend.gain.value =
+      LIGHTMAP_SCALES[nightKey] * EXPOSURE.night * nightMap * Math.PI;
     // Blender bakes the light a surface receives (shade = albedo × bake); three.js
     // treats lightMap as irradiance and divides it by π (Lambert).
     lit.lightMapIntensity =
-      LIGHTMAP_SCALES[key] * EXPOSURE[state] * weight * Math.PI;
+      LIGHTMAP_SCALES[dayKey] * EXPOSURE.day * dayMap * Math.PI;
   }
 }
 
@@ -99,39 +119,30 @@ export interface RoomLightingProps {
   lighting: Lighting;
   scene: Object3D;
   animations: AnimationClip[];
+  reducedMotion?: boolean;
 }
 
 export function lightingFrame(lighting: Lighting, progress: number) {
   const value = Math.max(0, Math.min(1, progress));
-  const firstHalf = Math.min(value * 2, 1);
-  const secondHalf = Math.max((value - 0.5) * 2, 0);
-
-  return lighting === "night"
-    ? {
-        lamp: LAMP_LIGHT * secondHalf,
-        curtainProgress: value,
-        dayMap: 1 - firstHalf,
-        nightMap: secondHalf,
-        windowView: Math.max(1 - firstHalf, WINDOW_VIEW_NIGHT),
-      }
-    : {
-        lamp: LAMP_LIGHT * (1 - firstHalf),
-        curtainProgress: 1 - value,
-        dayMap: secondHalf,
-        nightMap: 1 - firstHalf,
-        windowView: Math.max(secondHalf, WINDOW_VIEW_NIGHT),
-      };
+  const night = lighting === "night" ? value : 1 - value;
+  return {
+    lamp: LAMP_LIGHT * night,
+    curtainProgress: night,
+    dayMap: 1 - night,
+    nightMap: night,
+    windowView: Math.max(1 - night, WINDOW_VIEW_NIGHT),
+  };
 }
 
 export function RoomLighting({
   lighting,
   scene,
   animations,
+  reducedMotion = false,
 }: RoomLightingProps) {
   const lamp = useRef<PointLight>(null);
   const anisotropy = useThree(({ gl }) => gl.capabilities.getMaxAnisotropy());
-  const progress = useRef(1);
-  const previousLighting = useRef(lighting);
+  const nightMix = useRef(lighting === "night" ? 1 : 0);
   const loaded = useLoader(TextureLoader, LIGHTMAP_URLS as string[]);
   const lightmaps = useMemo(() => {
     for (const texture of loaded) {
@@ -185,12 +196,6 @@ export function RoomLighting({
     return { actions, mixer };
   }, [animations, scene]);
 
-  useEffect(() => {
-    if (previousLighting.current === lighting) return;
-    previousLighting.current = lighting;
-    progress.current = 0;
-  }, [lighting]);
-
   // Arm the clips here, not in useMemo: StrictMode's dev remount runs the
   // cleanup once, and clips stopped there would never play again.
   useEffect(() => {
@@ -210,9 +215,19 @@ export function RoomLighting({
   }, [scene]);
 
   useFrame((_, deltaSeconds) => {
-    // In-place and user-triggered, so it plays even under reduced motion.
-    progress.current = Math.min(1, progress.current + deltaSeconds);
-    const frame = lightingFrame(lighting, progress.current);
+    const target = lighting === "night" ? 1 : 0;
+    nightMix.current = reducedMotion
+      ? target
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            nightMix.current +
+              ((target ? 1 : -1) * Math.min(deltaSeconds, 0.1)) / 0.9,
+          ),
+        );
+    const mix = nightMix.current;
+    const frame = lightingFrame("night", mix * mix * (3 - 2 * mix));
     if (lamp.current) lamp.current.intensity = frame.lamp;
     applyLightmaps(bakedMaterials, lightmaps, frame, environments);
     if (windowView) {

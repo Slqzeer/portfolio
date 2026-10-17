@@ -1,108 +1,71 @@
 import { render } from "@testing-library/react";
-import {
-  BoxGeometry,
-  Group,
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-} from "three";
+import { StrictMode } from "react";
+import { AnimationClip, Group, Object3D, VectorKeyframeTrack } from "three";
 import { describe, expect, it, vi } from "vitest";
-import { RoomIdle } from "./RoomIdle";
+import { RoomIdle, type RoomIdleProps } from "./RoomIdle";
 
 const fiber = vi.hoisted(() => ({
-  frame: undefined as
-    ((state: { clock: { elapsedTime: number } }) => void) | undefined,
+  frame: undefined as ((state: unknown, delta: number) => void) | undefined,
 }));
-
 vi.mock("@react-three/fiber", () => ({
-  useFrame: (callback: (state: { clock: { elapsedTime: number } }) => void) => {
-    fiber.frame = callback;
-  },
+  useFrame: (callback: typeof fiber.frame) => { fiber.frame = callback; },
 }));
 
-function mesh(name: string) {
-  const object = new Mesh(new BoxGeometry(), new MeshStandardMaterial());
-  object.name = name;
-  return object;
-}
-
-function createScene() {
+function setup() {
   const scene = new Group();
-  for (const name of [
-    "IDLE_Monitor_Cursor",
-    "Monitor_Screen",
-    "EMIT_Rack_00_00",
-    "EMIT_Rack_00_01",
-    "EMIT_Smartphone",
-    "Curtain_Left",
-    "Curtain_Right",
-    "INT_Volleyball",
-    "INT_Diploma",
-    "DeskDecoration",
-  ]) {
-    scene.add(
-      name === "IDLE_Monitor_Cursor"
-        ? Object.assign(new Object3D(), { name })
-        : mesh(name),
-    );
-  }
-  return scene;
+  const ball = new Object3D();
+  ball.name = "INT_Volleyball";
+  scene.add(ball);
+  const decoration = new Object3D();
+  decoration.name = "Plant_Large_Leaves";
+  scene.add(decoration);
+  const clip = new AnimationClip("Hover_volleyball", .6, [
+    new VectorKeyframeTrack("INT_Volleyball.position", [0, .2, .6], [0, 0, 0, 0, .07, 0, 0, 0, 0]),
+  ]);
+  const props: RoomIdleProps = { scene, animations: [clip], paused: false, reducedMotion: false };
+  return { props, ball, decoration };
 }
+const advance = (count = 1) => {
+  for (let i = 0; i < count; i++) fiber.frame!({}, .1);
+};
 
-describe("RoomIdle", () => {
-  it("updates only the bounded named idle targets", () => {
-    const scene = createScene();
-    const cursor = scene.getObjectByName("IDLE_Monitor_Cursor")!;
-    const screen = scene.getObjectByName("Monitor_Screen") as Mesh;
-    const rack = scene.getObjectByName("EMIT_Rack_00_00") as Mesh;
-    const phone = scene.getObjectByName("EMIT_Smartphone") as Mesh;
-    const curtain = scene.getObjectByName("Curtain_Left")!;
-    const staticObjects = [
-      scene.getObjectByName("INT_Volleyball")!,
-      scene.getObjectByName("INT_Diploma")!,
-      scene.getObjectByName("DeskDecoration")!,
-    ];
-    const staticRotations = staticObjects.map((object) =>
-      object.rotation.clone(),
-    );
-
-    render(<RoomIdle scene={scene} paused={false} reducedMotion={false} />);
-    fiber.frame!({ clock: { elapsedTime: 12.25 } });
-
-    expect(cursor.visible).toBe(false);
-    expect(
-      (screen.material as MeshStandardMaterial).emissiveIntensity,
-    ).not.toBe(1);
-    expect((rack.material as MeshStandardMaterial).emissiveIntensity).not.toBe(
-      1,
-    );
-    expect(
-      (phone.material as MeshStandardMaterial).emissiveIntensity,
-    ).toBeGreaterThan(1);
-    expect(curtain.rotation.z).not.toBe(0);
-    staticObjects.forEach((object, index) =>
-      expect(object.rotation.equals(staticRotations[index])).toBe(true),
-    );
+describe("Blender animation playback", () => {
+  it("plays only the exported hover clip once and returns to rest", () => {
+    const { props, ball, decoration } = setup();
+    const { rerender } = render(<RoomIdle {...props} />);
+    advance(2);
+    expect(ball.position.y).toBe(0);
+    rerender(<RoomIdle {...props} hoveredObject="volleyball" />);
+    advance(2);
+    expect(ball.position.y).toBeCloseTo(.07);
+    expect(decoration.rotation.toArray()).toEqual([0, 0, 0, "XYZ"]);
+    advance(20);
+    expect(ball.position.y).toBe(0);
   });
 
-  it.each([
-    [true, false],
-    [false, true],
-  ])(
-    "suppresses updates when paused=%s or reduced=%s",
-    (paused, reducedMotion) => {
-      const scene = createScene();
-      const rack = scene.getObjectByName("EMIT_Rack_00_00") as Mesh;
-      render(
-        <RoomIdle
-          scene={scene}
-          paused={paused}
-          reducedMotion={reducedMotion}
-        />,
-      );
+  it("pauses without a hidden-tab time jump and restores rest on reduced motion", () => {
+    const { props, ball } = setup();
+    const { rerender } = render(<RoomIdle {...props} hoveredObject="volleyball" />);
+    advance();
+    const before = ball.position.y;
+    rerender(<RoomIdle {...props} hoveredObject="volleyball" paused />);
+    advance(100);
+    expect(ball.position.y).toBe(before);
+    rerender(<RoomIdle {...props} hoveredObject="volleyball" />);
+    fiber.frame!({}, 100);
+    expect(ball.position.y).toBeCloseTo(.07);
+    rerender(<RoomIdle {...props} hoveredObject="volleyball" reducedMotion />);
+    expect(ball.position.y).toBe(0);
+    advance(10);
+    expect(ball.position.y).toBe(0);
+  });
 
-      fiber.frame!({ clock: { elapsedTime: 12.25 } });
-      expect((rack.material as MeshStandardMaterial).emissiveIntensity).toBe(1);
-    },
-  );
+  it("restores the authored pose on leave and still works after StrictMode cleanup", () => {
+    const { props, ball } = setup();
+    const { rerender } = render(<StrictMode><RoomIdle {...props} hoveredObject="volleyball" /></StrictMode>);
+    advance(2);
+    expect(ball.position.y).toBeCloseTo(.07);
+    rerender(<StrictMode><RoomIdle {...props} /></StrictMode>);
+    expect(ball.position.y).toBe(0);
+  });
 });

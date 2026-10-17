@@ -101,14 +101,4 @@ describe("scene hierarchy", () => {
       ]);
     }
   });
-
-  it("routes a desk child selected outside the desk to the desk", async () => {
-    const { selectionTarget } = await import("./sceneManifest");
-
-    expect(selectionTarget("monitor", null)).toBe("desk");
-    expect(selectionTarget("smartphone", "server")).toBe("desk");
-    expect(selectionTarget("monitor", "desk")).toBe("monitor");
-    expect(selectionTarget("monitor", "smartphone")).toBe("monitor");
-    expect(selectionTarget("controller", null)).toBe("controller");
-  });
 });

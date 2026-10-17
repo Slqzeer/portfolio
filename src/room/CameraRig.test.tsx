@@ -46,6 +46,65 @@ function anchor(name: string, position: [number, number, number]) {
 }
 
 describe("CameraRig", () => {
+  it("arrives once after finite travel and cancels an interrupted arrival", () => {
+    const onArrive = vi.fn();
+    const anchors = {
+      CAM_Overview: anchor("CAM_Overview", [0, 0, 10]),
+      CAM_Anchor_Desk: anchor("CAM_Anchor_Desk", [2, 2, 8]),
+      CAM_Anchor_Monitor: anchor("CAM_Anchor_Monitor", [4, 2, 5]),
+      CAM_Anchor_Homelab: anchor("CAM_Anchor_Homelab", [-3, 2, 6]),
+    };
+    const { rerender } = render(
+      <CameraRig
+        activeObject="monitor"
+        anchors={anchors}
+        reducedMotion={false}
+        pointerEnabled
+        transitionId={1}
+        onArrive={onArrive}
+      />,
+    );
+    fiber.frame!({ camera: fiber.camera! }, 0.4);
+    expect(onArrive).not.toHaveBeenCalled();
+    rerender(
+      <CameraRig
+        activeObject="server"
+        anchors={anchors}
+        reducedMotion={false}
+        pointerEnabled
+        transitionId={2}
+        onArrive={onArrive}
+      />,
+    );
+    fiber.frame!({ camera: fiber.camera! }, 1.11);
+    expect(onArrive.mock.calls).toEqual([[2]]);
+    expect(fiber.camera!.position.toArray()).toEqual([-3, 2, 6]);
+    fiber.frame!({ camera: fiber.camera! }, 1);
+    expect(onArrive).toHaveBeenCalledOnce();
+  });
+
+  it("jumps to the final pose on reduced motion without visiting waypoints", () => {
+    const onArrive = vi.fn();
+    const anchors = {
+      CAM_Overview: anchor("CAM_Overview", [0, 0, 10]),
+      CAM_Anchor_Desk: anchor("CAM_Anchor_Desk", [2, 2, 8]),
+      CAM_Anchor_Monitor: anchor("CAM_Anchor_Monitor", [4, 2, 5]),
+    };
+    render(
+      <CameraRig
+        activeObject="monitor"
+        anchors={anchors}
+        reducedMotion
+        pointerEnabled={false}
+        transitionId={1}
+        onArrive={onArrive}
+      />,
+    );
+    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    expect(fiber.camera!.position.toArray()).toEqual([4, 2, 5]);
+    expect(onArrive).toHaveBeenCalledWith(1);
+  });
+
   const setCanvasSize = (width: number, height: number) =>
     vi.spyOn(fiber.canvas!, "getBoundingClientRect").mockReturnValue({
       x: 0,

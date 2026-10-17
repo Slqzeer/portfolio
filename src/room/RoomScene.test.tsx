@@ -36,7 +36,30 @@ vi.mock("./RoomCanvas", () => ({
 }));
 
 describe("RoomScene", () => {
-  it("hosts the 3D canvas and accessible controls", () => {
+  it("persists the manual motion preference and pauses ambient motion", async () => {
+    const user = userEvent.setup();
+    render(
+      <RoomScene
+        locale="fr"
+        lighting="day"
+        activeObject={null}
+        onInteract={() => undefined}
+        onClose={() => undefined}
+      />,
+    );
+    const toggle = screen.getByRole("button", {
+      name: "Réduire les mouvements",
+    });
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(localStorage.getItem("portfolio-motion")).toBe("reduced");
+    expect(screen.getByTestId("room-scene")).toHaveAttribute(
+      "data-ambient-paused",
+      "true",
+    );
+    expect(document.documentElement).toHaveAttribute("data-motion", "reduced");
+  });
+  it("hosts the 3D canvas and accessible controls", async () => {
     render(
       <RoomScene
         locale="fr"
@@ -48,7 +71,7 @@ describe("RoomScene", () => {
     );
 
     expect(screen.getByLabelText("Chambre interactive")).toBeInTheDocument();
-    expect(screen.getByTestId("room-canvas")).toHaveAttribute(
+    expect(await screen.findByTestId("room-canvas")).toHaveAttribute(
       "data-active-object",
       "server",
     );

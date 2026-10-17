@@ -7,16 +7,24 @@ Scales are written to lightmaps/scales.json.
 """
 import json
 import os
+import sys
 
 import bpy
 import numpy as np
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src = os.path.join(root, "assets", "blender", "lightmaps")
+if "--" in sys.argv:
+    src = sys.argv[sys.argv.index("--") + 1]
+runtime = os.path.join(root, "public", "assets", "room", "lightmaps")
 scales = {}
 for name in sorted(f[:-4] for f in os.listdir(src) if f.endswith(".exr") and not f.endswith("_dn.exr")):
     denoised = os.path.join(src, name + "_dn.exr")
     img = bpy.data.images.load(denoised if os.path.exists(denoised) else os.path.join(src, name + ".exr"))
+    # Retain the high-resolution bake, cap web irradiance maps at 2K to limit GPU memory.
+    if max(img.size) > 2048:
+        factor = 2048 / max(img.size)
+        img.scale(round(img.size[0] * factor), round(img.size[1] * factor))
     w, h = img.size
     px = np.empty(w * h * 4, np.float32)
     img.pixels.foreach_get(px)
@@ -33,7 +41,15 @@ for name in sorted(f[:-4] for f in os.listdir(src) if f.endswith(".exr") and not
     out.filepath_raw = os.path.join(src, name + ".png")
     out.file_format = "PNG"
     out.save()
+    formats = bpy.types.Image.bl_rna.properties["file_format"].enum_items
+    out.file_format = next(item.identifier for item in formats if item.identifier.lower() == "webp")
+    out.filepath_raw = os.path.join(runtime, name + ".webp")
+    out.save()
     scales[name] = round(scale, 5)
     print(f"[encode] {name} {w}x{h} scale={scale:.4f} coverage={covered.mean():.2%}", flush=True)
 with open(os.path.join(src, "scales.json"), "w") as f:
     json.dump(scales, f, indent=2)
+    f.write("\n")
+with open(os.path.join(runtime, "scales.json"), "w") as f:
+    json.dump(scales, f, indent=2)
+    f.write("\n")

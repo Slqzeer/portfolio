@@ -17,12 +17,15 @@ describe("ProjectGallery", () => {
       />,
     );
 
-    expect(screen.getByText(/Assistant documentaire/)).toBeInTheDocument();
-    expect(screen.getByText("Python · PostgreSQL · React")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "GitHub" })).toBeDisabled();
+    expect(
+      screen.getByRole("heading", { name: "ClassPulse" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("FastAPI")).toBeInTheDocument();
+    await user.click(screen.getByText("Découvrir le projet"));
+    expect(screen.getByText(/Mon rôle : contribuer/)).toBeVisible();
 
-    await user.click(screen.getByRole("button", { name: "Homelab" }));
-    expect(onCategoryChange).toHaveBeenCalledWith("homelab");
+    await user.click(screen.getByRole("button", { name: "Logiciel" }));
+    expect(onCategoryChange).toHaveBeenCalledWith("software");
 
     rerender(
       <ProjectGallery
@@ -32,8 +35,14 @@ describe("ProjectGallery", () => {
         onCategoryChange={onCategoryChange}
       />,
     );
-    expect(screen.getByText(/Homelab observability/)).toBeInTheDocument();
-    expect(screen.getByText(/Every alert should/)).toBeInTheDocument();
+    expect(screen.queryByRole("article")).toBeNull();
+    expect(
+      screen.getByText("No published projects in this category yet."),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Discover software projects" }),
+    );
+    expect(onCategoryChange).toHaveBeenLastCalledWith("software");
   });
 
   it("renders populated project links with safe external attributes", () => {
@@ -47,12 +56,12 @@ describe("ProjectGallery", () => {
       <ProjectGallery
         projects={[project]}
         locale="en"
-        activeCategory="data-ai"
+        activeCategory="software"
         onCategoryChange={() => undefined}
       />,
     );
 
-    for (const name of ["GitHub", "Demo"]) {
+    for (const name of ["GitHub", "View project"]) {
       expect(screen.getByRole("link", { name })).toMatchObject({
         target: "_blank",
         rel: "noopener noreferrer",

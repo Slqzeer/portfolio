@@ -7,7 +7,7 @@ describe("ObjectDetails", () => {
     const { rerender } = render(
       <ObjectDetails objectId="server" locale="en" onClose={() => undefined} />,
     );
-    expect(screen.getByText("Docker")).toBeInTheDocument();
+    expect(screen.getByText(/Understand what happens/)).toBeInTheDocument();
 
     rerender(
       <ObjectDetails
@@ -16,7 +16,9 @@ describe("ObjectDetails", () => {
         onClose={() => undefined}
       />,
     );
-    expect(screen.getByText("2024–2027")).toBeInTheDocument();
+    expect(
+      screen.getByText("Fullstack development — CACIB"),
+    ).toBeInTheDocument();
 
     rerender(
       <ObjectDetails
@@ -34,7 +36,7 @@ describe("ObjectDetails", () => {
         onClose={() => undefined}
       />,
     );
-    expect(screen.getByText("Local LLMs")).toBeInTheDocument();
+    expect(screen.getByText("FastAPI")).toBeInTheDocument();
 
     rerender(
       <ObjectDetails
@@ -43,8 +45,10 @@ describe("ObjectDetails", () => {
         onClose={() => undefined}
       />,
     );
-    expect(screen.getByText(/Let’s discuss/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "GitHub" })).toBeDisabled();
-    expect(screen.getByText("Sample data")).toBeInTheDocument();
+    expect(screen.getByText(/An idea, a project/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /GitHub/ })).toHaveAttribute(
+      "href",
+      "https://github.com/Slqzeer",
+    );
   });
 });

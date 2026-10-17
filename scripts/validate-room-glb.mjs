@@ -13,4 +13,17 @@ const buffer = bytes.buffer.slice(
 );
 const names = readGlbNodeNames(buffer);
 assertRequiredRoomNodes(names);
+for (const idle of [
+  "Plant_Large_Leaves",
+  "DeskPlant_Leaves",
+  "TablePlant_Leaves",
+  "Blind_Cord_01",
+  "Blind_Cord_02",
+  "IDLE_Monitor_Cursor",
+  "Lamp_Shade",
+  "Lamp_Bulb",
+]) {
+  if (!names.has(idle))
+    throw new Error(`Missing idle-animation target: ${idle}`);
+}
 console.log(`Valid room GLB: ${names.size} named nodes (${path})`);

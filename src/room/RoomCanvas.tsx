@@ -1,17 +1,11 @@
 import { useProgress } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-  Component,
-  Suspense,
-  useCallback,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { Suspense, useCallback, useRef, useState } from "react";
 import { AgXToneMapping } from "three";
 import type { Lighting } from "../app/appState";
 import type { Locale, RoomObjectId } from "../content/types";
 import { RoomModel } from "./RoomModel";
+import { SceneBoundary } from "./SceneBoundary";
 
 export interface RoomCanvasProps {
   locale: Locale;
@@ -22,37 +16,16 @@ export interface RoomCanvasProps {
   onError: (error: Error) => void;
   ambientPaused?: boolean;
   reducedMotion?: boolean;
-}
-
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  onError: (error: Error) => void;
-}
-
-class CanvasErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  { failed: boolean }
-> {
-  state = { failed: false };
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  componentDidCatch(error: Error) {
-    this.props.onError(error);
-  }
-
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
+  transitionId?: number;
+  onArrive?: (transitionId: number) => void;
+  interactionEnabled?: boolean;
 }
 
 function SceneMetrics() {
   const { gl } = useThree();
   const sample = useRef({ frames: 0, startedAt: performance.now() });
 
-  useFrame(() => {
+  useFrame(({ scene }) => {
     const now = performance.now();
     sample.current.frames += 1;
     const elapsed = now - sample.current.startedAt;
@@ -61,6 +34,8 @@ function SceneMetrics() {
       Math.round((sample.current.frames * 1000) / elapsed),
     );
     gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
+    const plant = scene.getObjectByName("IDLE_Plant_Large_Leaves");
+    if (plant) gl.domElement.dataset.plantSway = plant.rotation.z.toFixed(5);
     sample.current = { frames: 0, startedAt: now };
   });
 
@@ -125,21 +100,33 @@ export function RoomCanvas(props: RoomCanvasProps) {
         <img
           className="room-poster"
           data-testid="room-poster"
-          src={`/assets/room/room-poster-${props.lighting}.webp`}
+          src={`/assets/room/room-overview-${props.lighting}.png`}
           alt=""
         />
       ) : (
         !ready && <RoomLoading locale={props.locale} />
       )}
-      {failed && <p role="status">3D scene unavailable</p>}
-      <CanvasErrorBoundary onError={reportError}>
+      {failed && (
+        <p role="status">
+          {props.locale === "fr"
+            ? "La chambre est indisponible. Les rubriques restent accessibles."
+            : "The room is unavailable. All sections remain accessible."}
+        </p>
+      )}
+      <SceneBoundary onError={reportError}>
         <Canvas
           orthographic
           camera={{ near: 0.1, far: 100, zoom: 65 }}
           dpr={[1, 2]}
           // Blender renders the room with AgX; ACES (R3F's default) shifts its colours.
           gl={{ toneMapping: AgXToneMapping }}
-          fallback={<span>3D scene unavailable</span>}
+          fallback={
+            <span>
+              {props.locale === "fr"
+                ? "Chambre 3D indisponible"
+                : "3D room unavailable"}
+            </span>
+          }
         >
           <Suspense fallback={null}>
             <RoomModel
@@ -150,11 +137,14 @@ export function RoomCanvas(props: RoomCanvasProps) {
               onInteract={props.onInteract}
               onReady={reportReady}
               reducedMotion={reducedMotion}
+              transitionId={props.transitionId}
+              onArrive={props.onArrive}
+              interactionEnabled={props.interactionEnabled}
             />
             <SceneMetrics />
           </Suspense>
         </Canvas>
-      </CanvasErrorBoundary>
+      </SceneBoundary>
     </div>
   );
 }

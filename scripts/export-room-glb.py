@@ -20,7 +20,7 @@ for obj in scene.objects:
         obj.data.uv_layers[0].active_render = True
         obj.data.uv_layers.active = obj.data.uv_layers[0]
 
-BAKED_BASE_COLORS = {"MAT_Review_Floor_LightWood": 2048, "MAT_Review_Desk_Wood": 1024}
+BAKED_BASE_COLORS = {"MAT_Review_Floor_LightWood": 2048, "MAT_Review_Desk_Wood": 1024, "MAT_Sofa_Fabric": 1024, "MAT_Rug_Wool": 1024}
 scene.render.engine = "CYCLES"
 scene.cycles.samples = 1
 for name, size in BAKED_BASE_COLORS.items():

@@ -18,12 +18,15 @@ describe("App", () => {
 
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
-      screen.getByText("Stage de fin d’études · février 2027"),
+      screen.getByText(portfolioContent.availability.fr),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("navigation", { name: "Navigation principale" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "GitHub" })).toBeDisabled();
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/Slqzeer",
+    );
   });
 
   it("switches the interface to English", async () => {
@@ -35,7 +38,7 @@ describe("App", () => {
     );
 
     expect(
-      screen.getByText("End-of-study internship · February 2027"),
+      screen.getByText(portfolioContent.availability.en),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "English, passer en français" }),
@@ -60,14 +63,16 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    expect(screen.getByText(/Je transforme des données/)).toBeInTheDocument();
+    expect(
+      screen.getByText(portfolioContent.identity.introduction.fr),
+    ).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveAttribute("data-intro-open", "true");
     await user.click(
       screen.getByRole("button", { name: "Explorer la chambre" }),
     );
 
     expect(
-      screen.queryByText(/Je transforme des données/),
+      screen.queryByText(portfolioContent.identity.introduction.fr),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveAttribute(
       "data-intro-open",
@@ -110,6 +115,10 @@ describe("App", () => {
     );
 
     expect(window.location.hash).toBe("#room/controller");
+    // The lazy canvas reports its unavailable state asynchronously in jsdom.
+    await screen.findByRole("dialog", {
+      name: localize(portfolioContent.details["game-development"].title, "fr"),
+    });
     expect(screen.getAllByRole("dialog")).toHaveLength(1);
     expect(
       screen.getByRole("dialog", {
@@ -208,18 +217,21 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("closes a direct desk child URL to the desk", async () => {
+  it("returns a direct project URL to the overview", async () => {
     const user = userEvent.setup();
     window.history.replaceState(null, "", "#room/monitor");
     render(<App />);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     await user.keyboard("{Escape}");
-    expect(window.location.hash).toBe("#room/desk");
+    expect(window.location.hash).toBe("");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    await user.keyboard("{Escape}");
-    expect(window.location.hash).toBe("");
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Navigation principale" }),
+      ).getByRole("link", { name: "Projets" }),
+    ).toHaveFocus();
   });
 
   it("opens game projects directly from the controller", async () => {

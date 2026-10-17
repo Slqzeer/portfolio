@@ -19,7 +19,7 @@ describe("buildNoscriptMarkup", () => {
 
     const markup = buildNoscriptMarkup(content);
 
-    expect(markup).not.toContain("LinkedIn");
+    expect(markup).not.toContain('href="https://www.linkedin.com/');
     expect(markup).toContain("Git &amp; Hub");
     expect(markup).toContain(
       'href="https://example.com/?q=&quot;portfolio&quot;&amp;tag=&lt;data&gt;"',

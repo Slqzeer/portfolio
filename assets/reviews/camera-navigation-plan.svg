@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1000" viewBox="0 0 1100 1000"><rect width="1100" height="1000" fill="#f6f0e6"/><style>text{font-family:Arial,sans-serif;fill:#243039}.label{font-size:13px}.title{font-size:27px;font-weight:bold}</style><text x="35" y="42" class="title">Chambre — passages caméra et zones d’interaction</text><text x="35" y="70" font-size="14">Vue de dessus · coordonnées Blender · les traits ne représentent pas la hauteur</text>
+<rect x="230.94947052001953" y="211.79999351501465" width="348.6505489349365" height="122.4000129699707" rx="7" fill="#d6dce0" stroke="#8799a4"/><text class="label" x="236.94947052001953" y="229.79999351501465">Desk</text>
+<rect x="376.21610927581787" y="345.4537744522095" width="121.16780090332031" height="122.82985806465149" rx="7" fill="#d6dce0" stroke="#8799a4"/><text class="label" x="382.21610927581787" y="363.4537744522095">Chair</text>
+<rect x="268.55184745788574" y="638.839967250824" width="406.6400337219238" height="140.76005220413208" rx="7" fill="#d6dce0" stroke="#8799a4"/><text class="label" x="274.55184745788574" y="656.839967250824">Sofa</text>
+<rect x="714.7839813232422" y="481.659583568573" width="78.33606147766113" height="239.360023021698" rx="7" fill="#d6dce0" stroke="#8799a4"/><text class="label" x="720.7839813232422" y="499.659583568573">Bookshelf</text>
+<rect x="685.7343921661377" y="205.6799831390381" width="107.38561820983887" height="87.10802555084229" rx="7" fill="#d6dce0" stroke="#8799a4"/><text class="label" x="691.7343921661377" y="223.6799831390381">Rack</text>
+<rect x="306.02217388153076" y="520.6880857944489" width="183.26001167297363" height="81.00602316856384" rx="7" fill="#d6dce0" stroke="#8799a4"/><text class="label" x="312.02217388153076" y="538.6880857944489">CoffeeTable</text>
+<line x1="103.60000000000001" y1="854.4000000000001" x2="533.5910546779633" y2="294.4497375488281" stroke="#c86c68" stroke-width="3" stroke-dasharray="8 6"/>
+<line x1="103.60000000000001" y1="854.4000000000001" x2="332.6646661758423" y2="466.6268606185913" stroke="#167d72" stroke-width="3" stroke-dasharray=""/>
+<line x1="332.6646661758423" y1="466.6268606185913" x2="423.35893726348877" y2="343.21874046325684" stroke="#167d72" stroke-width="3" stroke-dasharray=""/>
+<line x1="332.6646661758423" y1="466.6268606185913" x2="533.5910546779633" y2="294.4497375488281" stroke="#167d72" stroke-width="3" stroke-dasharray=""/>
+<circle cx="423.35893726348877" cy="343.21874046325684" r="6" fill="#167d72"/><text class="label" x="433.35893726348877" y="335.21874046325684">Monitor · z=3.46</text>
+<circle cx="583.115400314331" cy="288.3119421005249" r="6" fill="#167d72"/><text class="label" x="593.115400314331" y="280.3119421005249">Homelab · z=3.06</text>
+<circle cx="697.2967319488525" cy="402.07242250442505" r="6" fill="#167d72"/><text class="label" x="707.2967319488525" y="394.07242250442505">Diploma · z=4.43</text>
+<circle cx="211.66805267333984" cy="553.1952178478241" r="6" fill="#167d72"/><text class="label" x="221.66805267333984" y="545.1952178478241">Volleyball · z=1.40</text>
+<circle cx="330.685772895813" cy="593.1551220417023" r="6" fill="#167d72"/><text class="label" x="340.685772895813" y="585.1551220417023">Controller · z=1.77</text>
+<circle cx="533.5910546779633" cy="294.4497375488281" r="6" fill="#167d72"/><text class="label" x="543.5910546779633" y="286.4497375488281">Smartphone · z=2.11</text>
+<circle cx="598.5770320892334" cy="646.5067358016968" r="6" fill="#167d72"/><text class="label" x="608.5770320892334" y="638.5067358016968">Bookshelf · z=2.85</text>
+<circle cx="192.46497344970703" cy="267.6275300979614" r="6" fill="#167d72"/><text class="label" x="202.46497344970703" y="259.6275300979614">ContactCard · z=3.54</text>
+<circle cx="332.6646661758423" cy="466.6268606185913" r="6" fill="#167d72"/><text class="label" x="342.6646661758423" y="458.6268606185913">Desk · z=3.66</text>
+<text x="35" y="920" font-size="16">Vert : approche bureau puis écran ou téléphone. Rouge : approche téléphone directe rejetée.</text><text x="35" y="946" font-size="14">CAM_Overview hors champ (−18,94 ; −20,00 ; 16,11) : entrée schématisée en bord de plan.</text><text x="35" y="972" font-size="14">Contrôle conservateur du centre de caméra ; cadrage et occultations à vérifier dans le navigateur.</text></svg>

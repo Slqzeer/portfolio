@@ -4,9 +4,12 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.cache/
+optix7cache.db*
 
-# Baked lightmap sources (EXR/PNG, ~490 MB); runtime WebPs live in public/assets/room/lightmaps/
+# Large baked lightmap sources (EXR/PNG); runtime WebPs live in public/assets/room/lightmaps/
 assets/blender/lightmaps/
+assets/blender/art-v2/lightmaps/
 *.blend1
 
 # Blender animation renders (Render > Render Animation output)

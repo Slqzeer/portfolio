@@ -94,15 +94,3 @@ export function roomObjectIdsForContext(
     .filter(({ parentId }) => !parentId || parentId === context)
     .map(({ id }) => id);
 }
-
-export function selectionTarget(
-  id: RoomObjectId,
-  activeObject: RoomObjectId | null,
-): RoomObjectId {
-  const parentId = parentRoomObjectId(id);
-  if (!parentId || !activeObject) return parentId ?? id;
-  return activeObject === parentId ||
-    parentRoomObjectId(activeObject) === parentId
-    ? id
-    : parentId;
-}

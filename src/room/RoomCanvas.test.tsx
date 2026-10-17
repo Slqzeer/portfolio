@@ -76,11 +76,11 @@ describe("RoomCanvas", () => {
 
     expect(screen.getByTestId("room-poster")).toHaveAttribute(
       "src",
-      "/assets/room/room-poster-day.webp",
+      "/assets/room/room-overview-day.png",
     );
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "3D scene unavailable",
+      "Les rubriques restent accessibles",
     );
     expect(defaultProps.onError).toHaveBeenCalledOnce();
   });

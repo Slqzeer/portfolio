@@ -52,11 +52,16 @@ describe("portfolioContent", () => {
     expect(label.en.trim()).not.toBe("");
   });
 
-  it("uses unique project IDs and clearly marks placeholder content", () => {
+  it("uses unique project IDs and the provided identity", () => {
     const projectIds = portfolioContent.projects.map(({ id }) => id);
 
     expect(new Set(projectIds).size).toBe(projectIds.length);
-    expect(portfolioContent.isSample).toBe(true);
+    expect(portfolioContent.identity.name).toBe("Martin Couturier");
+    expect(
+      portfolioContent.projects.every((project) =>
+        project.github.startsWith("https://github.com/"),
+      ),
+    ).toBe(true);
   });
 
   it("localizes a value", () => {

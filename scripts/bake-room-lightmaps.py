@@ -14,17 +14,36 @@ import time
 import bpy
 
 STATES = {"day": 1, "night": 23}
-SIZES = {"shell": 2048, "props": 4096}
+SIZES = {"shell": 2048, "props": 2048}
 SAMPLES = 96
 
 args = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else list(STATES)
+resume = "--resume" in args
+args = [arg for arg in args if arg != "--resume"] or list(STATES)
+assert all(state in STATES for state in args), args
 out_dir = os.path.join(os.path.dirname(bpy.data.filepath), "lightmaps")
 os.makedirs(out_dir, exist_ok=True)
 
 scene = bpy.data.scenes["PortfolioRoom"]
+cache = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".cache", "optix"))
+os.makedirs(cache, exist_ok=True)
+os.environ.setdefault("OPTIX_CACHE_PATH", cache)
 scene.render.engine = "CYCLES"
 scene.cycles.samples = SAMPLES
 scene.cycles.device = "CPU"
+preferences = bpy.context.preferences.addons["cycles"].preferences
+available = preferences.get_device_types(bpy.context)
+backend = next((item[0] for keyword in ("optix", "cuda") for item in available if keyword in item[0].lower()), None)
+if backend:
+    preferences.compute_device_type = backend
+    devices = preferences.get_devices_for_type(backend)
+    accelerated = [device for device in devices if device.type == backend]
+    if accelerated:
+        for device in devices:
+            device.use = device in accelerated
+        choices = scene.cycles.bl_rna.properties["device"].enum_items
+        scene.cycles.device = next(item.identifier for item in choices if item.identifier.lower() == "gpu")
+        print(f"[bake] {backend}: {', '.join(device.name for device in accelerated)}", flush=True)
 bake = scene.render.bake
 bake.use_pass_direct = True
 bake.use_pass_indirect = True
@@ -33,6 +52,10 @@ bake.margin = 6
 
 
 def bake_atlas(atlas, state):
+    path = os.path.join(out_dir, f"LM_{atlas}_{state}.exr")
+    if resume and os.path.isfile(path) and os.path.getmtime(path) >= os.path.getmtime(bpy.data.filepath):
+        print(f"[bake] keep completed {atlas} {state}", flush=True)
+        return
     objs = [o for o in scene.objects if o.get("lightmap_atlas") == atlas and not o.get("lightmap_decal")]
     size = SIZES[atlas]
     img = bpy.data.images.new(f"LM_{atlas}_{state}", size, size, float_buffer=True)
@@ -52,7 +75,6 @@ def bake_atlas(atlas, state):
     bpy.ops.object.bake(type="DIFFUSE", pass_filter={"DIRECT", "INDIRECT"}, margin=6, use_clear=True)
     for tree, node in added:
         tree.nodes.remove(node)
-    path = os.path.join(out_dir, f"LM_{atlas}_{state}.exr")
     img.filepath_raw = path
     img.file_format = "OPEN_EXR"
     img.save()

@@ -4,9 +4,14 @@ import type { RoomObjectId } from "../content/types";
 interface UseIdleRoomOptions {
   objectIds: readonly RoomObjectId[];
   delayMs?: number;
+  forceReducedMotion?: boolean;
 }
 
-export function useIdleRoom({ objectIds, delayMs = 8000 }: UseIdleRoomOptions) {
+export function useIdleRoom({
+  objectIds,
+  delayMs = 8000,
+  forceReducedMotion = false,
+}: UseIdleRoomOptions) {
   const [reducedMotion] = useState(() =>
     typeof window.matchMedia === "function"
       ? window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -17,22 +22,28 @@ export function useIdleRoom({ objectIds, delayMs = 8000 }: UseIdleRoomOptions) {
         },
   );
   const [ambientPaused, setAmbientPaused] = useState(
-    reducedMotion.matches || document.hidden,
+    reducedMotion.matches || forceReducedMotion || document.hidden,
   );
+  const [systemReduced, setSystemReduced] = useState(reducedMotion.matches);
   const [hintedObject, setHintedObject] = useState<RoomObjectId | null>(null);
   const [timerVersion, setTimerVersion] = useState(0);
   const index = useRef(-1);
 
   useEffect(() => {
-    const updatePause = () =>
-      setAmbientPaused(reducedMotion.matches || document.hidden);
+    const updatePause = () => {
+      setSystemReduced(reducedMotion.matches);
+      setAmbientPaused(
+        reducedMotion.matches || forceReducedMotion || document.hidden,
+      );
+    };
+    updatePause();
     reducedMotion.addEventListener("change", updatePause);
     document.addEventListener("visibilitychange", updatePause);
     return () => {
       reducedMotion.removeEventListener("change", updatePause);
       document.removeEventListener("visibilitychange", updatePause);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, forceReducedMotion]);
 
   useEffect(() => {
     const reset = () => {
@@ -61,6 +72,6 @@ export function useIdleRoom({ objectIds, delayMs = 8000 }: UseIdleRoomOptions) {
   return {
     hintedObject,
     ambientPaused,
-    reducedMotion: reducedMotion.matches,
+    reducedMotion: systemReduced || forceReducedMotion,
   };
 }

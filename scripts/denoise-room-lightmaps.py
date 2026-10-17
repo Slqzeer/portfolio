@@ -4,11 +4,14 @@ Run: blender -b --python scripts/denoise-room-lightmaps.py
 Writes lightmaps/<name>_dn.exr next to each baked map.
 """
 import os
+import sys
 
 import bpy
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src = os.path.join(root, "assets", "blender", "lightmaps")
+if "--" in sys.argv:
+    src = sys.argv[sys.argv.index("--") + 1]
 scene = bpy.context.scene
 scene.render.use_compositing = True
 scene.render.image_settings.file_format = "OPEN_EXR"

@@ -91,4 +91,26 @@ describe("useIdleRoom", () => {
     act(() => document.dispatchEvent(new Event("visibilitychange")));
     expect(result.current.ambientPaused).toBe(false);
   });
+
+  it("updates the motion preference even when ambient work is already paused", () => {
+    let change = () => undefined;
+    const media = {
+      matches: false,
+      addEventListener: (_event: string, listener: () => undefined) => {
+        change = listener;
+      },
+      removeEventListener: vi.fn(),
+    };
+    vi.stubGlobal("matchMedia", () => media);
+    vi.spyOn(document, "hidden", "get").mockReturnValue(true);
+    const { result } = renderHook(() => useIdleRoom({ objectIds }));
+    expect(result.current.ambientPaused).toBe(true);
+    media.matches = true;
+    act(() => change());
+    expect(result.current.reducedMotion).toBe(true);
+    media.matches = false;
+    act(() => change());
+    expect(result.current.reducedMotion).toBe(false);
+    expect(result.current.ambientPaused).toBe(true);
+  });
 });

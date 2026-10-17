@@ -53,7 +53,7 @@ export interface Project {
 
 export interface TimelineEntry {
   id: string;
-  period: string;
+  period: LocalizedText;
   title: LocalizedText;
   description: LocalizedText;
 }
@@ -72,7 +72,13 @@ export interface PortfolioContent {
   };
   availability: LocalizedText;
   navigation: Record<
-    "home" | "about" | "projects" | "homelab" | "experience" | "contact",
+    | "home"
+    | "about"
+    | "projects"
+    | "skills"
+    | "homelab"
+    | "experience"
+    | "contact",
     LocalizedText
   >;
   actions: Record<"explore" | "replaceLink", LocalizedText>;
@@ -90,7 +96,7 @@ export interface PortfolioContent {
     narrative: LocalizedText;
     qualities: LocalizedText[];
   };
-  explorationTopics: string[];
+  explorationTopics: LocalizedText[];
   contact: {
     invitation: LocalizedText;
     location: LocalizedText;

@@ -1,76 +1,52 @@
 import { useFrame } from "@react-three/fiber";
-import { useMemo } from "react";
-import { Material, Mesh, Object3D } from "three";
+import { useEffect, useMemo } from "react";
+import { AnimationClip, AnimationMixer, LoopOnce, Object3D } from "three";
+import type { RoomObjectId } from "../content/types";
 
 export interface RoomIdleProps {
   scene: Object3D;
+  animations: AnimationClip[];
   paused: boolean;
   reducedMotion: boolean;
+  activeObject?: RoomObjectId | null;
+  hoveredObject?: RoomObjectId | null;
 }
 
-function materialsOf(object?: Object3D) {
-  if (!(object instanceof Mesh)) return [];
-  return (
-    Array.isArray(object.material) ? object.material : [object.material]
-  ) as Array<Material & { emissiveIntensity?: number }>;
-}
+// Shapes, amplitudes and timing come exclusively from the Blender clips.
+export function RoomIdle({
+  scene,
+  animations,
+  paused,
+  reducedMotion,
+  activeObject,
+  hoveredObject,
+}: RoomIdleProps) {
+  const mixer = useMemo(() => new AnimationMixer(scene), [scene]);
 
-function setEmission(object: Object3D | undefined, value: number) {
-  for (const material of materialsOf(object)) {
-    if (typeof material.emissiveIntensity === "number") {
-      material.emissiveIntensity = value;
-    }
-  }
-}
+  useEffect(() => () => {
+    mixer.stopAllAction();
+    mixer.uncacheRoot(scene);
+  }, [mixer, scene]);
 
-export function RoomIdle({ scene, paused, reducedMotion }: RoomIdleProps) {
-  const targets = useMemo(
-    () => ({
-      cursor: scene.getObjectByName("IDLE_Monitor_Cursor"),
-      screen: scene.getObjectByName("Monitor_Screen"),
-      rack: scene.children
-        .flatMap((child) => {
-          const matches: Object3D[] = [];
-          child.traverse((object) => {
-            if (object.name.startsWith("EMIT_Rack_")) matches.push(object);
-          });
-          return matches;
-        })
-        .sort((a, b) => a.name.localeCompare(b.name)),
-      phone: scene.getObjectByName("EMIT_Smartphone"),
-      curtains: [
-        scene.getObjectByName("Curtain_Left"),
-        scene.getObjectByName("Curtain_Right"),
-      ].filter((object): object is Object3D => Boolean(object)),
-    }),
-    [scene],
-  );
-  const curtainBase = useMemo(
-    () => targets.curtains.map(({ rotation }) => rotation.z),
-    [targets.curtains],
-  );
+  useEffect(() => {
+    if (reducedMotion || activeObject === "monitor") return;
+    const clip = animations.find(({ name }) => name === "IDLE_Monitor_CursorAction");
+    if (!clip) return;
+    const action = mixer.clipAction(clip).reset().play();
+    return () => { action.stop(); };
+  }, [animations, mixer, reducedMotion, activeObject]);
 
-  useFrame(({ clock }) => {
+  useEffect(() => {
+    if (reducedMotion || !hoveredObject) return;
+    const clip = animations.find(({ name }) => name === `Hover_${hoveredObject}`);
+    if (!clip) return;
+    const action = mixer.clipAction(clip).reset().setLoop(LoopOnce, 1).play();
+    return () => { action.stop(); };
+  }, [animations, mixer, hoveredObject, reducedMotion]);
+
+  useFrame((_, delta) => {
     if (paused || reducedMotion) return;
-    const time = clock.elapsedTime;
-    if (targets.cursor) targets.cursor.visible = Math.floor(time * 2) % 2 === 1;
-    setEmission(targets.screen, 1 + Math.sin(time * 0.7) * 0.06);
-    targets.rack.forEach((light, index) =>
-      setEmission(light, 1 + Math.sin(time * 2 + index * 0.7) * 0.45),
-    );
-    const notificationPhase = time % 12;
-    setEmission(
-      targets.phone,
-      1 +
-        (notificationPhase < 1.2
-          ? Math.sin((notificationPhase / 1.2) * Math.PI) * 1.4
-          : 0),
-    );
-    targets.curtains.forEach((curtain, index) => {
-      curtain.rotation.z =
-        curtainBase[index] + Math.sin(time * 0.35 + index * Math.PI) * 0.006;
-    });
+    mixer.update(Math.min(delta, 0.1));
   });
-
   return null;
 }

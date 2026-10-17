@@ -50,6 +50,8 @@ describe("AccessibleRoomControls", () => {
 
     await user.tab();
     expect(screen.getAllByRole("button")[0]).toHaveFocus();
+    await user.tab();
+    await user.tab();
     await user.keyboard("{Enter}");
     expect(onInteract).toHaveBeenCalledOnce();
   });

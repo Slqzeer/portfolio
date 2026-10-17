@@ -5,26 +5,27 @@ const text = (fr: string, en: string): LocalizedText => ({ fr, en });
 export const localize = (value: LocalizedText, locale: Locale) => value[locale];
 
 export const portfolioContent: PortfolioContent = {
-  isSample: true,
+  isSample: false,
   identity: {
-    name: "Prénom Nom",
+    name: "Martin Couturier",
     role: text(
-      "Ingénieur informatique — Data & IA",
-      "Computer engineer — Data & AI",
+      "Étudiant en 5e année · Développement fullstack",
+      "Fifth-year student · Fullstack development",
     ),
     introduction: text(
-      "Je transforme des données et des idées en produits utiles, fiables et faciles à comprendre.",
-      "I turn data and ideas into useful, reliable products that are easy to understand.",
+      "Bienvenue chez moi. Une chambre à explorer, des projets à découvrir et une autre façon de faire connaissance.",
+      "Welcome to my space. A room to explore, projects to discover, and a different way to get to know me.",
     ),
   },
   availability: text(
-    "Stage de fin d’études · février 2027",
-    "End-of-study internship · February 2027",
+    "Construire, expérimenter, partager.",
+    "Build, experiment, share.",
   ),
   navigation: {
     home: text("Accueil", "Home"),
     about: text("À propos", "About"),
     projects: text("Projets", "Projects"),
+    skills: text("Compétences", "Skills"),
     homelab: text("Homelab", "Homelab"),
     experience: text("Parcours", "Experience"),
     contact: text("Contact", "Contact"),
@@ -34,23 +35,33 @@ export const portfolioContent: PortfolioContent = {
     replaceLink: text("Lien à remplacer", "Replace this link"),
   },
   social: {
-    github: { label: text("GitHub", "GitHub"), href: "" },
-    linkedin: { label: text("LinkedIn", "LinkedIn"), href: "" },
+    github: {
+      label: text("GitHub", "GitHub"),
+      href: "https://github.com/Slqzeer",
+    },
+    linkedin: {
+      label: text("LinkedIn", "LinkedIn"),
+      href: "https://www.linkedin.com/in/martin-couturier",
+    },
     cv: { label: text("CV", "Résumé"), href: "" },
     email: { label: text("E-mail", "Email"), href: "" },
   },
   skills: [
     {
-      group: text("Data & IA", "Data & AI"),
-      items: ["Python", "SQL", "Machine Learning", "RAG"],
+      group: text("Interfaces web", "Web interfaces"),
+      items: ["TypeScript", "React", "HTML", "CSS"],
     },
     {
-      group: text("Logiciel", "Software"),
-      items: ["TypeScript", "React", "Go", "PostgreSQL"],
+      group: text("Backend & qualité produit", "Backend & product quality"),
+      items: ["Python", "FastAPI", "Backend testing", "Product design"],
     },
     {
-      group: text("Infrastructure", "Infrastructure"),
-      items: ["Linux", "Docker", "Kubernetes", "CI/CD"],
+      group: text("Création 3D", "3D creation"),
+      items: ["Blender", "Three.js", "React Three Fiber", "glTF"],
+    },
+    {
+      group: text("Qualité & outils", "Quality & tools"),
+      items: ["Vite", "Vitest", "Playwright", "Git"],
     },
   ],
   projectCategories: {
@@ -62,91 +73,121 @@ export const portfolioContent: PortfolioContent = {
   },
   projects: [
     {
-      id: "sample-rag-assistant",
-      name: text(
-        "Assistant documentaire — exemple",
-        "Document assistant — sample",
-      ),
-      category: "data-ai",
-      summary: text(
-        "Recherche fiable dans une base documentaire.",
-        "Reliable search across a document collection.",
-      ),
-      problem: text(
-        "Retrouver rapidement une information sourcée.",
-        "Find sourced information quickly.",
-      ),
-      solution: text(
-        "Un pipeline RAG avec citations et évaluation.",
-        "A RAG pipeline with citations and evaluation.",
-      ),
-      architecture: text(
-        "API, index vectoriel et interface web.",
-        "API, vector index, and web interface.",
-      ),
-      challenges: text(
-        "Réduire les réponses non sourcées.",
-        "Reduce unsupported answers.",
-      ),
-      learnings: text(
-        "Évaluer avant d’optimiser.",
-        "Evaluate before optimizing.",
-      ),
-      stack: ["Python", "PostgreSQL", "React"],
-      status: text("Prototype fictif", "Fictional prototype"),
-      github: "",
+      id: "portfolio",
+      name: {
+        fr: "Une chambre, un portfolio.",
+        en: "A room, a portfolio.",
+      },
+      category: "software",
+      summary: {
+        fr: "Un espace personnel en 3D où chaque objet devient une porte vers mon travail.",
+        en: "A personal 3D space where every object opens a door to my work.",
+      },
+      problem: {
+        fr: "Présenter un parcours autrement, tout en gardant les informations faciles à consulter.",
+        en: "Present a personal journey differently while keeping information easy to access.",
+      },
+      solution: {
+        fr: "Une chambre interactive, des déplacements guidés et des fiches de contenu en HTML.",
+        en: "An interactive room, guided camera journeys, and readable HTML content.",
+      },
+      architecture: {
+        fr: "Une scène Blender exportée en glTF, intégrée à React avec React Three Fiber. Les contenus français et anglais sont séparés de la scène.",
+        en: "A Blender scene exported as glTF, integrated into React with React Three Fiber. French and English content lives independently of the scene.",
+      },
+      challenges: {
+        fr: "Cadrer les objets sans traverser le mobilier, adapter la lecture au mobile et conserver un accès aux contenus si la 3D échoue.",
+        en: "Frame objects without crossing furniture, adapt reading to mobile, and keep content accessible if 3D fails.",
+      },
+      learnings: {
+        fr: "La 3D donne une présence au lieu ; la typographie et la navigation rendent le parcours compréhensible.",
+        en: "3D gives a space its presence; typography and navigation make the journey understandable.",
+      },
+      stack: ["React", "TypeScript", "Three.js", "Blender"],
+      status: {
+        fr: "En évolution",
+        en: "Evolving",
+      },
+      github: "https://github.com/Slqzeer/portfolio",
     },
     {
-      id: "sample-homelab-observability",
-      name: text(
-        "Observabilité homelab — exemple",
-        "Homelab observability — sample",
-      ),
-      category: "homelab",
-      summary: text(
-        "Tableau de bord pour des services auto-hébergés.",
-        "Dashboard for self-hosted services.",
-      ),
-      problem: text(
-        "Détecter les incidents avant les utilisateurs.",
-        "Detect incidents before users do.",
-      ),
-      solution: text(
-        "Métriques, journaux et alertes utiles.",
-        "Useful metrics, logs, and alerts.",
-      ),
-      architecture: text(
-        "Collecteurs, stockage temporel et dashboards.",
-        "Collectors, time-series storage, and dashboards.",
-      ),
-      challenges: text("Limiter le bruit des alertes.", "Limit alert noise."),
-      learnings: text(
-        "Une alerte doit mener à une action.",
-        "Every alert should lead to an action.",
-      ),
-      stack: ["Docker", "Prometheus", "Grafana"],
-      status: text("Étude fictive", "Fictional study"),
-      github: "",
+      id: "classpulse",
+      name: {
+        fr: "ClassPulse",
+        en: "ClassPulse",
+      },
+      category: "data-ai",
+      summary: {
+        fr: "Un système agentique pour accompagner les étudiants et aider à prévenir le décrochage scolaire.",
+        en: "An agentic system to support students and help prevent school dropout.",
+      },
+      problem: {
+        fr: "Aider les étudiants à rester engagés dans leur parcours scolaire.",
+        en: "Help students stay engaged in their education.",
+      },
+      solution: {
+        fr: "Conception d’un système d’aide aux étudiants reposant sur une approche agentique.",
+        en: "Design of an agent-based student support system.",
+      },
+      architecture: {
+        fr: "Un backend Python exposé avec FastAPI.",
+        en: "A Python backend exposed through FastAPI.",
+      },
+      challenges: {
+        fr: "Mon rôle : contribuer à la conception, tester et vérifier le backend, et veiller à la qualité du produit.",
+        en: "My role: contribute to design, test and verify the backend, and oversee product quality.",
+      },
+      learnings: {
+        fr: "Faire de la vérification du backend et de la qualité produit une partie du travail de conception.",
+        en: "Make backend verification and product quality part of the design process.",
+      },
+      stack: ["Python", "FastAPI", "Agentic system"],
+      status: {
+        fr: "Projet collectif",
+        en: "Team project",
+      },
+      github: "https://github.com/Ghost-in-xav/ClassPulse",
     },
   ],
   homelab: {
     description: text(
-      "Un terrain de jeu pour comprendre les systèmes en production.",
-      "A playground for understanding production systems.",
+      "Le rack de la chambre ouvre un espace dédié aux systèmes et à l’auto-hébergement. Sa présentation technique sera complétée avec la configuration réelle.",
+      "The room’s rack opens a space for systems and self-hosting. Its technical presentation will be completed with the actual configuration.",
     ),
-    services: ["Linux", "Docker", "Virtualisation", "Monitoring"],
+    services: [],
   },
   timeline: [
     {
-      id: "epita-data-ai",
-      period: "2024–2027",
+      id: "current-studies",
+      period: text("En cours", "Current"),
+      title: text("Étudiant en 5e année", "Fifth-year student"),
+      description: text(
+        "Dernière année d’études, avec une pratique centrée sur la conception et le développement de produits logiciels.",
+        "Final year of studies, with a focus on software product design and development.",
+      ),
+    },
+    {
+      id: "cacib",
+      period: text("Expérience professionnelle", "Professional experience"),
       title: text(
-        "Cycle ingénieur — Data & IA",
-        "Engineering degree — Data & AI",
+        "Développement fullstack — CACIB",
+        "Fullstack development — CACIB",
       ),
       description: text(
-        "Formation et expériences à personnaliser.",
-        "Education and experience to customize.",
+        "Une expérience en développement fullstack au sein de Crédit Agricole Corporate and Investment Bank.",
+        "Fullstack development experience at Crédit Agricole Corporate and Investment Bank.",
+      ),
+    },
+    {
+      id: "classpulse",
+      period: text("Projet collectif", "Team project"),
+      title: text(
+        "ClassPulse — conception & qualité",
+        "ClassPulse — design & quality",
+      ),
+      description: text(
+        "Conception du produit, tests et vérification du backend Python / FastAPI d’un système agentique d’aide aux étudiants.",
+        "Product design, testing, and verification of the Python / FastAPI backend of an agentic student support system.",
       ),
     },
   ],
@@ -163,23 +204,19 @@ export const portfolioContent: PortfolioContent = {
     ],
   },
   explorationTopics: [
-    "Local LLMs",
-    "RAG",
-    "Agents",
-    "MLOps",
-    "Kubernetes",
-    "Distributed systems",
-    "Self-hosted AI",
-    "Game architecture",
+    text("Interfaces interactives", "Interactive interfaces"),
+    text("3D pour le web", "3D for the web"),
+    text("Accessibilité", "Accessibility"),
+    text("Performance", "Performance"),
   ],
   contact: {
     invitation: text(
-      "Parlons de vos défis Data, IA ou logiciel.",
-      "Let’s discuss your Data, AI, or software challenges.",
+      "Une idée, un projet, une envie d’échanger ?",
+      "An idea, a project, or something to talk about?",
     ),
     location: text(
-      "France · mobilité à préciser",
-      "France · mobility to be specified",
+      "Retrouvez-moi sur LinkedIn ou explorez mon code sur GitHub.",
+      "Find me on LinkedIn or explore my code on GitHub.",
     ),
   },
   roomObjects: {
@@ -188,7 +225,7 @@ export const portfolioContent: PortfolioContent = {
       detailId: "projects",
     },
     monitor: {
-      label: text("Projets Data et IA", "Data and AI projects"),
+      label: text("Mes projets", "My projects"),
       detailId: "projects",
     },
     server: { label: text("Homelab", "Homelab"), detailId: "homelab" },
@@ -209,7 +246,7 @@ export const portfolioContent: PortfolioContent = {
       detailId: "experiments",
     },
     bookshelf: {
-      label: text("Explorations actuelles", "Currently exploring"),
+      label: text("Compétences et explorations", "Skills and explorations"),
       detailId: "exploring",
     },
     contact: { label: text("Me contacter", "Contact me"), detailId: "contact" },
@@ -263,10 +300,10 @@ export const portfolioContent: PortfolioContent = {
       summary: text("Des idées testées rapidement.", "Ideas tested quickly."),
     },
     exploring: {
-      title: text("En exploration", "Currently exploring"),
+      title: text("Compétences", "Skills"),
       summary: text(
-        "Les sujets que j’approfondis.",
-        "Topics I am diving into.",
+        "Des outils, des méthodes et une curiosité qui ne s’arrête pas.",
+        "Tools, methods, and a curiosity that keeps growing.",
       ),
     },
     contact: {

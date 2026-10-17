@@ -89,14 +89,15 @@ describe("RoomModel bindings", () => {
     );
   });
 
-  it("highlights only a cloned functional material", () => {
+  it("reports object hover without repainting the Blender materials", () => {
     const source = createScene();
     const sourceMonitor = source.getObjectByName("MonitorSurface") as Mesh;
     const sourceDecoration = source.getObjectByName("DeskDecoration") as Mesh;
     const scene = prepareRoomScene(source);
     const monitor = scene.getObjectByName("MonitorSurface") as Mesh;
     const decoration = scene.getObjectByName("DeskDecoration") as Mesh;
-    const handlers = createRoomInteractionHandlers(vi.fn(), vi.fn());
+    const onHover = vi.fn();
+    const handlers = createRoomInteractionHandlers(vi.fn(), onHover);
     const monitorMaterial = monitor.material as MeshStandardMaterial;
     const originalIntensity = monitorMaterial.emissiveIntensity;
 
@@ -107,14 +108,14 @@ describe("RoomModel bindings", () => {
 
     handlers.onPointerOver({ object: monitor, stopPropagation: vi.fn() });
 
-    expect(monitorMaterial.emissiveIntensity).toBeGreaterThan(
-      originalIntensity,
-    );
+    expect(onHover).toHaveBeenLastCalledWith("monitor");
+    expect(monitorMaterial.emissiveIntensity).toBe(originalIntensity);
     expect(
       (decoration.material as MeshStandardMaterial).emissiveIntensity,
     ).toBe(1);
 
     handlers.onPointerOut({ object: monitor, stopPropagation: vi.fn() });
+    expect(onHover).toHaveBeenLastCalledWith(null);
     expect(monitorMaterial.emissiveIntensity).toBe(originalIntensity);
   });
 
