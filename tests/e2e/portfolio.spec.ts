@@ -37,7 +37,7 @@ test("shows discreet hover information and renders both restored ambiences witho
   await marker.focus();
   await expect(label).toHaveCSS("opacity", "1");
   await page.screenshot({ path: testInfo.outputPath("baseline-hover.png") });
-  await page.getByRole("button", { name: "Réduire les mouvements" }).click();
+  await page.getByRole("button", { name: "Animations" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
@@ -97,7 +97,7 @@ test("opens an object marker and remembers the motion setting", async ({
     "true",
     { timeout: 20000 },
   );
-  await page.getByRole("button", { name: "Réduire les mouvements" }).click();
+  await page.getByRole("button", { name: "Animations" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
   await page.getByRole("button", { name: "Les projets", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
@@ -109,8 +109,8 @@ test("opens an object marker and remembers the motion setting", async ({
   await page.screenshot({ path: testInfo.outputPath("overview-night.png") });
   await page.reload();
   await expect(
-    page.getByRole("button", { name: "Réduire les mouvements" }),
-  ).toHaveAttribute("aria-pressed", "true");
+    page.getByRole("button", { name: "Animations" }),
+  ).toHaveAttribute("aria-pressed", "false");
 });
 
 test("loads the GLB behind a loading screen and enables pointer follow", async ({

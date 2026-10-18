@@ -5,7 +5,7 @@ import type { Locale, RoomObjectId } from "../content/types";
 import { AccessibleRoomControls } from "./AccessibleRoomControls";
 import { SceneBoundary } from "./SceneBoundary";
 import { sceneManifest } from "./sceneManifest";
-import { useIdleRoom } from "./useIdleRoom";
+import { useIdleRoom, type MotionPreference } from "./useIdleRoom";
 import "./room.css";
 
 const RoomCanvas = lazy(() =>
@@ -39,16 +39,20 @@ export function RoomScene({
   onUnavailable,
 }: RoomSceneProps) {
   const [canvasFailed, setCanvasFailed] = useState(false);
-  const [manualReduced, setManualReduced] = useState(() => {
-    try {
-      return localStorage.getItem("portfolio-motion") === "reduced";
-    } catch {
-      return false;
-    }
-  });
+  const [motionPreference, setMotionPreference] = useState<MotionPreference>(
+    () => {
+      try {
+        const saved = localStorage.getItem("portfolio-motion");
+        return saved === "full" || saved === "reduced" ? saved : "system";
+      } catch {
+        return "system";
+      }
+    },
+  );
   const { ambientPaused, reducedMotion } = useIdleRoom({
     objectIds: roomObjectIds,
-    forceReducedMotion: manualReduced || readingMode,
+    motionPreference,
+    forceReducedMotion: readingMode,
   });
   useEffect(() => {
     document.documentElement.dataset.motion = reducedMotion
@@ -211,26 +215,30 @@ export function RoomScene({
         <span className="tool-separator" />
         <button
           type="button"
-          className="tool-button"
-          aria-pressed={manualReduced}
-          aria-label={
-            locale === "fr" ? "Réduire les mouvements" : "Reduce motion"
+          className="tool-button motion-toggle"
+          aria-pressed={!reducedMotion}
+          aria-label="Animations"
+          title={
+            reducedMotion
+              ? locale === "fr"
+                ? "Activer les animations"
+                : "Enable animations"
+              : locale === "fr"
+                ? "Réduire les mouvements"
+                : "Reduce motion"
           }
-          title={locale === "fr" ? "Réduire les mouvements" : "Reduce motion"}
           onClick={() => {
-            const next = !manualReduced;
-            setManualReduced(next);
+            const next = reducedMotion ? "full" : "reduced";
+            setMotionPreference(next);
             try {
-              localStorage.setItem(
-                "portfolio-motion",
-                next ? "reduced" : "system",
-              );
+              localStorage.setItem("portfolio-motion", next);
             } catch {
               /* Preference still applies for this visit. */
             }
           }}
         >
           <Icon name="motion" />
+          <span>Animations</span>
         </button>
       </div>
     </section>

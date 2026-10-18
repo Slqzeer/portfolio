@@ -36,6 +36,38 @@ vi.mock("./RoomCanvas", () => ({
 }));
 
 describe("RoomScene", () => {
+  it("can re-enable and persist animations when the system reduces motion", async () => {
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    const user = userEvent.setup();
+    const view = (
+      <RoomScene
+        locale="fr"
+        lighting="day"
+        activeObject={null}
+        onInteract={() => undefined}
+        onClose={() => undefined}
+      />
+    );
+    try {
+      const { unmount } = render(view);
+      expect(document.documentElement).toHaveAttribute(
+        "data-motion",
+        "reduced",
+      );
+      await user.click(screen.getByRole("button", { name: "Animations" }));
+      expect(document.documentElement).toHaveAttribute("data-motion", "full");
+      expect(localStorage.getItem("portfolio-motion")).toBe("full");
+      unmount();
+      render(view);
+      expect(document.documentElement).toHaveAttribute("data-motion", "full");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
   it("persists the manual motion preference and pauses ambient motion", async () => {
     const user = userEvent.setup();
     render(
@@ -48,10 +80,10 @@ describe("RoomScene", () => {
       />,
     );
     const toggle = screen.getByRole("button", {
-      name: "Réduire les mouvements",
+      name: "Animations",
     });
     await user.click(toggle);
-    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
     expect(localStorage.getItem("portfolio-motion")).toBe("reduced");
     expect(screen.getByTestId("room-scene")).toHaveAttribute(
       "data-ambient-paused",

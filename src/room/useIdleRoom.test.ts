@@ -92,6 +92,23 @@ describe("useIdleRoom", () => {
     expect(result.current.ambientPaused).toBe(false);
   });
 
+  it("keeps hidden-tab and reading pauses when motion is explicitly enabled", () => {
+    vi.spyOn(document, "hidden", "get").mockReturnValue(true);
+    const { result, rerender } = renderHook(
+      ({ reading }) =>
+        useIdleRoom({
+          objectIds,
+          motionPreference: "full",
+          forceReducedMotion: reading,
+        }),
+      { initialProps: { reading: false } },
+    );
+    expect(result.current.reducedMotion).toBe(false);
+    expect(result.current.ambientPaused).toBe(true);
+    rerender({ reading: true });
+    expect(result.current.reducedMotion).toBe(true);
+  });
+
   it("updates the motion preference even when ambient work is already paused", () => {
     let change = () => undefined;
     const media = {

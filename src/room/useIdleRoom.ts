@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { RoomObjectId } from "../content/types";
 
+export type MotionPreference = "system" | "full" | "reduced";
+
 interface UseIdleRoomOptions {
   objectIds: readonly RoomObjectId[];
   delayMs?: number;
   forceReducedMotion?: boolean;
+  motionPreference?: MotionPreference;
 }
 
 export function useIdleRoom({
   objectIds,
   delayMs = 8000,
   forceReducedMotion = false,
+  motionPreference = "system",
 }: UseIdleRoomOptions) {
   const [reducedMotion] = useState(() =>
     typeof window.matchMedia === "function"
@@ -21,10 +25,13 @@ export function useIdleRoom({
           removeEventListener: () => undefined,
         },
   );
-  const [ambientPaused, setAmbientPaused] = useState(
-    reducedMotion.matches || forceReducedMotion || document.hidden,
-  );
+  const [hidden, setHidden] = useState(document.hidden);
   const [systemReduced, setSystemReduced] = useState(reducedMotion.matches);
+  const motionReduced =
+    forceReducedMotion ||
+    motionPreference === "reduced" ||
+    (motionPreference === "system" && systemReduced);
+  const ambientPaused = motionReduced || hidden;
   const [hintedObject, setHintedObject] = useState<RoomObjectId | null>(null);
   const [timerVersion, setTimerVersion] = useState(0);
   const index = useRef(-1);
@@ -32,9 +39,7 @@ export function useIdleRoom({
   useEffect(() => {
     const updatePause = () => {
       setSystemReduced(reducedMotion.matches);
-      setAmbientPaused(
-        reducedMotion.matches || forceReducedMotion || document.hidden,
-      );
+      setHidden(document.hidden);
     };
     updatePause();
     reducedMotion.addEventListener("change", updatePause);
@@ -43,7 +48,7 @@ export function useIdleRoom({
       reducedMotion.removeEventListener("change", updatePause);
       document.removeEventListener("visibilitychange", updatePause);
     };
-  }, [reducedMotion, forceReducedMotion]);
+  }, [reducedMotion]);
 
   useEffect(() => {
     const reset = () => {
@@ -72,6 +77,6 @@ export function useIdleRoom({
   return {
     hintedObject,
     ambientPaused,
-    reducedMotion: systemReduced || forceReducedMotion,
+    reducedMotion: motionReduced,
   };
 }

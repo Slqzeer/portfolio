@@ -229,7 +229,8 @@
   background: var(--soft);
   color: var(--ink);
 }
-.theme-toggle {
+.theme-toggle,
+.motion-toggle {
   width: auto;
   padding: 0 13px;
   display: flex;
@@ -484,7 +485,8 @@
     width: 36px;
     height: 36px;
   }
-  .room-tools .theme-toggle {
+  .room-tools .theme-toggle,
+  .room-tools .motion-toggle {
     width: auto;
     min-width: 72px;
   }
