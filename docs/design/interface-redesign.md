@@ -1,5 +1,7 @@
 # Refonte de l’interface — Martin Couturier
 
+18 octobre 2026 — Mise à jour : la barre pleine largeur et les commandes réparties aux quatre coins sont remplacées par une barre compacte centrée. **Explorer** rassemble les destinations, **Réglages** rassemble les préférences et la lecture rapide. Les légendes et bulles permanentes autour de la scène sont supprimées ; le texte d’accueil est réduit et le cadrage garde la chambre entière visible sur ordinateur. Les animations démarrent actives, même si le système demande des mouvements réduits ; seule une pause explicitement enregistrée par le visiteur est restaurée. La lecture et les onglets masqués suspendent toujours les mouvements. Les paragraphes suivants décrivent la refonte du 17 octobre.
+
 17 octobre 2026. Cette version remplace l’habillage du premier prototype et personnalise les contenus à partir des informations fournies par Martin. La chambre existante reste la source visuelle : les géométries, le GLB et les fichiers Blender éditables sont conservés.
 
 ## Composition et lecture

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { IntroCard } from "../components/IntroCard";
 import { SiteHeader } from "../components/SiteHeader";
 import { portfolioContent } from "../content/portfolioContent";
@@ -11,6 +11,7 @@ import {
 } from "../room/hashNavigation";
 import { RoomScene } from "../room/RoomScene";
 import { sceneManifest } from "../room/sceneManifest";
+import { useRoomMotion } from "../room/useRoomMotion";
 import { appReducer, initialAppState } from "./appState";
 import { readPreferences, writePreferences } from "./preferences";
 
@@ -25,6 +26,9 @@ export function App() {
       ...readPreferences(window.localStorage),
     }),
   );
+  const [canvasFailed, setCanvasFailed] = useState(false);
+  const { ambientPaused, reducedMotion, animationsEnabled, toggleMotion } =
+    useRoomMotion(state.readingMode);
 
   useEffect(() => {
     writePreferences(window.localStorage, {
@@ -206,6 +210,12 @@ export function App() {
         locale={state.locale}
         activeObject={state.activeObject}
         readingMode={state.readingMode}
+        lighting={state.lighting}
+        animationsEnabled={animationsEnabled}
+        onMotionToggle={toggleMotion}
+        canvasFailed={canvasFailed}
+        onInteract={handleRoomInteract}
+        onClose={closeObject}
         onReadingToggle={() => {
           if (!state.readingMode && !state.activeObject)
             handleRoomInteract("monitor");
@@ -229,14 +239,19 @@ export function App() {
           lighting={state.lighting}
           activeObject={state.activeObject}
           onInteract={handleRoomInteract}
-          onClose={closeObject}
+          ambientPaused={ambientPaused}
+          reducedMotion={reducedMotion}
           transitionId={state.transitionId}
           navigationPhase={state.navigationPhase}
           readingMode={state.readingMode}
           onArrive={(transitionId) =>
             dispatch({ type: "camera.arrived", transitionId })
           }
-          onUnavailable={() => dispatch({ type: "scene.unavailable" })}
+          onUnavailable={() => {
+            setCanvasFailed(true);
+            dispatch({ type: "scene.unavailable" });
+          }}
+          onReady={() => setCanvasFailed(false)}
         />
         {state.activeObject &&
           state.navigationPhase === "INTERACT" &&

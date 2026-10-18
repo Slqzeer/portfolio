@@ -33,6 +33,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByLabelText("Réglages de la visite"));
     await user.click(
       screen.getByRole("button", { name: "Français, switch to English" }),
     );
@@ -210,6 +211,8 @@ describe("App", () => {
     await waitFor(() => expect(window.location.hash).toBe("#room/desk"));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
+    // Escape first dismisses the menu reopened to restore the shortcut focus.
+    await user.keyboard("{Escape}");
     await user.keyboard("{Escape}");
     await waitFor(() => expect(window.location.hash).toBe(""));
     expect(

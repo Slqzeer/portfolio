@@ -1,3 +1,4 @@
+import { openNavigation, openSettings } from "./controls";
 import { expect, test, type Page } from "@playwright/test";
 
 async function openRoomMenu(page: Page) {
@@ -37,8 +38,10 @@ test("shows discreet hover information and renders both restored ambiences witho
   await marker.focus();
   await expect(label).toHaveCSS("opacity", "1");
   await page.screenshot({ path: testInfo.outputPath("baseline-hover.png") });
+  await openSettings(page);
   await page.getByRole("button", { name: "Animations" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
   await expect(
@@ -60,6 +63,7 @@ test("reads real projects while the 3D asset is still loading", async ({
     await route.abort();
   });
   await page.goto("/");
+  await openSettings(page);
   await page.getByRole("button", { name: "Lecture rapide" }).click();
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "ClassPulse" })).toBeVisible();
@@ -75,6 +79,7 @@ test("reads real projects while the 3D asset is still loading", async ({
   await page.screenshot({
     path: testInfo.outputPath("reading-classpulse.png"),
   });
+  await openNavigation(page);
   await page
     .getByRole("navigation", { name: "Navigation principale" })
     .getByRole("link", { name: "Contact" })
@@ -97,17 +102,21 @@ test("opens an object marker and remembers the motion setting", async ({
     "true",
     { timeout: 20000 },
   );
+  await openSettings(page);
   await page.getByRole("button", { name: "Animations" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Les projets", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(
     page.getByRole("button", { name: "Les projets", exact: true }),
   ).toBeFocused();
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await page.screenshot({ path: testInfo.outputPath("overview-night.png") });
   await page.reload();
+  await openSettings(page);
   await expect(
     page.getByRole("button", { name: "Animations" }),
   ).toHaveAttribute("aria-pressed", "false");
@@ -184,6 +193,7 @@ test("routes focus, curtains, and flag without control zoom", async ({
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(page).not.toHaveURL(/#room\//);
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(page.getByTestId("room-scene")).toHaveAttribute(
     "data-lighting",
@@ -200,6 +210,7 @@ test("routes focus, curtains, and flag without control zoom", async ({
   await openRoomMenu(page);
   await page.getByRole("button", { name: "Changer de langue" }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await openNavigation(page);
   await expect(
     page.getByRole("navigation", { name: "Main navigation" }),
   ).toBeVisible();
@@ -225,6 +236,7 @@ test("supports keyboard focus, Back, and Escape", async ({ page }) => {
   const monitor = page.getByRole("button", { name: "Mes projets" });
   await monitor.focus();
   await page.keyboard.press("Enter");
+  await openNavigation(page);
   await page
     .getByRole("navigation", { name: "Navigation principale" })
     .getByRole("link", { name: "Homelab" })
@@ -280,6 +292,7 @@ test("keeps the poster and controls when the GLB fails", async ({ page }) => {
       name: "Commandes de la chambre interactive",
     }),
   ).toBeVisible();
+  await openNavigation(page);
   await page
     .getByRole("navigation", { name: "Navigation principale" })
     .getByRole("link", { name: "Projets" })
@@ -298,6 +311,7 @@ test("reviews direct projects navigation and separate desktop/mobile reading spa
     { timeout: 20000 },
   );
   await page.screenshot({ path: testInfo.outputPath("overview-desktop.png") });
+  await openNavigation(page);
   await page
     .getByRole("navigation", { name: "Navigation principale" })
     .getByRole("link", { name: "Projets" })
@@ -352,6 +366,7 @@ test("reviews direct projects navigation and separate desktop/mobile reading spa
   expect(mobileOverview!.y + mobileOverview!.height).toBeLessThanOrEqual(
     mobileIntro!.y + 1,
   );
+  await openNavigation(page);
   await page
     .getByRole("navigation", { name: "Navigation principale" })
     .getByRole("link", { name: "Projets" })
@@ -391,30 +406,24 @@ test("reviews direct projects navigation and separate desktop/mobile reading spa
     path: testInfo.outputPath("overview-small-mobile.png"),
     fullPage: true,
   });
+  await openNavigation(page);
   await page
     .getByRole("navigation", { name: "Navigation principale" })
     .getByRole("link", { name: "Projets" })
     .click();
   await expect(panel).toBeVisible();
-  const smallControls = await page.locator(".room-controls").boundingBox();
-  const smallTools = await page.locator(".room-tools").boundingBox();
-  expect(smallControls!.x + smallControls!.width).toBeLessThanOrEqual(
-    smallTools!.x,
-  );
-  const navigation = page.getByRole("navigation", {
-    name: "Navigation principale",
-  });
-  expect(
-    await navigation.evaluate((nav) => nav.scrollWidth <= nav.clientWidth),
-  ).toBe(true);
+  await openNavigation(page);
+  const menu = await page.locator(".room-menu .menu-panel").boundingBox();
+  expect(menu!.x).toBeGreaterThanOrEqual(0);
+  expect(menu!.x + menu!.width).toBeLessThanOrEqual(320);
+  await openSettings(page);
   await page
     .getByRole("button", { name: "Français, switch to English" })
     .click();
-  expect(
-    await page
-      .getByRole("navigation", { name: "Main navigation" })
-      .evaluate((nav) => nav.scrollWidth <= nav.clientWidth),
-  ).toBe(true);
+  await openNavigation(page);
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation" }),
+  ).toBeVisible();
 });
 
 test("supports mobile, reduced motion, and hidden-tab pause", async ({
@@ -423,6 +432,8 @@ test("supports mobile, reduced motion, and hidden-tab pause", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#room/server");
+  await openSettings(page);
+  await page.getByRole("button", { name: "Animations" }).click();
   await expect(page.locator(".room-canvas")).toHaveAttribute(
     "data-ready",
     "true",
@@ -455,6 +466,8 @@ test("supports mobile, reduced motion, and hidden-tab pause", async ({
     page.getByText("Aucun projet publié dans cette catégorie pour le moment."),
   ).toBeVisible();
 
+  await openSettings(page);
+  await page.getByRole("button", { name: "Animations" }).click();
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.reload();
   await expect(page.getByTestId("room-scene")).toHaveAttribute(

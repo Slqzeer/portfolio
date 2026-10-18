@@ -1,24 +1,22 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import type { Lighting, NavigationPhase } from "../app/appState";
 import { Icon } from "../components/Icon";
 import type { Locale, RoomObjectId } from "../content/types";
-import { AccessibleRoomControls } from "./AccessibleRoomControls";
 import { SceneBoundary } from "./SceneBoundary";
-import { sceneManifest } from "./sceneManifest";
-import { useIdleRoom, type MotionPreference } from "./useIdleRoom";
 import "./room.css";
 
 const RoomCanvas = lazy(() =>
   import("./RoomCanvas").then((module) => ({ default: module.RoomCanvas })),
 );
-const roomObjectIds = Object.keys(sceneManifest) as RoomObjectId[];
 
 interface RoomSceneProps {
   locale: Locale;
   lighting: Lighting;
   activeObject: RoomObjectId | null;
   onInteract: (id: RoomObjectId) => void;
-  onClose: () => void;
+  ambientPaused?: boolean;
+  reducedMotion?: boolean;
+  onReady?: () => void;
   transitionId?: number;
   navigationPhase?: NavigationPhase;
   readingMode?: boolean;
@@ -31,38 +29,15 @@ export function RoomScene({
   lighting,
   activeObject,
   onInteract,
-  onClose,
+  ambientPaused = false,
+  reducedMotion = false,
+  onReady,
   transitionId,
   navigationPhase,
   readingMode = false,
   onArrive,
   onUnavailable,
 }: RoomSceneProps) {
-  const [canvasFailed, setCanvasFailed] = useState(false);
-  const [motionPreference, setMotionPreference] = useState<MotionPreference>(
-    () => {
-      try {
-        const saved = localStorage.getItem("portfolio-motion");
-        return saved === "full" || saved === "reduced" ? saved : "system";
-      } catch {
-        return "system";
-      }
-    },
-  );
-  const { ambientPaused, reducedMotion } = useIdleRoom({
-    objectIds: roomObjectIds,
-    motionPreference,
-    forceReducedMotion: readingMode,
-  });
-  useEffect(() => {
-    document.documentElement.dataset.motion = reducedMotion
-      ? "reduced"
-      : "full";
-    return () => {
-      delete document.documentElement.dataset.motion;
-    };
-  }, [reducedMotion]);
-
   const poster = (
     <img
       className="room-poster"
@@ -71,7 +46,6 @@ export function RoomScene({
     />
   );
   const reportError = () => {
-    setCanvasFailed(true);
     onUnavailable?.();
   };
 
@@ -131,7 +105,7 @@ export function RoomScene({
               ambientPaused={ambientPaused}
               reducedMotion={reducedMotion}
               onInteract={onInteract}
-              onReady={() => setCanvasFailed(false)}
+              onReady={() => onReady?.()}
               onError={reportError}
               transitionId={transitionId}
               onArrive={onArrive}
@@ -140,107 +114,6 @@ export function RoomScene({
           </Suspense>
         </SceneBoundary>
       )}
-      <div className="room-caption" aria-hidden="true">
-        <span className="status-dot" />
-        {locale === "fr" ? "LA CHAMBRE" : "THE ROOM"}
-        <span className="caption-rule" />
-        {readingMode
-          ? locale === "fr"
-            ? "MODE LECTURE"
-            : "READING MODE"
-          : lighting === "day"
-            ? locale === "fr"
-              ? "ATELIER · LUMIÈRE DU JOUR"
-              : "STUDIO · DAYLIGHT"
-            : locale === "fr"
-              ? "SOIR · LUMIÈRE DOUCE"
-              : "EVENING · SOFT LIGHT"}
-      </div>
-      {!activeObject && !readingMode && (
-        <div className="room-guide">
-          <span className="guide-mouse" aria-hidden="true" />
-          <p>
-            {locale === "fr"
-              ? "Chaque objet a quelque chose à raconter."
-              : "Every object has a story to tell."}
-            <small>
-              {locale === "fr"
-                ? "Cliquez sur un repère pour commencer"
-                : "Choose a marker to start exploring"}
-            </small>
-          </p>
-        </div>
-      )}
-      <AccessibleRoomControls
-        locale={locale}
-        activeObject={activeObject}
-        canvasFailed={canvasFailed}
-        onInteract={onInteract}
-        onClose={onClose}
-      />
-      <div
-        className="room-tools"
-        aria-label={
-          locale === "fr" ? "Réglages de la visite" : "Visit settings"
-        }
-      >
-        <button
-          type="button"
-          className="tool-button theme-toggle"
-          onClick={() => onInteract("window")}
-          aria-label={
-            locale === "fr" ? "Basculer jour / nuit" : "Toggle day / night"
-          }
-          title={
-            lighting === "day"
-              ? locale === "fr"
-                ? "Passer à la nuit"
-                : "Switch to night"
-              : locale === "fr"
-                ? "Retrouver le jour"
-                : "Back to daylight"
-          }
-        >
-          <Icon name={lighting === "day" ? "sun" : "moon"} />
-          <span>
-            {lighting === "day"
-              ? locale === "fr"
-                ? "Atelier"
-                : "Studio"
-              : locale === "fr"
-                ? "Soir"
-                : "Evening"}
-          </span>
-        </button>
-        <span className="tool-separator" />
-        <button
-          type="button"
-          className="tool-button motion-toggle"
-          aria-pressed={!reducedMotion}
-          aria-label="Animations"
-          title={
-            reducedMotion
-              ? locale === "fr"
-                ? "Activer les animations"
-                : "Enable animations"
-              : locale === "fr"
-                ? "Réduire les mouvements"
-                : "Reduce motion"
-          }
-          onClick={() => {
-            const next = reducedMotion ? "full" : "reduced";
-            setMotionPreference(next);
-            try {
-              localStorage.setItem("portfolio-motion", next);
-            } catch {
-              /* Preference still applies for this visit. */
-            }
-          }}
-        >
-          <Icon name="motion" />
-          <span>Animations</span>
-        </button>
-      </div>
     </section>
   );
 }

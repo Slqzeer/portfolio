@@ -19,7 +19,7 @@ npm run test:e2e
 
 Toutes les informations personnelles, traductions, projets et destinations de liens se trouvent dans `src/content/portfolioContent.ts`. Le contenu présente Martin Couturier, ClassPulse, ce portfolio et l’expérience fullstack CACIB. La configuration réelle du homelab, les dates du parcours et les coordonnées supplémentaires restent à renseigner. Les liens vides sont masqués et absents du fallback sans JavaScript.
 
-Le bouton **Lecture rapide** ouvre les mêmes contenus immédiatement sans attendre la 3D. Les six repères dans la chambre, la navigation principale et le menu **Toutes les rubriques** partagent les mêmes destinations. Le réglage manuel des mouvements est conservé localement ; la préférence système reste prioritaire.
+La barre compacte rassemble les commandes : **Explorer** donne accès aux rubriques et aux objets ; **Réglages** contient l’ambiance, les animations, la langue et la **Lecture rapide**, disponible sans attendre la 3D. Les animations sont actives par défaut, y compris lorsque le système réduit les mouvements. Un arrêt choisi explicitement reste mémorisé dans le navigateur. Les mouvements se mettent en pause en lecture et lorsque l’onglet est masqué.
 
 ## Remplacer les visuels
 

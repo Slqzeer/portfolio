@@ -1,11 +1,12 @@
 export const HOME_CAMERA = "CAM_Overview";
-export const OVERVIEW_FRAME_SCALE = 0.78;
+export const OVERVIEW_FRAME_SCALE = 0.88;
 
-// Bring the room forward; a small crop of the architectural cut is intentional.
+// Keep the room prominent with breathing room around the architectural cut.
 export function overviewFrameScale(width: number, height: number) {
+  if (width <= 640) return 0.78;
   return Math.min(
-    0.9,
-    Math.max(OVERVIEW_FRAME_SCALE, ((width * 9) / (height * 16)) * 0.9),
+    1,
+    Math.max(OVERVIEW_FRAME_SCALE, ((width * 9) / (height * 16)) * 0.98),
   );
 }
 export const cameraTravel = {

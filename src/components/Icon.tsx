@@ -7,9 +7,11 @@ type IconName =
   | "moon"
   | "motion"
   | "book"
+  | "settings"
   | "back";
 
 const paths: Record<IconName, string[]> = {
+  settings: ["M4 7h16M4 17h16", "M8 4v6M16 14v6"],
   arrow: ["M4 12h16", "m13 5 7 7-7 7"],
   external: ["M6 18 18 6", "M6 6h12v12"],
   close: ["m6 6 12 12", "M18 6 6 18"],

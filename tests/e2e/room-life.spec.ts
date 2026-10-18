@@ -1,4 +1,7 @@
+import { openNavigation, openSettings } from "./controls";
 import { expect, test } from "@playwright/test";
+
+test.use({ viewport: { width: 960, height: 640 } });
 
 test("re-enables and remembers curtain animation with saved and system reduced motion", async ({
   page,
@@ -22,6 +25,7 @@ test("re-enables and remembers curtain animation with saved and system reduced m
   );
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+  await openSettings(page);
   const toggle = page.getByRole("button", { name: "Animations", exact: true });
   await expect(toggle).toHaveAttribute("aria-pressed", "false");
   await expect(toggle).toHaveAttribute("title", "Activer les animations");
@@ -53,6 +57,7 @@ test("re-enables and remembers curtain animation with saved and system reduced m
       attributeFilter: ["data-blind-height"],
     });
   });
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(canvas).toHaveAttribute("data-blind-height", "1.9760", {
     timeout: 15000,
@@ -96,6 +101,7 @@ test("opens and closes the real Blender blind, including under reduced motion", 
       attributeFilter: ["data-blind-height"],
     });
   });
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(canvas).toHaveAttribute("data-blind-height", "1.9760", {
     timeout: 15000,
@@ -113,15 +119,19 @@ test("opens and closes the real Blender blind, including under reduced motion", 
       .size,
   ).toBeGreaterThan(2);
   await page.screenshot({ path: info.outputPath("living-night.png") });
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(canvas).toHaveAttribute("data-blind-height", "3.6500", {
     timeout: 15000,
   });
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(canvas).toHaveAttribute("data-blind-height", "1.9760", {
     timeout: 15000,
   });
+  await openSettings(page);
   await page.getByRole("button", { name: "Animations" }).click();
+  await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(canvas).toHaveAttribute("data-blind-height", "3.6500", {
     timeout: 15000,
@@ -188,6 +198,7 @@ test("plays the authored bird, breeze, device lights, notifications and typing, 
     })
     .toBeGreaterThan(0.1);
   await page.screenshot({ path: info.outputPath("living-ambient.png") });
+  await openSettings(page);
   await page.getByRole("button", { name: "Animations" }).click();
   await expect(canvas).toHaveAttribute("data-phone-notification", "0.00001", {
     timeout: 10000,

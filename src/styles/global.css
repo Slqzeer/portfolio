@@ -62,115 +62,42 @@ input {
   min-height: 100svh;
 }
 .site-header {
-  position: relative;
+  position: sticky;
+  top: 8px;
   z-index: 50;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-shrink: 0;
-  min-height: 88px;
-  gap: 24px;
-  padding: 16px clamp(24px, 4.4vw, 72px);
-  border-bottom: 1px solid var(--line);
-  background: var(--page);
+  width: min(600px, calc(100% - 32px));
+  min-height: 52px;
+  margin: 10px auto 0;
+  padding: 3px 8px 3px 12px;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
 }
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
-  flex: none;
+  min-width: 0;
 }
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--ink);
-  border-radius: 50%;
   font-family: var(--serif);
-  font-size: 19px;
+  font-size: 18px;
   letter-spacing: -2px;
-  padding-right: 2px;
 }
 .brand-caption {
-  display: grid;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.brand-caption small {
-  font-size: 8px;
-  letter-spacing: 0.17em;
-  color: var(--muted);
-  font-weight: 400;
-}
-.site-header nav {
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  gap: clamp(14px, 1.8vw, 28px);
-}
-.site-header nav a {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 44px;
-  position: relative;
-  text-decoration: none;
   font-size: 11px;
   white-space: nowrap;
-}
-.nav-index {
-  align-self: flex-start;
-  padding-top: 10px;
-  font-size: 7px;
-  color: var(--muted);
-}
-.site-header nav a::after {
-  position: absolute;
-  content: "";
-  height: 1px;
-  background: var(--green);
-  bottom: 7px;
-  left: 0;
-  right: 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 180ms;
-}
-.site-header nav a:hover::after,
-.site-header nav a[aria-current]::after {
-  transform: scaleX(1);
 }
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-.reading-toggle,
-.language-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  border: 0;
-  background: transparent;
-  font-size: 10px;
-  white-space: nowrap;
-}
-.reading-toggle .icon {
-  width: 17px;
-}
-.reading-toggle[aria-pressed="true"] {
-  color: var(--accent);
-}
-.language-toggle {
-  min-width: 42px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  gap: 4px;
 }
 main {
   --detail-width: clamp(27rem, 41vw, 38rem);
@@ -178,7 +105,7 @@ main {
   flex: 1;
   display: grid;
   place-items: center start;
-  min-height: calc(100svh - 88px);
+  min-height: calc(100svh - 62px);
   overflow: hidden;
   padding: 28px clamp(24px, 4.4vw, 72px);
   background:
@@ -187,25 +114,8 @@ main {
 .intro-card {
   position: relative;
   z-index: 10;
-  width: min(360px, 32vw);
+  width: min(280px, 25vw);
   animation: intro-arrive 700ms ease-out both;
-}
-.hero-kicker {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-size: 8px;
-  line-height: 1.7;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-}
-.hero-kicker > span {
-  display: block;
-  width: 23px;
-  height: 1px;
-  background: var(--accent);
-  flex: none;
 }
 .eyebrow {
   margin: 20px 0 12px;
@@ -214,7 +124,7 @@ main {
 }
 h1 {
   font-family: var(--serif);
-  font-size: clamp(52px, 5.6vw, 88px);
+  font-size: clamp(40px, 4vw, 58px);
   font-weight: 400;
   line-height: 1.02;
   letter-spacing: -0.055em;
@@ -237,6 +147,13 @@ h1 em {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.8;
+}
+.intro-hint {
+  max-width: 28ch;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
 }
 .intro-actions {
   display: flex;
@@ -329,7 +246,7 @@ h1 em {
   opacity: 0.8;
 }
 main[data-intro-open="true"] .room-scene {
-  left: 25%;
+  left: 21%;
 }
 main[data-detail-open="true"] .room-scene {
   right: var(--detail-width);
@@ -371,81 +288,17 @@ main {
     background-color 500ms,
     color 500ms;
 }
-@media (min-width: 1600px) {
-  .intro-card {
-    width: 420px;
-  }
-  .introduction {
-    max-width: 355px;
-    font-size: 15px;
-  }
-  .hero-role {
-    font-size: 13px;
-  }
-  .hero-kicker {
-    font-size: 9px;
-  }
-}
-@media (max-width: 1100px) {
-  .brand-caption small {
-    display: none;
-  }
-  .site-header {
-    padding-inline: 24px;
-    gap: 16px;
-  }
-  .site-header nav {
-    gap: 14px;
-  }
-  .nav-index {
-    display: none;
-  }
-  .reading-toggle span {
-    display: none;
-  }
-  .reading-toggle {
-    min-width: 40px;
-  }
-}
 @media (max-width: 760px) {
   .site-header {
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    min-height: 0;
-    padding: 12px 20px 0;
-  }
-  .brand {
-    flex: 1;
-  }
-  .brand-mark {
-    width: 37px;
-    height: 37px;
-    font-size: 18px;
+    gap: 8px;
+    width: calc(100% - 24px);
+    margin-top: 8px;
   }
   .brand-caption {
-    font-size: 12px;
-  }
-  .header-actions {
-    gap: 8px;
-  }
-  .site-header nav {
-    order: 3;
-    flex: 1 0 100%;
-    justify-content: space-between;
-    overflow-x: auto;
-    gap: 4px;
-    scrollbar-width: none;
-  }
-  .site-header nav::-webkit-scrollbar {
-    display: none;
-  }
-  .site-header nav a {
-    flex: none;
-    font-size: clamp(10px, 2.8vw, 11px);
-    min-height: 45px;
+    font-size: 10px;
   }
   main {
-    min-height: calc(100svh - 108px);
+    min-height: calc(100svh - 60px);
     padding: 0;
   }
   main[data-intro-open="true"] {
@@ -457,15 +310,12 @@ main {
     position: relative;
     inset: auto;
     flex: none;
-    height: clamp(17rem, 43svh, 26rem);
+    height: clamp(15rem, 44svh, 28rem);
     width: 100%;
   }
   .intro-card {
     width: auto;
-    margin: 4px 28px 34px;
-  }
-  .hero-kicker {
-    display: none;
+    margin: 0 24px 24px;
   }
   .eyebrow {
     margin-top: 0;
@@ -473,7 +323,7 @@ main {
     font-size: 10px;
   }
   h1 {
-    font-size: clamp(48px, 13vw, 66px);
+    font-size: clamp(36px, 10vw, 44px);
   }
   .hero-role {
     margin-top: 16px;
@@ -502,7 +352,7 @@ main {
 }
 @media (max-height: 700px) and (min-width: 761px) {
   h1 {
-    font-size: 58px;
+    font-size: 44px;
   }
   .hero-role {
     margin-top: 14px;
@@ -525,9 +375,9 @@ main {
   scroll-behavior: auto !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;

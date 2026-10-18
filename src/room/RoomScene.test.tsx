@@ -12,15 +12,21 @@ vi.mock("./RoomCanvas", () => ({
     activeObject,
     onInteract,
     onError,
+    ambientPaused,
+    reducedMotion,
   }: {
     locale: Locale;
     lighting: Lighting;
     activeObject: RoomObjectId | null;
     onInteract: (id: RoomObjectId) => void;
     onError: (error: Error) => void;
+    ambientPaused: boolean;
+    reducedMotion: boolean;
   }) => (
     <div
       data-testid="room-canvas"
+      data-paused={ambientPaused}
+      data-reduced-motion={reducedMotion}
       data-locale={locale}
       data-lighting={lighting}
       data-active-object={activeObject ?? undefined}
@@ -36,99 +42,26 @@ vi.mock("./RoomCanvas", () => ({
 }));
 
 describe("RoomScene", () => {
-  it("can re-enable and persist animations when the system reduces motion", async () => {
-    vi.stubGlobal("matchMedia", () => ({
-      matches: true,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-    }));
-    const user = userEvent.setup();
-    const view = (
-      <RoomScene
-        locale="fr"
-        lighting="day"
-        activeObject={null}
-        onInteract={() => undefined}
-        onClose={() => undefined}
-      />
-    );
-    try {
-      const { unmount } = render(view);
-      expect(document.documentElement).toHaveAttribute(
-        "data-motion",
-        "reduced",
-      );
-      await user.click(screen.getByRole("button", { name: "Animations" }));
-      expect(document.documentElement).toHaveAttribute("data-motion", "full");
-      expect(localStorage.getItem("portfolio-motion")).toBe("full");
-      unmount();
-      render(view);
-      expect(document.documentElement).toHaveAttribute("data-motion", "full");
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-  it("persists the manual motion preference and pauses ambient motion", async () => {
-    const user = userEvent.setup();
-    render(
-      <RoomScene
-        locale="fr"
-        lighting="day"
-        activeObject={null}
-        onInteract={() => undefined}
-        onClose={() => undefined}
-      />,
-    );
-    const toggle = screen.getByRole("button", {
-      name: "Animations",
-    });
-    await user.click(toggle);
-    expect(toggle).toHaveAttribute("aria-pressed", "false");
-    expect(localStorage.getItem("portfolio-motion")).toBe("reduced");
-    expect(screen.getByTestId("room-scene")).toHaveAttribute(
-      "data-ambient-paused",
-      "true",
-    );
-    expect(document.documentElement).toHaveAttribute("data-motion", "reduced");
-  });
-  it("hosts the 3D canvas and accessible controls", async () => {
-    render(
-      <RoomScene
-        locale="fr"
-        lighting="day"
-        activeObject="server"
-        onInteract={() => undefined}
-        onClose={() => undefined}
-      />,
-    );
-
-    expect(screen.getByLabelText("Chambre interactive")).toBeInTheDocument();
-    expect(await screen.findByTestId("room-canvas")).toHaveAttribute(
-      "data-active-object",
-      "server",
-    );
-    expect(screen.getByRole("button", { name: "Homelab" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-  });
-
-  it("routes model and keyboard interactions through one callback", async () => {
+  it("passes interaction and motion state to the canvas", async () => {
     const user = userEvent.setup();
     const onInteract = vi.fn<(id: RoomObjectId) => void>();
     render(
       <RoomScene
         locale="en"
         lighting="day"
-        activeObject={null}
+        activeObject="server"
+        ambientPaused
+        reducedMotion
         onInteract={onInteract}
-        onClose={() => undefined}
       />,
     );
-
+    const canvas = await screen.findByTestId("room-canvas");
+    expect(canvas).toHaveAttribute("data-active-object", "server");
+    expect(canvas).toHaveAttribute("data-locale", "en");
+    expect(canvas).toHaveAttribute("data-paused", "true");
+    expect(canvas).toHaveAttribute("data-reduced-motion", "true");
     await user.click(screen.getByRole("button", { name: "model-server" }));
-    await user.click(screen.getByRole("button", { name: "Change lighting" }));
-    expect(onInteract.mock.calls).toEqual([["server"], ["window"]]);
+    expect(onInteract).toHaveBeenCalledWith("server");
   });
 
   it.each([
@@ -143,7 +76,6 @@ describe("RoomScene", () => {
           lighting={lighting}
           activeObject={null}
           onInteract={() => undefined}
-          onClose={() => undefined}
         />,
       );
 
@@ -154,42 +86,21 @@ describe("RoomScene", () => {
     },
   );
 
-  it("keeps accessible controls active after canvas failure", async () => {
+  it("reports canvas failure so the header can expose fallback navigation", async () => {
     const user = userEvent.setup();
+    const onUnavailable = vi.fn();
     render(
       <RoomScene
         locale="en"
         lighting="day"
         activeObject={null}
         onInteract={() => undefined}
-        onClose={() => undefined}
+        onUnavailable={onUnavailable}
       />,
     );
-
-    await user.click(screen.getByRole("button", { name: "fail-canvas" }));
-    expect(
-      screen.getByRole("navigation", { name: "Interactive room controls" }),
-    ).toHaveAttribute("data-canvas-failed", "true");
-  });
-
-  it("passes the locale to the canvas and Back to onClose", async () => {
-    const user = userEvent.setup();
-    const onClose = vi.fn();
-    render(
-      <RoomScene
-        locale="en"
-        lighting="day"
-        activeObject="desk"
-        onInteract={() => undefined}
-        onClose={onClose}
-      />,
+    await user.click(
+      await screen.findByRole("button", { name: "fail-canvas" }),
     );
-
-    expect(screen.getByTestId("room-canvas")).toHaveAttribute(
-      "data-locale",
-      "en",
-    );
-    await user.click(screen.getByRole("button", { name: "Back" }));
-    expect(onClose).toHaveBeenCalledOnce();
+    expect(onUnavailable).toHaveBeenCalledOnce();
   });
 });

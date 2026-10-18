@@ -11,12 +11,6 @@ interface IntroCardProps {
 export function IntroCard({ content, locale, onExplore }: IntroCardProps) {
   return (
     <section className="intro-card" aria-labelledby="portfolio-title">
-      <p className="hero-kicker">
-        <span />{" "}
-        {locale === "fr"
-          ? "UN ESPACE PERSONNEL, UN PARCOURS À DÉCOUVRIR"
-          : "A PERSONAL SPACE, A STORY TO DISCOVER"}
-      </p>
       <p className="eyebrow">{content.identity.name}</p>
       <h1 id="portfolio-title">
         {locale === "fr" ? "Mon univers." : "My world."}
@@ -39,6 +33,11 @@ export function IntroCard({ content, locale, onExplore }: IntroCardProps) {
           <Icon name="external" />
         </a>
       </div>
+      <p className="intro-hint">
+        {locale === "fr"
+          ? "Cliquez sur un objet pour découvrir mon parcours."
+          : "Click an object to discover my story."}
+      </p>
       <p className="availability">
         <span className="status-dot" />
         {localize(content.availability, locale)}

@@ -3,10 +3,16 @@ import {
   cameraPath,
   cameraRoute,
   HOME_CAMERA,
+  overviewFrameScale,
   travelEase,
 } from "./cameraPaths";
 
 describe("camera paths", () => {
+  it("keeps the room generous on phones and framed on wider canvases", () => {
+    expect(overviewFrameScale(390, 370)).toBe(0.78);
+    expect(overviewFrameScale(1011, 658)).toBe(0.88);
+    expect(overviewFrameScale(1800, 600)).toBe(1);
+  });
   it("clears the chair through the desk before approaching either screen", () => {
     expect(cameraPath("CAM_Anchor_Smartphone")).toEqual([
       HOME_CAMERA,
