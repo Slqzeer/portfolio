@@ -3,6 +3,13 @@
   inset: 0;
   overflow: hidden;
   isolation: isolate;
+  transition:
+    left 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    right 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+main[data-detail-open="true"] .room-scene {
+  transition-duration: 1100ms;
 }
 
 .room-canvas,
@@ -249,6 +256,7 @@
   color: var(--ink);
 }
 .hotspot-dot {
+  position: relative;
   display: grid;
   place-items: center;
   width: 7px;
@@ -260,6 +268,31 @@
   transition:
     transform 180ms,
     box-shadow 180ms;
+}
+.hotspot-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1px solid #fdfbf670;
+  border-radius: 50%;
+  animation: hotspot-breathe 4s ease-in-out infinite;
+  animation-delay: inherit;
+}
+.room-scene[data-ambient-paused="true"] .hotspot-dot::after,
+.room-hotspot:hover .hotspot-dot::after,
+.room-hotspot:focus-visible .hotspot-dot::after {
+  animation-play-state: paused;
+}
+@keyframes hotspot-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.15);
+  }
 }
 .room-hotspot:hover .hotspot-dot,
 .room-hotspot:focus-visible .hotspot-dot,

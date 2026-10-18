@@ -9,6 +9,8 @@ interface ObjectDetailsProps {
   objectId: RoomObjectId;
   locale: Locale;
   onClose: () => void;
+  open?: boolean;
+  ready?: boolean;
   activeCategory?: ProjectCategory;
   onCategoryChange?: (category: ProjectCategory) => void;
 }
@@ -17,6 +19,8 @@ export function ObjectDetails({
   objectId,
   locale,
   onClose,
+  open = true,
+  ready = true,
   activeCategory = "data-ai",
   onCategoryChange = () => undefined,
 }: ObjectDetailsProps) {
@@ -26,9 +30,13 @@ export function ObjectDetails({
   const heading = useRef<HTMLHeadingElement>(null);
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    heading.current?.focus();
-    if (body.current) body.current.scrollTop = 0;
-  }, [objectId]);
+    const panel = heading.current?.closest(".object-details");
+    if (open && ready && !panel?.contains(document.activeElement))
+      heading.current?.focus({ preventScroll: true });
+  }, [objectId, open, ready]);
+  useEffect(() => {
+    if (open && body.current) body.current.scrollTop = 0;
+  }, [objectId, open]);
   const details = (() => {
     switch (objectId) {
       case "monitor":
@@ -199,7 +207,14 @@ export function ObjectDetails({
     }
   })();
   return (
-    <aside className="object-details" role="dialog" aria-labelledby={titleId}>
+    <aside
+      className="object-details"
+      data-open={open}
+      role="dialog"
+      aria-labelledby={titleId}
+      aria-hidden={!open}
+      inert={!open}
+    >
       <header className="detail-header">
         <p className="detail-eyebrow">
           <span>↗</span>

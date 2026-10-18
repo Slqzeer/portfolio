@@ -29,19 +29,24 @@ vi.mock("../room/RoomScene", () => ({
 }));
 
 describe("camera and content sequencing", () => {
-  it("opens only the latest object's panel after arrival", async () => {
+  it("opens during the approach and focuses only the latest arrival", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: "model-monitor" }));
     const cancelled = scene.id;
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Projets" })).toHaveAttribute(
+      "data-open",
+      "true",
+    );
+    expect(screen.getByRole("heading", { name: "Projets" })).not.toHaveFocus();
     expect(screen.getByRole("main")).toHaveAttribute(
       "data-navigation-phase",
       "FOCUS",
     );
     await user.click(screen.getByRole("button", { name: "model-server" }));
     act(() => scene.arrive!(cancelled));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Homelab" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Homelab" })).not.toHaveFocus();
     act(() => scene.arrive!(scene.id));
     expect(screen.getByRole("dialog", { name: "Homelab" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Homelab" })).toHaveFocus();
@@ -53,6 +58,9 @@ describe("camera and content sequencing", () => {
     await user.click(screen.getByRole("button", { name: "model-monitor" }));
     const cancelled = scene.id;
     await user.keyboard("{Escape}");
+    const exiting = screen.getByRole("dialog", { hidden: true });
+    expect(exiting).toHaveAttribute("data-open", "false");
+    expect(exiting).toHaveAttribute("inert");
     act(() => scene.arrive!(cancelled));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     act(() => scene.arrive!(scene.id));

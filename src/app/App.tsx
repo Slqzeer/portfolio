@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { IntroCard } from "../components/IntroCard";
 import { SiteHeader } from "../components/SiteHeader";
 import { portfolioContent } from "../content/portfolioContent";
+import type { RoomObjectId } from "../content/types";
 import { ObjectDetails } from "../details/ObjectDetails";
 import {
   hashForObject,
@@ -27,6 +28,17 @@ export function App() {
     }),
   );
   const [canvasFailed, setCanvasFailed] = useState(false);
+  const [lastDetail, setLastDetail] = useState<RoomObjectId | null>(null);
+  const activeDetail =
+    state.activeObject && sceneManifest[state.activeObject].action === "focus"
+      ? state.activeObject
+      : null;
+  const displayedDetail = activeDetail ?? lastDetail;
+
+  // Retain the outgoing content until its panel has slid out of view.
+  useEffect(() => {
+    if (activeDetail) setLastDetail(activeDetail);
+  }, [activeDetail]);
   const { ambientPaused, reducedMotion, animationsEnabled, toggleMotion } =
     useRoomMotion(state.readingMode);
 
@@ -253,19 +265,19 @@ export function App() {
           }}
           onReady={() => setCanvasFailed(false)}
         />
-        {state.activeObject &&
-          state.navigationPhase === "INTERACT" &&
-          sceneManifest[state.activeObject].action === "focus" && (
-            <ObjectDetails
-              objectId={state.activeObject}
-              locale={state.locale}
-              onClose={closeObject}
-              activeCategory={state.projectCategory}
-              onCategoryChange={(category) =>
-                dispatch({ type: "category.changed", category })
-              }
-            />
-          )}
+        {displayedDetail && (
+          <ObjectDetails
+            objectId={displayedDetail}
+            open={!!activeDetail}
+            ready={state.navigationPhase === "INTERACT"}
+            locale={state.locale}
+            onClose={closeObject}
+            activeCategory={state.projectCategory}
+            onCategoryChange={(category) =>
+              dispatch({ type: "category.changed", category })
+            }
+          />
+        )}
         {introVisible && (
           <IntroCard
             content={portfolioContent}

@@ -6,7 +6,7 @@ export async function openNavigation(page: Page) {
       .locator(".room-menu")
       .evaluate((node) => (node as HTMLDetailsElement).open))
   ) {
-    await page.getByLabel("Toutes les rubriques", { exact: true }).click();
+    await page.getByLabel(/^(Toutes les rubriques|All sections)$/).click();
   }
 }
 
@@ -16,6 +16,6 @@ export async function openSettings(page: Page) {
       .locator(".settings-menu")
       .evaluate((node) => (node as HTMLDetailsElement).open))
   ) {
-    await page.getByLabel("Réglages de la visite", { exact: true }).click();
+    await page.getByLabel(/^(Réglages de la visite|Visit settings)$/).click();
   }
 }

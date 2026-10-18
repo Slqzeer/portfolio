@@ -33,6 +33,7 @@ test("groups controls, starts animations, and remembers an explicit pause", asyn
     .getByRole("link", { name: "Projets" })
     .click();
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCSS("transition-duration", "0s");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 

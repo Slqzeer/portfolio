@@ -86,7 +86,11 @@ export function RoomHotspots({
                   onInteract(marker.id);
                 }}
               >
-                <span className="hotspot-dot" aria-hidden="true" />
+                <span
+                  className="hotspot-dot"
+                  style={{ animationDelay: `${index * -0.65}s` }}
+                  aria-hidden="true"
+                />
                 <span className="hotspot-label" aria-hidden="true">
                   {marker[locale]}
                   <Icon name="external" />

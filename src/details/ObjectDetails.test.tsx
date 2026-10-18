@@ -3,6 +3,23 @@ import { describe, expect, it } from "vitest";
 import { ObjectDetails } from "./ObjectDetails";
 
 describe("ObjectDetails", () => {
+  it("keeps the reader's focus when the camera finishes approaching", () => {
+    const { rerender } = render(
+      <ObjectDetails
+        objectId="server"
+        locale="en"
+        ready={false}
+        onClose={() => undefined}
+      />,
+    );
+    const close = screen.getByRole("button", { name: "Close" });
+    close.focus();
+    rerender(
+      <ObjectDetails objectId="server" locale="en" onClose={() => undefined} />,
+    );
+    expect(close).toHaveFocus();
+  });
+
   it("renders homelab, timeline, volleyball, exploration, and contact content", () => {
     const { rerender } = render(
       <ObjectDetails objectId="server" locale="en" onClose={() => undefined} />,

@@ -100,7 +100,7 @@ input {
   gap: 4px;
 }
 main {
-  --detail-width: clamp(27rem, 41vw, 38rem);
+  --detail-width: clamp(23rem, 34vw, 32rem);
   position: relative;
   flex: 1;
   display: grid;
@@ -124,7 +124,7 @@ main {
 }
 h1 {
   font-family: var(--serif);
-  font-size: clamp(40px, 4vw, 58px);
+  font-size: clamp(40px, 4vw, 52px);
   font-weight: 400;
   line-height: 1.02;
   letter-spacing: -0.055em;
@@ -344,7 +344,7 @@ main {
     margin-top: 8px;
   }
   main[data-detail-open="true"] .room-scene {
-    inset: 0 0 58dvh;
+    inset: 0 0 54dvh;
   }
   main[data-reading-mode="true"] .room-scene {
     inset: 0 0 70dvh;

@@ -1,5 +1,13 @@
 # Refonte de l’interface — Martin Couturier
 
+19 octobre 2026 — Les fiches entrent désormais pendant l’approche de la caméra : glissement depuis la droite sur ordinateur, depuis le bas sur mobile. La chambre se redimensionne progressivement et conserve davantage de place (panneau de 34 vw sur ordinateur, 54 dvh sur mobile ; la lecture rapide garde son espace dédié). La fermeture conserve temporairement le contenu pour permettre le mouvement de sortie, avec une fiche immédiatement retirée de la navigation clavier et des lecteurs d’écran. Le focus du titre attend l’arrivée de la caméra, ne fait pas défiler la page et respecte un contrôle déjà activé dans la fiche. Les repères ont un halo discret, décalé entre les objets et suspendu avec les animations de la chambre. Le titre d’accueil est plafonné à 52 px pour éviter une coupure supplémentaire sur grand écran.
+
+La référence [Bruno Simon](https://bruno-simon.com/) utilise actuellement des [modales en fondu](https://github.com/brunosimon/folio-2025/blob/main/sources/style/modals.styl). Le panneau latéral conserve ici la relation entre objet et contenu. Cette évolution remplace la règle d’ouverture uniquement à l’arrivée décrite dans le plan d’expérience antérieur. Aucun nouveau moteur d’animation n’est ajouté.
+
+Les nouveaux scénarios Chromium mesurent plusieurs positions du panneau pendant l’approche, l’espace laissé à la chambre et la fermeture aux formats 1440 × 900 et 390 × 844. Le scénario de pause vérifie aussi que la transition est supprimée lorsque les animations sont désactivées.
+
+[Fiche sur ordinateur](../../assets/reviews/portfolio-flow-projects-desktop.png) · [Fiche sur mobile](../../assets/reviews/portfolio-flow-projects-mobile.png)
+
 18 octobre 2026 — Mise à jour : la barre pleine largeur et les commandes réparties aux quatre coins sont remplacées par une barre compacte centrée. **Explorer** rassemble les destinations, **Réglages** rassemble les préférences et la lecture rapide. Les légendes et bulles permanentes autour de la scène sont supprimées ; le texte d’accueil est réduit et le cadrage garde la chambre entière visible sur ordinateur. Les animations démarrent actives, même si le système demande des mouvements réduits ; seule une pause explicitement enregistrée par le visiteur est restaurée. La lecture et les onglets masqués suspendent toujours les mouvements. Les paragraphes suivants décrivent la refonte du 17 octobre.
 
 17 octobre 2026. Cette version remplace l’habillage du premier prototype et personnalise les contenus à partir des informations fournies par Martin. La chambre existante reste la source visuelle : les géométries, le GLB et les fichiers Blender éditables sont conservés.
