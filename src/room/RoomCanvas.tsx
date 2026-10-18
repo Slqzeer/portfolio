@@ -1,7 +1,7 @@
 import { useProgress } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useCallback, useRef, useState } from "react";
-import { AgXToneMapping } from "three";
+import { AgXToneMapping, Mesh, MeshStandardMaterial, Vector3 } from "three";
 import type { Lighting } from "../app/appState";
 import type { Locale, RoomObjectId } from "../content/types";
 import { RoomModel } from "./RoomModel";
@@ -25,15 +25,60 @@ function SceneMetrics() {
   const { gl } = useThree();
   const sample = useRef({ frames: 0, startedAt: performance.now() });
 
-  useFrame(() => {
+  const position = useRef(new Vector3());
+  useFrame(({ scene }) => {
     const now = performance.now();
     sample.current.frames += 1;
     const elapsed = now - sample.current.startedAt;
+    // Sample the sub-second curtain sequence on every rendered frame.
+    const slat = scene.getObjectByName("Blind_Slat_37");
+    if (slat) {
+      gl.domElement.dataset.blindHeight = slat
+        .getWorldPosition(position.current)
+        .y.toFixed(4);
+      gl.domElement.dataset.blindX = position.current.x.toFixed(4);
+      gl.domElement.dataset.blindDepth = position.current.z.toFixed(4);
+      gl.domElement.dataset.blindTilt = slat.rotation.x.toFixed(4);
+    }
     if (elapsed < 1000) return;
     gl.domElement.dataset.fps = String(
       Math.round((sample.current.frames * 1000) / elapsed),
     );
     gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
+    const breeze = scene.getObjectByName("Blind_Breeze");
+    if (breeze)
+      gl.domElement.dataset.blindBreeze = breeze.position.x.toFixed(5);
+    const bird = scene.getObjectByName("Exterior_Bird");
+    if (bird)
+      gl.domElement.dataset.birdHeight = bird
+        .getWorldPosition(position.current)
+        .y.toFixed(4);
+    gl.domElement.dataset.rackActivity = [
+      "EMIT_Rack_00_00",
+      "EMIT_Rack_00_01",
+      "EMIT_Rack_Side_00_ACT1",
+      "EMIT_Rack_Side_03_NET1",
+    ]
+      .map((name) => {
+        const led = scene.getObjectByName(name);
+        return led instanceof Mesh &&
+          led.material instanceof MeshStandardMaterial
+          ? led.material.emissiveIntensity.toFixed(3)
+          : "";
+      })
+      .join(",");
+    const power = scene.getObjectByName("EMIT_Controller_Power");
+    if (power instanceof Mesh && power.material instanceof MeshStandardMaterial)
+      gl.domElement.dataset.controllerGlow =
+        power.material.emissiveIntensity.toFixed(4);
+    for (const [attribute, name] of [
+      ["phoneNotification", "Phone_Notification_0"],
+      ["screenTyping", "Monitor_Screen_Typing_0_1"],
+      ["exteriorBird", "Exterior_Bird"],
+    ]) {
+      const object = scene.getObjectByName(name);
+      if (object) gl.domElement.dataset[attribute] = object.scale.x.toFixed(5);
+    }
     sample.current = { frames: 0, startedAt: now };
   });
 

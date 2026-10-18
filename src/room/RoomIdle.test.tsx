@@ -41,6 +41,27 @@ const advance = (count = 1) => {
 };
 
 describe("Blender animation playback", () => {
+  it("plays the authored ambient clip, suspends exterior wind at night and restores rest for reduced motion", () => {
+    const { props, ball } = setup();
+    const ambient = new AnimationClip("Ambient_Exterior_Wind", 1, [
+      new VectorKeyframeTrack(
+        "INT_Volleyball.position",
+        [0, 0.5, 1],
+        [0, 0, 0, 0, 0.1, 0, 0, 0, 0],
+      ),
+    ]);
+    props.animations = [ambient];
+    const { rerender } = render(<RoomIdle {...props} />);
+    advance(2);
+    expect(ball.position.y).toBeGreaterThan(0);
+    rerender(<RoomIdle {...props} lighting="night" />);
+    expect(ball.position.y).toBe(0);
+    rerender(<RoomIdle {...props} lighting="day" />);
+    advance(2);
+    expect(ball.position.y).toBeGreaterThan(0);
+    rerender(<RoomIdle {...props} reducedMotion />);
+    expect(ball.position.y).toBe(0);
+  });
   it("plays only the exported hover clip once and returns to rest", () => {
     const { props, ball, decoration } = setup();
     const { rerender } = render(<RoomIdle {...props} />);

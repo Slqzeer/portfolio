@@ -1,11 +1,14 @@
 """Render transparent overview posters without saving or changing the Blender source.
 
-blender -b assets/blender/baseline/portfolio-room.blend --threads 4 --python scripts/render-room-posters.py
+blender -b assets/blender/living/portfolio-room.blend --threads 4 --python scripts/render-room-posters.py
 """
 from pathlib import Path
+import sys
 import bpy
 
 root = Path(__file__).resolve().parents[1]
+output=Path(sys.argv[sys.argv.index('--')+1]).resolve() if '--' in sys.argv else root/'public/assets/room'
+output.mkdir(parents=True,exist_ok=True)
 scene = bpy.context.scene
 camera = bpy.data.objects["CAM_Overview"].copy()
 camera.data = camera.data.copy()
@@ -24,6 +27,6 @@ scene.cycles.samples = 24
 scene.cycles.use_denoising = True
 for name, frame in [("day", 1), ("night", 23)]:
     scene.frame_set(frame)
-    scene.render.filepath = str(root / "public/assets/room" / f"room-overview-{name}.png")
+    scene.render.filepath = str(output / f"room-overview-{name}.png")
     bpy.ops.render.render(write_still=True)
     print(f"[poster] {scene.render.filepath}", flush=True)

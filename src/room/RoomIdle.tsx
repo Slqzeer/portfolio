@@ -1,7 +1,8 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { AnimationClip, AnimationMixer, LoopOnce, Object3D } from "three";
 import type { RoomObjectId } from "../content/types";
+import type { Lighting } from "../app/appState";
 
 export interface RoomIdleProps {
   scene: Object3D;
@@ -10,6 +11,7 @@ export interface RoomIdleProps {
   reducedMotion: boolean;
   activeObject?: RoomObjectId | null;
   hoveredObject?: RoomObjectId | null;
+  lighting?: Lighting;
 }
 
 // Shapes, amplitudes and timing come exclusively from the Blender clips.
@@ -20,8 +22,32 @@ export function RoomIdle({
   reducedMotion,
   activeObject,
   hoveredObject,
+  lighting = "day",
 }: RoomIdleProps) {
   const mixer = useMemo(() => new AnimationMixer(scene), [scene]);
+  const resumed = useRef(true);
+
+  useEffect(() => {
+    if (paused || reducedMotion) resumed.current = true;
+  }, [paused, reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const actions = animations
+      .filter(
+        ({ name }) =>
+          name.startsWith("Ambient_") &&
+          (lighting === "day" ||
+            !(
+              name.startsWith("Ambient_Exterior_") ||
+              name.startsWith("Ambient_Blind_")
+            )),
+      )
+      .map((clip) => mixer.clipAction(clip).reset().play());
+    return () => {
+      actions.forEach((action) => action.stop());
+    };
+  }, [animations, mixer, reducedMotion, lighting]);
 
   useEffect(
     () => () => {
@@ -57,7 +83,8 @@ export function RoomIdle({
 
   useFrame((_, delta) => {
     if (paused || reducedMotion) return;
-    mixer.update(Math.min(delta, 0.1));
+    mixer.update(Math.min(delta, resumed.current ? 0.1 : 1));
+    resumed.current = false;
   });
   return null;
 }

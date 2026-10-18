@@ -8,6 +8,7 @@ import { RoomIdle } from "./RoomIdle";
 import { RoomHotspots } from "./RoomHotspots";
 import { RoomLighting, withoutIblDiffuse } from "./RoomLighting";
 import { sceneManifest } from "./sceneManifest";
+import { blenderMaterialClips } from "./blenderAnimations";
 
 const ROOM_GLTF_URL = "/assets/room/portfolio-room.glb";
 const idByNodeName = new Map(
@@ -88,9 +89,10 @@ function prepareLighting(scene: Object3D) {
   const baked = new Map<string, Material>();
   scene.traverse((object) => {
     if (!(object instanceof Mesh)) return;
-    // Unbaked meshes (blind, flags, glass, screens) get a flat white lightmap.
-    const atlas =
-      (object.geometry.attributes.uv1 && lightmapAtlas(object)) || "flat";
+    // Moving slats need normal-dependent shading to reveal their tilt and edges.
+    const atlas = object.name.startsWith("Blind_Slat_")
+      ? "blind"
+      : (object.geometry.attributes.uv1 && lightmapAtlas(object)) || "flat";
     const bake = (material: Material) => {
       const key = `${material.uuid}:${atlas}`;
       if (!baked.has(key)) {
@@ -99,7 +101,7 @@ function prepareLighting(scene: Object3D) {
         // three.js lays sheen over the flat lightmap irradiance as a grey veil,
         // turning the navy sofa and rug slate; the bake already shades them.
         if (clone instanceof MeshPhysicalMaterial) clone.sheen = 0;
-        withoutIblDiffuse(clone);
+        if (atlas !== "blind") withoutIblDiffuse(clone);
         baked.set(key, clone);
       }
       return baked.get(key)!;
@@ -156,6 +158,10 @@ export function RoomModel({
 }: RoomModelProps) {
   const { animations, scene: source } = useGLTF(ROOM_GLTF_URL, "/draco/");
   const scene = useMemo(() => prepareRoomScene(source), [source]);
+  const clips = useMemo(
+    () => [...animations, ...blenderMaterialClips(scene)],
+    [animations, scene],
+  );
   const [hovered, setHovered] = useState<RoomObjectId | null>(null);
   const ready = useRef(false);
   const handlers = useMemo(
@@ -247,7 +253,8 @@ export function RoomModel({
       />
       <RoomIdle
         scene={scene}
-        animations={animations}
+        animations={clips}
+        lighting={lighting}
         paused={ambientPaused}
         reducedMotion={reducedMotion}
         activeObject={activeObject}

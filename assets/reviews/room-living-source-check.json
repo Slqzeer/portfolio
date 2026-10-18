@@ -1,0 +1,14 @@
+[
+  {
+    "source": "portfolio-room.blend",
+    "wall_vertices": 48,
+    "material_curves": 93,
+    "ambient_actions": 38
+  },
+  {
+    "source": "portfolio-room-optimized.blend",
+    "wall_vertices": 48,
+    "material_curves": 93,
+    "ambient_actions": 38
+  }
+]

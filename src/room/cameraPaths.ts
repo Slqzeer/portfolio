@@ -1,11 +1,11 @@
 export const HOME_CAMERA = "CAM_Overview";
-export const OVERVIEW_FRAME_SCALE = 0.86;
+export const OVERVIEW_FRAME_SCALE = 0.78;
 
-// Enlarge narrow stages, retaining the authored vertical clearance on wide ones.
+// Bring the room forward; a small crop of the architectural cut is intentional.
 export function overviewFrameScale(width: number, height: number) {
   return Math.min(
-    1,
-    Math.max(OVERVIEW_FRAME_SCALE, (width * 9) / (height * 16)),
+    0.9,
+    Math.max(OVERVIEW_FRAME_SCALE, ((width * 9) / (height * 16)) * 0.9),
   );
 }
 export const cameraTravel = {

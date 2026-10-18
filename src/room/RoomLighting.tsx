@@ -3,7 +3,9 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   AnimationClip,
   AnimationMixer,
+  LoopOnce,
   DataTexture,
+  FileLoader,
   EquirectangularReflectionMapping,
   Material,
   Mesh,
@@ -17,26 +19,25 @@ import {
 } from "three";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import type { Lighting } from "../app/appState";
-import scalesJson from "../../public/assets/room/lightmaps/scales.json?raw";
 
 // The baked lightmaps carry all light and shadow, so there is no ambient light (it
-// washed the bake out). Unbaked meshes (blind, flags, glass) get this flat light.
+// washed the bake out). Unbaked flags, glass and screens get this flat light.
 const FLAT_LIGHT = { day: 2, night: 0.1 };
 const WHITE = new DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
 WHITE.needsUpdate = true;
-// Brightens the whole day state (bake and flat light) beyond Blender's render.
-const EXPOSURE = { day: 1.6, night: 1 };
+// Match the authored Blender exposure instead of washing out the day bake.
+const EXPOSURE = { day: 1, night: 1 };
 const LAMP_LIGHT = 6;
 // Mirrors MAT_WindowView: the garden glow drops to 0.05 / 2 before the blind closes.
 const WINDOW_VIEW_NIGHT = 0.025;
 
-// Mirrors public/assets/room/lightmaps/scales.json (written by encode-room-lightmaps.py).
-type LightmapKey = `LM_${"props" | "shell"}_${Lighting}`;
-export const LIGHTMAP_SCALES = JSON.parse(scalesJson) as Record<
-  LightmapKey,
-  number
->;
-const LIGHTMAP_KEYS = Object.keys(LIGHTMAP_SCALES) as LightmapKey[];
+export type LightmapKey = `LM_${"props" | "shell"}_${Lighting}`;
+const LIGHTMAP_KEYS: LightmapKey[] = [
+  "LM_props_day",
+  "LM_props_night",
+  "LM_shell_day",
+  "LM_shell_night",
+];
 const LIGHTMAP_URLS = LIGHTMAP_KEYS.map(
   (key) => `/assets/room/lightmaps/${key}.webp`,
 );
@@ -83,22 +84,34 @@ export function applyLightmaps(
   materials: Material[],
   textures: Record<LightmapKey, Texture>,
   { dayMap, nightMap }: { dayMap: number; nightMap: number },
+  scales: Record<LightmapKey, number>,
   environments?: Environments,
+  exposure: Record<Lighting, number> = EXPOSURE,
 ) {
   for (const material of materials) {
     const lit = material as MeshStandardMaterial;
-    if (!blends.has(material)) withoutIblDiffuse(material);
-    const blend = blends.get(material)!;
     if (!lit.lightMap || (environments && !lit.envMap)) lit.needsUpdate = true;
     if (environments) {
       lit.envMap = environments[dayMap >= nightMap ? "day" : "night"];
-      lit.envMapIntensity = EXPOSURE.day * dayMap + EXPOSURE.night * nightMap;
+      lit.envMapIntensity = exposure.day * dayMap + exposure.night * nightMap;
     }
+    if (material.userData.lightmapAtlas === "blind") {
+      // Keep ambient fill, but retain directional diffuse to reveal the slat faces.
+      lit.lightMap = WHITE;
+      lit.lightMapIntensity =
+        exposure.day * dayMap + FLAT_LIGHT.night * exposure.night * nightMap;
+      if (environments) lit.envMap = environments.day;
+      lit.envMapIntensity =
+        0.6 * exposure.day * dayMap + 0.1 * exposure.night * nightMap;
+      continue;
+    }
+    if (!blends.has(material)) withoutIblDiffuse(material);
+    const blend = blends.get(material)!;
     if (material.userData.lightmapAtlas === "flat") {
       lit.lightMap = WHITE;
-      lit.lightMapIntensity = FLAT_LIGHT.day * EXPOSURE.day * dayMap;
+      lit.lightMapIntensity = FLAT_LIGHT.day * exposure.day * dayMap;
       blend.map.value = WHITE;
-      blend.gain.value = FLAT_LIGHT.night * EXPOSURE.night * nightMap;
+      blend.gain.value = FLAT_LIGHT.night * exposure.night * nightMap;
       continue;
     }
     const dayKey = `LM_${material.userData.lightmapAtlas}_day` as LightmapKey;
@@ -106,12 +119,10 @@ export function applyLightmaps(
       `LM_${material.userData.lightmapAtlas}_night` as LightmapKey;
     lit.lightMap = textures[dayKey];
     blend.map.value = textures[nightKey];
-    blend.gain.value =
-      LIGHTMAP_SCALES[nightKey] * EXPOSURE.night * nightMap * Math.PI;
+    blend.gain.value = scales[nightKey] * exposure.night * nightMap * Math.PI;
     // Blender bakes the light a surface receives (shade = albedo × bake); three.js
     // treats lightMap as irradiance and divides it by π (Lambert).
-    lit.lightMapIntensity =
-      LIGHTMAP_SCALES[dayKey] * EXPOSURE.day * dayMap * Math.PI;
+    lit.lightMapIntensity = scales[dayKey] * exposure.day * dayMap * Math.PI;
   }
 }
 
@@ -134,6 +145,43 @@ export function lightingFrame(lighting: Lighting, progress: number) {
   };
 }
 
+export function createCurtainPlayback(
+  scene: Object3D,
+  animations: AnimationClip[],
+) {
+  const mixer = new AnimationMixer(scene);
+  const clips = animations.filter(({ name }) => name.startsWith("Curtain_"));
+  const duration = Math.max(0.001, ...clips.map((clip) => clip.duration));
+  let actions: NonNullable<ReturnType<AnimationMixer["clipAction"]>>[] = [];
+  return {
+    duration,
+    start() {
+      actions = clips.map((clip) => {
+        const action = mixer
+          .clipAction(clip)
+          .reset()
+          .setLoop(LoopOnce, 1)
+          .play();
+        action.clampWhenFinished = true;
+        action.paused = true;
+        return action;
+      });
+    },
+    sample(progress: number) {
+      const value = Math.max(0, Math.min(1, progress));
+      actions.forEach((action) => {
+        action.time = duration * value;
+      });
+      mixer.update(0);
+    },
+    stop() {
+      mixer.stopAllAction();
+      mixer.uncacheRoot(scene);
+      actions = [];
+    },
+  };
+}
+
 export function RoomLighting({
   lighting,
   scene,
@@ -143,7 +191,27 @@ export function RoomLighting({
   const lamp = useRef<PointLight>(null);
   const anisotropy = useThree(({ gl }) => gl.capabilities.getMaxAnisotropy());
   const nightMix = useRef(lighting === "night" ? 1 : 0);
+  const exposure = useMemo(
+    () => ({
+      day:
+        typeof scene.userData.web_exposure_day === "number"
+          ? scene.userData.web_exposure_day
+          : EXPOSURE.day,
+      night:
+        typeof scene.userData.web_exposure_night === "number"
+          ? scene.userData.web_exposure_night
+          : EXPOSURE.night,
+    }),
+    [scene],
+  );
   const loaded = useLoader(TextureLoader, LIGHTMAP_URLS as string[]);
+  const scales = useLoader(
+    FileLoader,
+    "/assets/room/lightmaps/scales.json",
+    (loader) => {
+      loader.setResponseType("json");
+    },
+  ) as unknown as Record<LightmapKey, number>;
   const lightmaps = useMemo(() => {
     for (const texture of loaded) {
       texture.flipY = false;
@@ -185,28 +253,17 @@ export function RoomLighting({
       ? { material, base: material.emissiveIntensity }
       : undefined;
   }, [scene]);
-  const curtainActions = useMemo(() => {
-    const mixer = new AnimationMixer(scene);
-    const actions = animations
-      .filter(({ name }) => name.startsWith("Curtain_"))
-      .map((clip) => ({
-        action: mixer.clipAction(clip),
-        duration: clip.duration,
-      }));
-    return { actions, mixer };
-  }, [animations, scene]);
+  const curtains = useMemo(
+    () => createCurtainPlayback(scene, animations),
+    [animations, scene],
+  );
 
   // Arm the clips here, not in useMemo: StrictMode's dev remount runs the
   // cleanup once, and clips stopped there would never play again.
   useEffect(() => {
-    for (const { action } of curtainActions.actions) {
-      action.play();
-      action.paused = true;
-    }
-    return () => {
-      curtainActions.mixer.stopAllAction();
-    };
-  }, [curtainActions]);
+    curtains.start();
+    return () => curtains.stop();
+  }, [curtains]);
 
   useLayoutEffect(() => {
     scene
@@ -216,6 +273,7 @@ export function RoomLighting({
 
   useFrame((_, deltaSeconds) => {
     const target = lighting === "night" ? 1 : 0;
+    // A slow render or tab resume must not skip the entire curtain movement.
     nightMix.current = reducedMotion
       ? target
       : Math.max(
@@ -223,22 +281,28 @@ export function RoomLighting({
           Math.min(
             1,
             nightMix.current +
-              ((target ? 1 : -1) * Math.min(deltaSeconds, 0.1)) / 0.9,
+              ((target ? 1 : -1) * Math.min(deltaSeconds, 0.1)) /
+                curtains.duration,
           ),
         );
     const mix = nightMix.current;
     const frame = lightingFrame("night", mix * mix * (3 - 2 * mix));
     if (lamp.current) lamp.current.intensity = frame.lamp;
-    applyLightmaps(bakedMaterials, lightmaps, frame, environments);
+    applyLightmaps(
+      bakedMaterials,
+      lightmaps,
+      frame,
+      scales,
+      environments,
+      exposure,
+    );
     if (windowView) {
       windowView.material.emissiveIntensity =
         windowView.base * frame.windowView;
     }
 
-    for (const { action, duration } of curtainActions.actions) {
-      action.time = duration * frame.curtainProgress;
-    }
-    curtainActions.mixer.update(0);
+    // Blender already authors the easing and the sequence of slat movements.
+    curtains.sample(mix);
   });
 
   return (

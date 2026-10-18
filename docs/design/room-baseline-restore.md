@@ -1,5 +1,7 @@
 # Retour à la scène Blender d’origine
 
+Cette passe est conservée comme historique. La production actuelle prolonge cette base avec [les animations et le rendu de la chambre vivante](room-life.md), sans reprendre la palette expérimentale `art-v2`.
+
 17 octobre 2026. La variante `art-v2` est une expérience non validée. Le retour demandé porte sur la scène, pas sur l’interface ni sur les contenus.
 
 ## Version identifiée avant restauration

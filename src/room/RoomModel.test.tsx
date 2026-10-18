@@ -55,6 +55,28 @@ function createScene() {
 }
 
 describe("RoomModel bindings", () => {
+  it("keeps directional environment shading on the animated blind slats", () => {
+    const source = createScene();
+    const slat = new Mesh(
+      new BoxGeometry(4, 0.008, 0.08),
+      new MeshStandardMaterial(),
+    );
+    slat.name = "Blind_Slat_01";
+    source.getObjectByName("CTL_Curtains")!.add(slat);
+    const scene = prepareRoomScene(source);
+    const material = (scene.getObjectByName(slat.name) as Mesh)
+      .material as MeshStandardMaterial;
+    expect(material.userData.lightmapAtlas).toBe("blind");
+    const shader = {
+      fragmentShader: "#include <lights_fragment_maps>",
+      uniforms: {},
+    } as Parameters<MeshStandardMaterial["onBeforeCompile"]>[0];
+    material.onBeforeCompile(
+      shader,
+      {} as Parameters<MeshStandardMaterial["onBeforeCompile"]>[1],
+    );
+    expect(shader.fragmentShader).toContain("#include <lights_fragment_maps>");
+  });
   it("routes every manifest node and ignores decoration", () => {
     const scene = prepareRoomScene(createScene());
     const onInteract = vi.fn<(id: RoomObjectId) => void>();

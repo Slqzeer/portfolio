@@ -13,17 +13,21 @@ import bpy
 import numpy as np
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-src = os.path.join(root, "assets", "blender", "lightmaps")
+src = os.path.join(root, "assets", "blender", "living", "lightmaps")
 if "--" in sys.argv:
-    src = sys.argv[sys.argv.index("--") + 1]
+    src = os.path.abspath(sys.argv[sys.argv.index("--") + 1])
 runtime = os.path.join(root, "public", "assets", "room", "lightmaps")
+if '--' in sys.argv and len(sys.argv)>sys.argv.index('--')+2:
+    runtime=os.path.abspath(sys.argv[sys.argv.index('--')+2])
+os.makedirs(runtime,exist_ok=True)
 scales = {}
 for name in sorted(f[:-4] for f in os.listdir(src) if f.endswith(".exr") and not f.endswith("_dn.exr")):
     denoised = os.path.join(src, name + "_dn.exr")
     img = bpy.data.images.load(denoised if os.path.exists(denoised) else os.path.join(src, name + ".exr"))
-    # Retain the high-resolution bake, cap web irradiance maps at 2K to limit GPU memory.
-    if max(img.size) > 2048:
-        factor = 2048 / max(img.size)
+    # Furniture contact shadows need 4K; the simpler shell stays at 2K.
+    maximum = 4096 if name.startswith('LM_props_') else 2048
+    if max(img.size) > maximum:
+        factor = maximum / max(img.size)
         img.scale(round(img.size[0] * factor), round(img.size[1] * factor))
     w, h = img.size
     px = np.empty(w * h * 4, np.float32)

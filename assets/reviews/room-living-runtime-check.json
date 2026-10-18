@@ -1,0 +1,55 @@
+{
+  "staticBakePoseCheck": "room-living-bird-check.json",
+  "files": [
+    {
+      "path": "portfolio-room.glb",
+      "bytes": 6533360,
+      "sha256": "22b6c3906fef3a79ca533b3ec83a00761beb66b22a9d6aeda84f0adb6fb779f9"
+    },
+    {
+      "path": "room-overview-day.png",
+      "bytes": 482139,
+      "sha256": "fb929f6f8feae91fde0b3cb609db30f64f7bfd6e889a0b5f92fb71dad8eb4d62"
+    },
+    {
+      "path": "room-overview-night.png",
+      "bytes": 429592,
+      "sha256": "35e51e47bf90ac596e074e051ca6736680c14e090a3672a2aed154275b5dada8"
+    },
+    {
+      "path": "env/env_day.hdr",
+      "bytes": 702300,
+      "sha256": "43dd5664a6f9bb2a2611b9a026d6b3ac152834efd98b1bf60f61f32d2390c73b"
+    },
+    {
+      "path": "env/env_night.hdr",
+      "bytes": 715785,
+      "sha256": "12d34b4062263a390017eef623fe1238d966a0afc544a77a864614794f71b69c"
+    },
+    {
+      "path": "lightmaps/LM_props_day.webp",
+      "bytes": 418752,
+      "sha256": "07e1af7c210007797f0801e2cdaf631aba600901cbfb71c0590fa191bc66aedd"
+    },
+    {
+      "path": "lightmaps/LM_props_night.webp",
+      "bytes": 432360,
+      "sha256": "30528ed27f999895488630c6e636f7b4bbd7a460436c479db1159c20462dca2c"
+    },
+    {
+      "path": "lightmaps/LM_shell_day.webp",
+      "bytes": 50702,
+      "sha256": "188594cab51a4b252b9989077f7ac254ca31cfd7bb184f568e19a86e57bafcad"
+    },
+    {
+      "path": "lightmaps/LM_shell_night.webp",
+      "bytes": 45516,
+      "sha256": "1594d59a2755bb5b3bce864cdf8542887912a3d7e662c482d12e4f80fcc646e1"
+    },
+    {
+      "path": "lightmaps/scales.json",
+      "bytes": 121,
+      "sha256": "85cf7ca8ecbbbc32ed022a16b41522bcbddb31f25995b49cb2bf84abb3471440"
+    }
+  ]
+}

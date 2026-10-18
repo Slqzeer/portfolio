@@ -2,7 +2,7 @@
 
 Status: **implemented in Blender and exported as the runtime GLB**
 
-Current production source (17 October 2026): **Blender is the source of truth** for assets, materials, lighting and animations. The original art has been restored in `assets/blender/baseline/portfolio-room.blend` and `portfolio-room-optimized.blend`, retaining personalized text and adding Blender-authored hover clips. See [the scoped restoration](room-baseline-restore.md). `art-v2` is an unapproved experiment retained for comparison. The original sources below remain intact.
+Current production source (18 October 2026): **Blender is the source of truth** for assets, materials, lighting and animations. `assets/blender/living/portfolio-room.blend` and `portfolio-room-optimized.blend` extend the restored baseline with the welded corner, garden, device animations and exported surface normals. See [the current production pipeline](room-life.md) and [the earlier scoped restoration](room-baseline-restore.md). The original files, `baseline` and the unapproved `art-v2` experiment remain intact.
 
 ## Visual reference
 
@@ -29,10 +29,10 @@ The original Canva exports remain as migration sources and visual receipts. Figm
 
 ## Production assets
 
-- Editable master: `assets/blender/baseline/portfolio-room.blend`
-- Web-optimized derivative: `assets/blender/baseline/portfolio-room-optimized.blend`
+- Editable master: `assets/blender/living/portfolio-room.blend`
+- Web-optimized derivative: `assets/blender/living/portfolio-room-optimized.blend`
 - Runtime scene: `public/assets/room/portfolio-room.glb`
-- Loading posters: `public/assets/room/room-poster-day.webp` and `room-poster-night.webp`
+- Loading/reading posters: `public/assets/room/room-overview-day.png` and `room-overview-night.png`
 - Overview camera: `CAM_Overview`
 - Collections: `RoomShell`, `StaticDecor`, `InteractiveObjects`, `Controls`, `Lights`, `Animations`
 
