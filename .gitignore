@@ -4,6 +4,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.vercel/
 .cache/
 optix7cache.db*
 
@@ -15,3 +16,4 @@ assets/blender/living/lightmaps/
 
 # Blender animation renders (Render > Render Animation output)
 assets/renders/
+.env*

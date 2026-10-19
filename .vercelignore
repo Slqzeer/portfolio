@@ -1,0 +1,14 @@
+# Authoring sources are separate from the runtime assets in public/assets/.
+/assets/
+/docs/
+/.codex/
+/.superpowers/
+/.github/
+/scripts/
+/tests/
+/dist/
+/coverage/
+/playwright-report/
+/test-results/
+debug.log
+optix7cache.db*

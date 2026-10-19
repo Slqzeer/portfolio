@@ -37,4 +37,16 @@ La [chambre vivante et la fidélité du rendu](docs/design/room-life.md) décrit
 
 ## Déploiement
 
-Le projet ne requiert aucune variable d’environnement. Sur Vercel, utiliser le preset Vite, la commande `npm run build` et le dossier de sortie `dist`. Les branches et pull requests produisent des previews ; `main` est la branche de production. GitHub Actions exécute formatage, tests, build et tests navigateur avant fusion.
+Première version : https://martin-couturier-portfolio.vercel.app
+
+Le projet ne requiert aucune variable d’environnement. `vercel.json` fixe le preset Vite, la commande `npm run build` et le dossier de sortie `dist`. `.vercelignore` exclut les sources Blender et les fichiers de travail des uploads CLI ; les assets web de `public/assets/` restent inclus.
+
+Pour publier les modifications locales depuis la racine du projet :
+
+```sh
+npx --yes vercel@latest login
+npx --yes vercel@latest link --project portfolio
+npx --yes vercel@latest deploy --prod
+```
+
+La première publication a été effectuée par CLI. La connexion au dépôt `Slqzeer/portfolio` nécessite encore l’ajout de GitHub dans les connexions de compte Vercel, puis `npx --yes vercel@latest git connect`. Une fois le dépôt connecté, les branches et pull requests produisent des previews ; `main` est la branche de production. GitHub Actions est configuré pour exécuter formatage, tests, build et tests navigateur.
