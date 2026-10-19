@@ -76,6 +76,21 @@ The integration check uses a temporary copy and never saves the source blend.
 Runtime behavior is covered by `npm test` and the garden, motion and
 room-transition browser scenarios.
 
+## Room navigation
+
+`src/app/useRoomNavigation.ts` owns object selection, browser history and hash
+synchronization, Escape, trigger capture and focus restoration, plus quick-reading
+and Explore transitions. `App` connects those handlers to the interface and keeps
+lighting, language and project selection. `appReducer` continues to validate
+camera arrivals against the current transition ID.
+
+The navigation module waits for remounted hotspots after camera arrival and falls
+back to a conventional navigation link. A changed destination or an unmount cancels
+pending focus restoration. Hash parsing and history-entry recognition are private
+to this module; tests exercise navigation through its interface with real browser
+history and DOM behavior in jsdom. Browser checks cover actual Back/Escape and
+hotspot remounting.
+
 ## Deployment decision
 
 The preferred path is the Vercel Git integration:
