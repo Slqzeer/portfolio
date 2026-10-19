@@ -5,11 +5,14 @@ Geometry, packed artwork, lightmaps and camera anchors are retained byte-for-byt
 """
 import json
 import math
-import struct
+import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Matrix, Quaternion, Vector
+from mathutils import Matrix
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from glb_patch import GlbPatch
 
 ROOT = Path(__file__).resolve().parents[1]
 FPS = 24
@@ -76,41 +79,16 @@ def author():
     return targets
 
 
-def sync(targets):
-    path = ROOT / 'public/assets/room/portfolio-room.glb'
-    raw = path.read_bytes()
-    size = struct.unpack_from('<I', raw, 12)[0]
-    gltf = json.loads(raw[20:20+size])
-    binary = bytearray(raw[28+size:])
+def sync(targets, path=ROOT / 'public/assets/room/portfolio-room.glb'):
+    patch = GlbPatch(path)
+    gltf = patch.gltf
     nodes = gltf['nodes']
     by_name = {n['name']: i for i, n in enumerate(nodes) if 'name' in n}
-    parents = {child: i for i, n in enumerate(nodes) for child in n.get('children', [])}
-
-    def world(i):
-        n = nodes[i]
-        q = n.get('rotation', [0, 0, 0, 1])
-        local = (Matrix([n['matrix'][j:j+4] for j in range(0, 16, 4)]).transposed()
-                 if 'matrix' in n else Matrix.LocRotScale(Vector(n.get('translation', [0]*3)),
-                     Quaternion((q[3], *q[:3])), Vector(n.get('scale', [1]*3))))
-        return world(parents[i]) @ local if i in parents else local
-
-    def accessor(values, width):
-        binary.extend(b'\0' * (-len(binary) % 4))
-        offset = len(binary)
-        binary.extend(struct.pack('<' + 'f'*len(values), *values))
-        view = len(gltf['bufferViews'])
-        gltf['bufferViews'].append({'buffer': 0, 'byteOffset': offset, 'byteLength': len(values)*4})
-        index = len(gltf['accessors'])
-        gltf['accessors'].append({'bufferView': view, 'componentType': 5126,
-            'count': len(values)//width, 'type': {1:'SCALAR',3:'VEC3',4:'VEC4'}[width],
-            'min': [min(values[j::width]) for j in range(width)],
-            'max': [max(values[j::width]) for j in range(width)]})
-        return index
 
     basis = Matrix.Rotation(-math.pi/2, 4, 'X')
     for obj, channel, end in targets:
         i = by_name[obj.name]
-        parent_inverse = world(parents[i]).inverted() if i in parents else Matrix.Identity(4)
+        parent_inverse = patch.parent_inverse(i)
         values = []
         for f in range(1, end+1):
             bpy.context.scene.frame_set(f)
@@ -121,27 +99,23 @@ def sync(targets):
         gltf['animations'] = [a for a in gltf['animations'] if a['name'] != name]
         gltf['animations'].append({'name': name,
             'channels': [{'sampler': 0, 'target': {'node': i, 'path': channel}}],
-            'samplers': [{'input': accessor([(f-1)/FPS for f in range(1,end+1)],1),
-                          'output': accessor(values,4 if channel=='rotation' else 3),
+            'samplers': [{'input': patch.add_accessor([(f-1)/FPS for f in range(1,end+1)],1),
+                          'output': patch.add_accessor(values,4 if channel=='rotation' else 3),
                           'interpolation': 'LINEAR'}]})
     power = nodes[by_name['EMIT_Controller_Power']]
     power['extras']['blender_emission'] = bpy.data.objects['EMIT_Controller_Power']['blender_emission']
     window = next(m for m in gltf['materials'] if m['name'] == 'MAT_WindowView')
-    window['extensions']['KHR_materials_emissive_strength']['emissiveStrength'] = 1.1
-    gltf['buffers'][0]['byteLength'] = len(binary)
-    encoded = json.dumps(gltf, separators=(',', ':')).encode()
-    encoded += b' ' * (-len(encoded) % 4)
-    binary.extend(b'\0' * (-len(binary) % 4))
-    path.write_bytes(struct.pack('<III',0x46546C67,2,28+len(encoded)+len(binary))
-        + struct.pack('<II',len(encoded),0x4E4F534A)+encoded
-        + struct.pack('<II',len(binary),0x004E4942)+binary)
+    # glTF omits strength when its authored value is the default of one.
+    window.setdefault('extensions', {}).setdefault('KHR_materials_emissive_strength', {})['emissiveStrength'] = 1.1
+    patch.write()
     print(f'[motion] synced {len(targets)} authored clips and controller startup curve', flush=True)
 
 
-for filename in ('portfolio-room.blend', 'portfolio-room-optimized.blend'):
-    path = ROOT / 'assets/blender/refined' / filename
-    bpy.ops.wm.open_mainfile(filepath=str(path))
-    bpy.context.scene.frame_set(1)
-    targets = author()
-    bpy.ops.wm.save_as_mainfile(filepath=str(path))
-sync(targets)
+if __name__ == '__main__':
+    for filename in ('portfolio-room.blend', 'portfolio-room-optimized.blend'):
+        path = ROOT / 'assets/blender/refined' / filename
+        bpy.ops.wm.open_mainfile(filepath=str(path))
+        bpy.context.scene.frame_set(1)
+        targets = author()
+        bpy.ops.wm.save_as_mainfile(filepath=str(path))
+    sync(targets)

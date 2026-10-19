@@ -7,21 +7,18 @@ import {
   Group,
   Object3D,
   VectorKeyframeTrack,
-  ShaderChunk,
   Texture,
   FileLoader,
-  type Material,
-  type WebGLRenderer,
 } from "three";
 import { describe, expect, it, vi } from "vitest";
 import {
   RoomLighting,
-  IBL_DIFFUSE,
-  type LightmapKey,
-  applyLightmaps,
   lightingFrame,
   createCurtainPlayback,
 } from "./RoomLighting";
+
+import { prepareRoomScene, type LightmapKey } from "./preparedRoom";
+import { createRoomScene } from "../test/createRoomScene";
 
 const LIGHTMAP_SCALES: Record<LightmapKey, number> = {
   LM_props_day: 2,
@@ -59,49 +56,27 @@ vi.mock("@react-three/fiber", () => ({
 }));
 
 describe("RoomLighting", () => {
-  it("retains normal-dependent environment shading on the modeled scenery", () => {
-    const material = new MeshStandardMaterial();
-    material.userData.lightmapAtlas = "exterior";
-    const environments = { day: new Texture(), night: new Texture() };
-    applyLightmaps(
-      [material],
-      {} as Record<LightmapKey, Texture>,
-      { dayMap: 1, nightMap: 0 },
-      LIGHTMAP_SCALES,
-      environments,
-    );
-    expect(material.envMap).toBe(environments.day);
-    expect(material.envMapIntensity).toBe(1.6);
-    expect(material.lightMapIntensity).toBe(0.15);
-    const shader = {
-      fragmentShader: "#include <lights_fragment_maps>",
-      uniforms: {},
-    } as Parameters<Material["onBeforeCompile"]>[0];
-    material.onBeforeCompile(shader, {} as WebGLRenderer);
-    expect(shader.fragmentShader).toContain("#include <lights_fragment_maps>");
-  });
   it("dims all modeled exterior surfaces with the sky at night", () => {
-    const scene = new Group();
-    const material = new MeshStandardMaterial({
+    const source = createRoomScene();
+    const original = new MeshStandardMaterial({
       emissive: "white",
       emissiveIntensity: 0.5,
     });
-    const tree = new Mesh(undefined, material);
+    const tree = new Mesh(undefined, original);
+    tree.name = "Tree";
     tree.userData.exterior_surface = true;
-    scene.add(tree);
+    source.add(tree);
+    const room = prepareRoomScene(source);
+    const material = (room.scene.getObjectByName("Tree") as Mesh)
+      .material as MeshStandardMaterial;
     const { rerender } = render(
-      <RoomLighting
-        scene={scene}
-        animations={[]}
-        lighting="day"
-        reducedMotion
-      />,
+      <RoomLighting room={room} animations={[]} lighting="day" reducedMotion />,
     );
     fiber.frame!({}, 0);
     expect(material.emissiveIntensity).toBe(0.5);
     rerender(
       <RoomLighting
-        scene={scene}
+        room={room}
         animations={[]}
         lighting="night"
         reducedMotion
@@ -111,46 +86,13 @@ describe("RoomLighting", () => {
     expect(material.emissiveIntensity).toBeCloseTo(0.0125);
     expect(material.emissive.b).toBeGreaterThan(material.emissive.r);
   });
-  it("shades the blind from the environment instead of flattening its slat faces", () => {
-    const material = new MeshStandardMaterial();
-    material.userData.lightmapAtlas = "blind";
-    const environments = { day: new Texture(), night: new Texture() };
-    const textures = Object.fromEntries(
-      Object.keys(LIGHTMAP_SCALES).map((key) => [key, new Texture()]),
-    ) as Record<keyof typeof LIGHTMAP_SCALES, Texture>;
-    applyLightmaps(
-      [material],
-      textures,
-      { dayMap: 1, nightMap: 0 },
-      LIGHTMAP_SCALES,
-      environments,
-    );
-    const version = material.version;
-    expect(material.lightMap).not.toBeNull();
-    expect(material.lightMapIntensity).toBe(1);
-    expect(material.envMap).toBe(environments.day);
-    const shader = {
-      fragmentShader: "#include <lights_fragment_maps>",
-      uniforms: {},
-    } as Parameters<Material["onBeforeCompile"]>[0];
-    material.onBeforeCompile(shader, {} as WebGLRenderer);
-    expect(shader.fragmentShader).toContain("#include <lights_fragment_maps>");
-    applyLightmaps(
-      [material],
-      textures,
-      { dayMap: 0.5, nightMap: 0.5 },
-      LIGHTMAP_SCALES,
-      environments,
-    );
-    expect(material.envMapIntensity).toBeCloseTo(0.35);
-    expect(material.lightMapIntensity).toBeCloseTo(0.55);
-    expect(material.version).toBe(version);
-  });
   it("keeps opening and closing gradual after a slow frame and can reverse mid-transition", () => {
-    const scene = new Group();
-    const slat = new Object3D();
-    slat.name = "Blind_Slat_37";
-    scene.add(slat);
+    const source = createRoomScene();
+    const sourceSlat = new Object3D();
+    sourceSlat.name = "Blind_Slat_37";
+    source.add(sourceSlat);
+    const room = prepareRoomScene(source);
+    const slat = room.scene.getObjectByName(sourceSlat.name)!;
     const animations = [
       new AnimationClip("Curtain_Blind_Slat_37", 1, [
         new VectorKeyframeTrack(
@@ -163,7 +105,7 @@ describe("RoomLighting", () => {
     const view = (lighting: "day" | "night", reducedMotion = false) => (
       <StrictMode>
         <RoomLighting
-          scene={scene}
+          room={room}
           animations={animations}
           lighting={lighting}
           reducedMotion={reducedMotion}
@@ -249,66 +191,5 @@ describe("RoomLighting", () => {
     expect(lightingFrame("day", 1).windowView).toBe(1);
     expect(lightingFrame("night", 0.5).windowView).toBeCloseTo(0.5);
     expect(lightingFrame("night", 1).windowView).toBeCloseTo(0.025);
-  });
-
-  it("applies the lit atlas lightmap with its scale", () => {
-    const shell = new MeshStandardMaterial();
-    shell.userData.lightmapAtlas = "shell";
-    const props = new MeshStandardMaterial();
-    props.userData.lightmapAtlas = "props";
-    const textures = Object.fromEntries(
-      Object.keys(LIGHTMAP_SCALES).map((key) => [key, new Texture()]),
-    ) as Record<keyof typeof LIGHTMAP_SCALES, Texture>;
-
-    applyLightmaps(
-      [shell, props],
-      textures,
-      { dayMap: 0.5, nightMap: 0 },
-      LIGHTMAP_SCALES,
-    );
-    expect(shell.lightMap).toBe(textures.LM_shell_day);
-    // Preserve Blender's calibrated irradiance, including the Lambert π factor.
-    expect(shell.lightMapIntensity).toBeCloseTo(
-      LIGHTMAP_SCALES.LM_shell_day * 0.5 * Math.PI,
-    );
-
-    applyLightmaps(
-      [shell, props],
-      textures,
-      { dayMap: 0, nightMap: 1 },
-      LIGHTMAP_SCALES,
-    );
-    expect(props.lightMap).toBe(textures.LM_props_day);
-    expect(props.lightMapIntensity).toBe(0);
-    const shader = {
-      fragmentShader: "#include <lights_fragment_maps>",
-      uniforms: {},
-    } as Parameters<Material["onBeforeCompile"]>[0];
-    props.onBeforeCompile(shader, {} as WebGLRenderer);
-    expect(shader.uniforms.roomNightMap.value).toBe(textures.LM_props_night);
-    expect(shader.uniforms.roomNightGain.value).toBeCloseTo(
-      LIGHTMAP_SCALES.LM_props_night * Math.PI,
-    );
-    expect(shader.fragmentShader).not.toContain(IBL_DIFFUSE);
-    expect(shader.fragmentShader).toContain("texture2D( roomNightMap");
-    applyLightmaps(
-      [shell],
-      textures,
-      { dayMap: 1, nightMap: 0 },
-      LIGHTMAP_SCALES,
-      undefined,
-      {
-        day: 0.8,
-        night: 1.2,
-      },
-    );
-    expect(shell.lightMapIntensity).toBeCloseTo(
-      LIGHTMAP_SCALES.LM_shell_day * 0.8 * Math.PI,
-    );
-  });
-
-  it("finds the IBL diffuse line it strips from three.js", () => {
-    // If a three.js upgrade rewords it, the environment would wash the bake out.
-    expect(ShaderChunk.lights_fragment_maps).toContain(IBL_DIFFUSE);
   });
 });

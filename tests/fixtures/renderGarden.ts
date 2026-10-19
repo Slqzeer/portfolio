@@ -1,13 +1,14 @@
 import * as T from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
-import { prepareRoomScene } from "../../src/room/RoomModel";
+import { prepareRoomScene } from "../../src/room/preparedRoom";
 
 export async function renderGarden() {
   const decoder = new DRACOLoader().setDecoderPath("/draco/");
   const loader = new GLTFLoader().setDRACOLoader(decoder);
   const gltf = await loader.loadAsync("/assets/room/portfolio-room.glb");
-  const room = prepareRoomScene(gltf.scene);
+  const prepared = prepareRoomScene(gltf.scene);
+  const room = prepared.scene;
   const scene = new T.Scene();
   scene.add(room, new T.AmbientLight(0xffffff, 1));
   room.traverse((node) => {
@@ -45,13 +46,13 @@ export async function renderGarden() {
     }
     return { coverage };
   } finally {
+    prepared.dispose();
     target.dispose();
     renderer.dispose();
     decoder.dispose();
     room.traverse((node) => {
       if (!(node instanceof T.Mesh)) return;
       node.geometry.dispose();
-      for (const material of [node.material].flat()) material.dispose();
     });
   }
 }
