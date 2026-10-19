@@ -49,6 +49,33 @@ Start with one GLB, joined static decor, instanced repeated homelab parts, baked
 
 The current export is 2.26 MB with 168 named nodes. Static joining reduced the measured headless desktop draw calls from 213 to 144; mobile framing measured 21. Chromium software-renderer samples reached 7 FPS desktop and 41 FPS at 390 × 844, so the mobile 30 FPS target passes while physical desktop GPU validation remains required before treating the headless desktop number as representative.
 
+## Prepared room and authored clip patching
+
+`src/room/preparedRoom.ts` owns the independent runtime room: required nodes and
+camera anchors, material cloning and classification, shader preparation, lighting
+application, theme/locale selection, and disposal of its material clones. Shared
+geometry and loaded textures remain with their loaders. `RoomModel` connects the
+prepared room to interactions; `RoomLighting` loads lighting assets and schedules
+curtain and lighting frames. The garden render fixture uses the same preparation
+path without importing the rendering modules.
+
+`scripts/glb_patch.py` owns the room GLB's container checks, parent transforms,
+aligned float accessors and validated, atomic file replacement. Curtain and motion
+scripts retain Blender sampling and clip selection. Motion synchronization accepts
+a staging path; importing the script does not author or save Blender files.
+
+Run `python -m unittest discover -s scripts -p 'test_*.py'` for container and failure
+checks. To include parent transforms and both patch callers against the current
+room export, run:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python scripts/test_glb_patch.py
+```
+
+The integration check uses a temporary copy and never saves the source blend.
+Runtime behavior is covered by `npm test` and the garden, motion and
+room-transition browser scenarios.
+
 ## Deployment decision
 
 The preferred path is the Vercel Git integration:
