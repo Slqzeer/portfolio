@@ -8,6 +8,7 @@ import {
 
 interface BlenderEmission {
   group: string;
+  trigger?: "focus";
   fps: number;
   base: number;
   end: number;
@@ -37,7 +38,8 @@ export function blenderMaterialClips(scene: Object3D): AnimationClip[] {
       )
     )
       throw new Error(`Invalid Blender emission curve: ${object.name}`);
-    const group = groups.get(curve.group) ?? {
+    const name = `${curve.trigger === "focus" ? "Focus" : "Ambient"}_Lights_${curve.group}`;
+    const group = groups.get(name) ?? {
       duration: (curve.end - 1) / curve.fps,
       tracks: [],
     };
@@ -50,10 +52,9 @@ export function blenderMaterialClips(scene: Object3D): AnimationClip[] {
         ),
       ),
     );
-    groups.set(curve.group, group);
+    groups.set(name, group);
   });
   return [...groups].map(
-    ([name, { duration, tracks }]) =>
-      new AnimationClip(`Ambient_Lights_${name}`, duration, tracks),
+    ([name, { duration, tracks }]) => new AnimationClip(name, duration, tracks),
   );
 }

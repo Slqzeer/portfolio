@@ -74,6 +74,16 @@ export const portfolioContent: PortfolioContent = {
   projects: [
     {
       id: "portfolio",
+      screenshots: [
+        {
+          src: "/assets/projects/portfolio-room.png",
+          alt: text("La chambre interactive", "The interactive room"),
+        },
+        {
+          src: "/assets/projects/portfolio-night.png",
+          alt: text("La chambre de nuit", "The room at night"),
+        },
+      ],
       name: {
         fr: "Une chambre, un portfolio.",
         en: "A room, a portfolio.",
@@ -112,6 +122,22 @@ export const portfolioContent: PortfolioContent = {
     },
     {
       id: "classpulse",
+      screenshots: [
+        {
+          src: "/assets/projects/classpulse-homepage.png",
+          alt: text(
+            "ClassPulse : page d’accueil et tableau de bord",
+            "ClassPulse: homepage and dashboard",
+          ),
+        },
+        {
+          src: "/assets/projects/classpulse-session.png",
+          alt: text(
+            "ClassPulse : session d’accompagnement agentique",
+            "ClassPulse: agentic support session",
+          ),
+        },
+      ],
       name: {
         fr: "ClassPulse",
         en: "ClassPulse",

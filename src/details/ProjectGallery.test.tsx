@@ -5,6 +5,43 @@ import { portfolioContent } from "../content/portfolioContent";
 import { ProjectGallery } from "./ProjectGallery";
 
 describe("ProjectGallery", () => {
+  it("switches real screenshots and resets the preview when selecting another project", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    const projects = portfolioContent.projects.map((project) => ({
+      ...project,
+      category: "software" as const,
+    }));
+    render(
+      <ProjectGallery
+        projects={projects}
+        locale="en"
+        activeCategory="software"
+        onCategoryChange={() => undefined}
+        onScreenshotSelect={onSelect}
+      />,
+    );
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/assets/projects/portfolio-room.png",
+    );
+    await user.click(screen.getByRole("button", { name: "The room at night" }));
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/assets/projects/portfolio-night.png",
+    );
+    expect(onSelect).toHaveBeenLastCalledWith(
+      "/assets/projects/portfolio-night.png",
+    );
+    await user.click(screen.getByRole("button", { name: "ClassPulse" }));
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/assets/projects/classpulse-homepage.png",
+    );
+    expect(
+      screen.queryByRole("heading", { name: "A room, a portfolio." }),
+    ).toBeNull();
+  });
   it("filters projects and exposes their complete story", async () => {
     const user = userEvent.setup();
     const onCategoryChange = vi.fn();

@@ -22,6 +22,7 @@ interface RoomSceneProps {
   readingMode?: boolean;
   onArrive?: (transitionId: number) => void;
   onUnavailable?: () => void;
+  projectPreview?: string;
 }
 
 export function RoomScene({
@@ -37,6 +38,7 @@ export function RoomScene({
   readingMode = false,
   onArrive,
   onUnavailable,
+  projectPreview,
 }: RoomSceneProps) {
   const poster = (
     <img
@@ -103,6 +105,7 @@ export function RoomScene({
               locale={locale}
               lighting={lighting}
               activeObject={activeObject}
+              projectPreview={projectPreview}
               ambientPaused={ambientPaused}
               reducedMotion={reducedMotion}
               onInteract={onInteract}

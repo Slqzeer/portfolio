@@ -49,6 +49,7 @@ export interface Project {
   status: LocalizedText;
   github: string;
   demo?: string;
+  screenshots?: Array<{ src: string; alt: LocalizedText }>;
 }
 
 export interface TimelineEntry {

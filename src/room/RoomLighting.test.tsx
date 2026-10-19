@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import { StrictMode } from "react";
 import {
   MeshStandardMaterial,
+  Mesh,
   AnimationClip,
   Group,
   Object3D,
@@ -58,6 +59,58 @@ vi.mock("@react-three/fiber", () => ({
 }));
 
 describe("RoomLighting", () => {
+  it("retains normal-dependent environment shading on the modeled scenery", () => {
+    const material = new MeshStandardMaterial();
+    material.userData.lightmapAtlas = "exterior";
+    const environments = { day: new Texture(), night: new Texture() };
+    applyLightmaps(
+      [material],
+      {} as Record<LightmapKey, Texture>,
+      { dayMap: 1, nightMap: 0 },
+      LIGHTMAP_SCALES,
+      environments,
+    );
+    expect(material.envMap).toBe(environments.day);
+    expect(material.envMapIntensity).toBe(1.6);
+    expect(material.lightMapIntensity).toBe(0.15);
+    const shader = {
+      fragmentShader: "#include <lights_fragment_maps>",
+      uniforms: {},
+    } as Parameters<Material["onBeforeCompile"]>[0];
+    material.onBeforeCompile(shader, {} as WebGLRenderer);
+    expect(shader.fragmentShader).toContain("#include <lights_fragment_maps>");
+  });
+  it("dims all modeled exterior surfaces with the sky at night", () => {
+    const scene = new Group();
+    const material = new MeshStandardMaterial({
+      emissive: "white",
+      emissiveIntensity: 0.5,
+    });
+    const tree = new Mesh(undefined, material);
+    tree.userData.exterior_surface = true;
+    scene.add(tree);
+    const { rerender } = render(
+      <RoomLighting
+        scene={scene}
+        animations={[]}
+        lighting="day"
+        reducedMotion
+      />,
+    );
+    fiber.frame!({}, 0);
+    expect(material.emissiveIntensity).toBe(0.5);
+    rerender(
+      <RoomLighting
+        scene={scene}
+        animations={[]}
+        lighting="night"
+        reducedMotion
+      />,
+    );
+    fiber.frame!({}, 0);
+    expect(material.emissiveIntensity).toBeCloseTo(0.0125);
+    expect(material.emissive.b).toBeGreaterThan(material.emissive.r);
+  });
   it("shades the blind from the environment instead of flattening its slat faces", () => {
     const material = new MeshStandardMaterial();
     material.userData.lightmapAtlas = "blind";
@@ -127,8 +180,8 @@ describe("RoomLighting", () => {
     fiber.frame!({}, 2);
     expect(slat.position.y).toBeGreaterThan(1.9761);
     expect(slat.position.y).toBeLessThan(3.65);
-    // The clip owns easing; runtime time must advance at the authored speed.
-    expect(slat.position.y).toBeCloseTo(3.65 + (1.976 - 3.65) * 0.1);
+    // Retain the authored easing while giving the blind a gentler travel time.
+    expect(slat.position.y).toBeCloseTo(3.65 + (1.976 - 3.65) * (0.1 / 1.4));
     const closingHeight = slat.position.y;
     rerender(view("day"));
     fiber.frame!({}, 0.05);
@@ -141,7 +194,7 @@ describe("RoomLighting", () => {
     fiber.frame!({}, 2);
     expect(slat.position.y).toBeGreaterThan(1.9761);
     expect(slat.position.y).toBeLessThan(3.65);
-    for (let i = 0; i < 10; i++) fiber.frame!({}, 0.1);
+    for (let i = 0; i < 15; i++) fiber.frame!({}, 0.1);
     expect(slat.position.y).toBeCloseTo(3.65);
   });
   it("moves the actual blind pose through open/closed and back after cleanup", () => {

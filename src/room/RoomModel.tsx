@@ -16,6 +16,8 @@ import { RoomHotspots } from "./RoomHotspots";
 import { RoomLighting, withoutIblDiffuse } from "./RoomLighting";
 import { sceneManifest } from "./sceneManifest";
 import { blenderMaterialClips } from "./blenderAnimations";
+import { RoomProjectScreen } from "./RoomProjectScreen";
+import { clipGardenMaterial } from "./gardenPortal";
 
 const ROOM_GLTF_URL = "/assets/room/portfolio-room.glb";
 const idByNodeName = new Map(
@@ -40,6 +42,7 @@ export interface RoomModelProps {
   transitionId?: number;
   onArrive?: (transitionId: number) => void;
   interactionEnabled?: boolean;
+  projectPreview?: string;
 }
 
 function roomObjectIdForNode(object: Object3D) {
@@ -90,16 +93,22 @@ function lightmapAtlas(object: Object3D): string | undefined {
 // them; baked meshes get one material clone per lightmap atlas.
 function prepareLighting(scene: Object3D) {
   scene.traverse((object) => {
+    // glTF puts multi-material mesh extras on the parent of its primitives.
+    if (object.parent?.userData.exterior_surface)
+      object.userData.exterior_surface = true;
     if (object instanceof Light) object.visible = false;
   });
 
   const baked = new Map<string, Material>();
   scene.traverse((object) => {
     if (!(object instanceof Mesh)) return;
-    // Moving slats need normal-dependent shading to reveal their tilt and edges.
-    const atlas = object.name.startsWith("Blind_Slat_")
-      ? "blind"
-      : (object.geometry.attributes.uv1 && lightmapAtlas(object)) || "flat";
+    // Slats and modeled scenery need normal-dependent shading to retain depth.
+    const atlas =
+      object.userData.exterior_surface && object.name !== "EMIT_WindowView"
+        ? "exterior"
+        : object.name.startsWith("Blind_Slat_")
+          ? "blind"
+          : (object.geometry.attributes.uv1 && lightmapAtlas(object)) || "flat";
     const bake = (material: Material) => {
       const key = `${material.uuid}:${atlas}`;
       if (!baked.has(key)) {
@@ -115,8 +124,13 @@ function prepareLighting(scene: Object3D) {
         // three.js lays sheen over the flat lightmap irradiance as a grey veil,
         // turning the navy sofa and rug slate; the bake already shades them.
         if (clone instanceof MeshPhysicalMaterial) clone.sheen = 0;
-        if (atlas !== "blind" && !object.userData.device_surface)
+        if (
+          atlas !== "blind" &&
+          atlas !== "exterior" &&
+          !object.userData.device_surface
+        )
           withoutIblDiffuse(clone);
+        if (object.userData.exterior_surface) clipGardenMaterial(clone);
         baked.set(key, clone);
       }
       return baked.get(key)!;
@@ -191,6 +205,7 @@ export function RoomModel({
   transitionId,
   onArrive,
   interactionEnabled = true,
+  projectPreview,
 }: RoomModelProps) {
   const { animations, scene: source } = useGLTF(ROOM_GLTF_URL, "/draco/");
   const scene = useMemo(() => prepareRoomScene(source), [source]);
@@ -299,6 +314,11 @@ export function RoomModel({
         reducedMotion={reducedMotion}
         activeObject={activeObject}
         hoveredObject={interactionEnabled ? hovered : null}
+        focusReady={interactionEnabled}
+      />
+      <RoomProjectScreen
+        scene={scene}
+        src={activeObject === "monitor" ? projectPreview : undefined}
       />
     </>
   );

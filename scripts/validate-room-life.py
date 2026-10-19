@@ -16,10 +16,23 @@ bm.from_mesh(wall.data)
 assert all(edge.is_manifold for edge in bm.edges), 'Open or split wall corner'
 bm.free()
 background=bpy.data.objects['EMIT_WindowView']
+assert background.get('exterior_mode')=='geometry', 'Missing modeled window exterior'
+assert not any(obj.name.startswith('Exterior_Leaves_') for obj in scene.objects), 'Unwanted vine geometry remains'
+assert background.get('garden_detail')=='botanical', 'Missing detailed garden'
+assert background.get('garden_finish')=='natural-stone-and-turf'
+for obj in scene.objects:
+    if obj.type=='MESH' and obj.get('exterior_surface'):
+        assert all(m.get('garden_window_aperture') for m in obj.data.materials), obj.name
+for name in ('MAT_Garden_Turf','MAT_Garden_Bark','MAT_Garden_Limestone_0','MAT_Garden_Weathered_Wood'):
+    mat=bpy.data.materials[name]
+    assert mat.get('garden_texture'), name
+    assert any(n.type=='NORMAL_MAP' for n in mat.node_tree.nodes), name
+assert sum(o.get('botanical_leaf_count',0) for o in scene.objects if o.name.startswith('Exterior_Botanical_Crown_'))>=8000
+assert not any(o.name.startswith('Exterior_Canopy_') for o in scene.objects), 'Ball canopies must not return'
+assert len([o for o in scene.objects if o.name.startswith('SHADOW_Garden_Portal_')])==4
+assert bpy.data.objects.get('Exterior_Path_Stone_00') and bpy.data.objects.get('Exterior_Garden_Wall_Coping')
 points=[background.matrix_world@Vector(corner) for corner in background.bound_box]
-assert max(point.z for point in points)<4.6, 'Garden image rises beyond the window'
-assert max(point.x for point in points)<0, 'Garden image extends toward the right corner'
-assert max(point.y for point in points)<6, 'Garden image is too far behind the wall'
+assert min(point.y for point in points)>10, 'Sky must be behind the full-depth garden'
 for name in ('Blind_Slat_37','Blind_Cord_01'):
     obj=bpy.data.objects[name]
     scene.frame_set(1)
@@ -60,18 +73,23 @@ assert power.get('status_button_aligned')
 assert (power.location-Vector((0,-.004,.0414))).length<1e-5, 'Controller status ring misses the centre button'
 assert max(v.co.length for v in power.data.vertices)<.006, 'Controller status ring exceeds the physical button'
 node=next(node for node in power.data.materials[0].node_tree.nodes if node.type=='BSDF_PRINCIPLED')
-scene.frame_set(130)
-on=node.inputs['Emission Strength'].default_value
-scene.frame_set(139)
-assert node.inputs['Emission Strength'].default_value<on/5
+scene.frame_set(1)
+assert node.inputs['Emission Strength'].default_value==0, 'Controller must be off at rest'
+scene.frame_set(9)
+assert node.inputs['Emission Strength'].default_value>2, 'Missing controller startup pulse'
+scene.frame_set(25)
+assert abs(node.inputs['Emission Strength'].default_value-1.8)<1e-4
 curves=[json.loads(obj['blender_emission']) for obj in scene.objects if 'blender_emission' in obj]
 assert len(curves)>80
 for curve in curves:
     assert curve['base']>0 and curve['fps']==24
-    assert curve['keys'][0][0]==1 and curve['keys'][-1][0]==769
-    assert abs(curve['keys'][0][1]-curve['keys'][-1][1])<1e-4
+    assert curve['keys'][0][0]==1 and curve['keys'][-1][0]==curve['end']
+    if curve.get('trigger')=='focus':
+        assert curve['keys'][0][1]==0 and abs(curve['keys'][-1][1]-1.8)<1e-4
+    else:
+        assert abs(curve['keys'][0][1]-curve['keys'][-1][1])<1e-4
 scene.frame_set(1)
 report={'source':bpy.data.filepath,'wall_manifold':True,'background_top':max(point.z for point in points),
-        'emission_curves':len(curves),'checks':['blind day/night','cord day/night','foliage wind','phone alignment and settling','screen typing','editor themes','bookshelf corner','controller status alignment','controller blink','loop endpoints']}
+        'emission_curves':len(curves),'checks':['botanical garden geometry','individual leaves without ball canopies','Blender garden aperture','blind day/night','cord day/night','foliage wind','phone alignment and settling','screen typing','editor themes','bookshelf corner','controller status alignment','controller startup','loop endpoints']}
 (ROOT/'assets/reviews/room-refined-animation-check.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print('[validate] '+json.dumps(report),flush=True)

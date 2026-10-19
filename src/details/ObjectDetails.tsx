@@ -13,6 +13,9 @@ interface ObjectDetailsProps {
   ready?: boolean;
   activeCategory?: ProjectCategory;
   onCategoryChange?: (category: ProjectCategory) => void;
+  selectedProjectId?: string;
+  onProjectSelect?: (id: string) => void;
+  onScreenshotSelect?: (src: string) => void;
 }
 
 export function ObjectDetails({
@@ -23,6 +26,9 @@ export function ObjectDetails({
   ready = true,
   activeCategory = "data-ai",
   onCategoryChange = () => undefined,
+  selectedProjectId,
+  onProjectSelect,
+  onScreenshotSelect,
 }: ObjectDetailsProps) {
   const detail =
     portfolioContent.details[portfolioContent.roomObjects[objectId].detailId];
@@ -48,6 +54,9 @@ export function ObjectDetails({
             locale={locale}
             activeCategory={activeCategory}
             onCategoryChange={onCategoryChange}
+            selectedProjectId={selectedProjectId}
+            onProjectSelect={onProjectSelect}
+            onScreenshotSelect={onScreenshotSelect}
           />
         );
       case "server":

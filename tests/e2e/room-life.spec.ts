@@ -159,12 +159,9 @@ test("plays foliage wind, device lights, notifications and typing, and stops the
   await expect(canvas).toHaveAttribute("data-controller-glow", /[\d.]+/, {
     timeout: 15000,
   });
-  const glow = await canvas.getAttribute("data-controller-glow");
   const rack = await canvas.getAttribute("data-rack-activity");
   await Promise.all([
-    expect(canvas).not.toHaveAttribute("data-controller-glow", glow!, {
-      timeout: 20000,
-    }),
+    expect(canvas).toHaveAttribute("data-controller-glow", "0.0000"),
     expect(canvas).not.toHaveAttribute("data-rack-activity", rack!, {
       timeout: 20000,
     }),

@@ -4,12 +4,19 @@ blender -b assets/blender/living/portfolio-room.blend --threads 4 --python scrip
 """
 from pathlib import Path
 import sys
+import json
 import bpy
 
 root = Path(__file__).resolve().parents[1]
 output=Path(sys.argv[sys.argv.index('--')+1]).resolve() if '--' in sys.argv else root/'public/assets/room'
 output.mkdir(parents=True,exist_ok=True)
 scene = bpy.context.scene
+for obj in scene.objects:
+    curve = json.loads(obj['blender_emission']) if obj.get('blender_emission') else None
+    if curve and curve.get('trigger') == 'focus':
+        tree = obj.data.materials[0].node_tree
+        tree.animation_data_clear()
+        next(n for n in tree.nodes if n.type == 'BSDF_PRINCIPLED').inputs['Emission Strength'].default_value = 0
 camera = bpy.data.objects["CAM_Overview"].copy()
 camera.data = camera.data.copy()
 scene.collection.objects.link(camera)

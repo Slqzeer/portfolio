@@ -8,6 +8,7 @@ glTF cannot carry procedural shaders, so procedural base colors are baked to tex
 exporter writes the sheen tint without its weight, so the weight is folded into the tint.
 """
 import os
+import json
 import sys
 
 import bpy
@@ -20,6 +21,14 @@ os.makedirs(os.path.dirname(output), exist_ok=True)
 scene = bpy.data.scenes["PortfolioRoom"]
 for obj in [o for o in scene.objects if o.name.startswith("SHADOW_")]:
     bpy.data.objects.remove(obj)
+# Blender clips camera rays in its materials; the runtime uses the same aperture
+# in GLSL. Export the original PBR surface, not the Blender-only ray nodes.
+for mat in bpy.data.materials:
+    if mat.get('garden_window_aperture'):
+        nodes=mat.node_tree.nodes
+        bsdf=next(n for n in nodes if n.type=='BSDF_PRINCIPLED')
+        surface_output=next(n for n in nodes if n.type=='OUTPUT_MATERIAL')
+        mat.node_tree.links.new(bsdf.outputs['BSDF'],surface_output.inputs['Surface'])
 for obj in scene.objects:
     if obj.type == "MESH" and "Lightmap" in obj.data.uv_layers:
         obj.data.uv_layers[0].active_render = True
@@ -68,6 +77,13 @@ for material in bpy.data.materials:
         bsdf.inputs["Sheen Tint"].default_value = (*(c * weight for c in tint[:3]), 1)
         bsdf.inputs["Sheen Weight"].default_value = 1
 scene.frame_set(1)
+for obj in scene.objects:
+    curve = json.loads(obj['blender_emission']) if obj.get('blender_emission') else None
+    if curve and curve.get('trigger') == 'focus':
+        # Export the rated colour; the web mixer samples the authored off/start/on curve.
+        tree = obj.data.materials[0].node_tree
+        tree.animation_data_clear()
+        next(n for n in tree.nodes if n.type == 'BSDF_PRINCIPLED').inputs['Emission Strength'].default_value = curve['base']
 # Both Blender-authored themes must travel in the GLB. The website selects the
 # matching surface; hide_render drivers are only for reviewing/baking in Blender.
 for obj in scene.objects:
@@ -88,6 +104,8 @@ bpy.ops.export_scene.gltf(
     export_lights=True,
     export_extras=True,
     export_animations=True,
+    # Cyclic idle clips must rest at frame 1, rather than one sample before the loop.
+    export_current_frame=True,
     export_frame_range=False,
     export_animation_mode="ACTIONS",
     export_image_format="WEBP",

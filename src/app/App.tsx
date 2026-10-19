@@ -28,6 +28,26 @@ export function App() {
     }),
   );
   const [canvasFailed, setCanvasFailed] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null,
+  );
+  const [screenshotSelection, setScreenshotSelection] = useState<{
+    projectId: string;
+    src: string;
+  } | null>(null);
+  const selectedProject =
+    portfolioContent.projects.find(
+      (project) =>
+        project.id === selectedProjectId &&
+        project.category === state.projectCategory,
+    ) ??
+    portfolioContent.projects.find(
+      (project) => project.category === state.projectCategory,
+    );
+  const projectPreview =
+    screenshotSelection?.projectId === selectedProject?.id
+      ? screenshotSelection?.src
+      : selectedProject?.screenshots?.[0]?.src;
   const [lastDetail, setLastDetail] = useState<RoomObjectId | null>(null);
   const activeDetail =
     state.activeObject && sceneManifest[state.activeObject].action === "focus"
@@ -251,6 +271,7 @@ export function App() {
           lighting={state.lighting}
           activeObject={state.activeObject}
           onInteract={handleRoomInteract}
+          projectPreview={projectPreview}
           ambientPaused={ambientPaused}
           reducedMotion={reducedMotion}
           transitionId={state.transitionId}
@@ -273,9 +294,19 @@ export function App() {
             locale={state.locale}
             onClose={closeObject}
             activeCategory={state.projectCategory}
-            onCategoryChange={(category) =>
-              dispatch({ type: "category.changed", category })
-            }
+            selectedProjectId={selectedProject?.id}
+            onProjectSelect={(id) => {
+              setSelectedProjectId(id);
+              setScreenshotSelection(null);
+            }}
+            onScreenshotSelect={(src) => {
+              if (selectedProject)
+                setScreenshotSelection({ projectId: selectedProject.id, src });
+            }}
+            onCategoryChange={(category) => {
+              setScreenshotSelection(null);
+              dispatch({ type: "category.changed", category });
+            }}
           />
         )}
         {introVisible && (

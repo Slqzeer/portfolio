@@ -36,10 +36,56 @@ for (const node of [
 ]) {
   if (!names.has(node)) throw new Error(`Missing living-room node: ${node}`);
 }
+const garden = gltf.nodes.find(({ name }) => name === "EMIT_WindowView");
+if (garden?.extras?.exterior_mode !== "geometry")
+  throw new Error("Missing modeled window exterior");
+if (garden.extras.garden_finish !== "natural-stone-and-turf")
+  throw new Error("Missing natural garden surfaces");
+for (const name of [
+  "MAT_Garden_Turf",
+  "MAT_Garden_Bark",
+  "MAT_Garden_Limestone_0",
+  "MAT_Garden_Weathered_Wood",
+]) {
+  const material = gltf.materials.find((material) => material.name === name);
+  if (
+    !material?.pbrMetallicRoughness?.baseColorTexture ||
+    !material.normalTexture
+  )
+    throw new Error(`Missing garden colour/normal textures: ${name}`);
+}
+if (gltf.nodes.some(({ name }) => name?.startsWith("Exterior_Leaves_")))
+  throw new Error("Unwanted vine geometry remains");
+if (
+  gltf.materials.find(({ name }) => name === "MAT_WindowView")?.emissiveTexture
+)
+  throw new Error("A perspective image remains on the sky");
+if (
+  garden.extras.garden_detail !== "botanical" ||
+  gltf.nodes.some(({ name }) => name?.startsWith("Exterior_Canopy_"))
+)
+  throw new Error("Garden uses placeholder canopies");
+const botanicalLeaves = gltf.nodes
+  .filter(({ name }) => name?.startsWith("Exterior_Botanical_Crown_"))
+  .reduce((sum, node) => sum + (node.extras?.botanical_leaf_count ?? 0), 0);
+if (
+  botanicalLeaves < 8000 ||
+  !names.has("Exterior_Lawn_Ground") ||
+  !names.has("Exterior_Path_Stone_00") ||
+  !names.has("Exterior_Garden_Wall_Coping")
+)
+  throw new Error("Missing botanical garden geometry");
 // A new breeze parent must preserve the approved blind's world placement.
 const controllerPower = gltf.nodes.find(
   ({ name }) => name === "EMIT_Controller_Power",
 );
+const controllerStartup = JSON.parse(controllerPower.extras.blender_emission);
+if (
+  controllerStartup.trigger !== "focus" ||
+  controllerStartup.keys[0][1] !== 0 ||
+  !gltf.animations.some(({ name }) => name === "Focus_controller")
+)
+  throw new Error("Missing focus-only controller startup");
 if (
   !controllerPower.extras?.status_button_aligned ||
   new Vector3(...(controllerPower.translation ?? [0, 0, 0])).distanceTo(
@@ -138,6 +184,8 @@ for (const clip of gltf.animations.filter(({ name }) =>
 // Reference poses sampled from the original Blender scene at 24 fps.
 const binaryOffset = 28 + bytes.readUInt32LE(12);
 for (const [nodeName, path, component, frame, expected] of [
+  ["Blind_Slat_37", "translation", 0, 6, -3.15],
+  ["Blind_Slat_37", "translation", 0, 14, -3.15],
   ["Blind_Slat_37", "translation", 1, 6, 3.2617431],
   ["Blind_Slat_37", "translation", 1, 10, 2.6568799],
   ["Blind_Slat_37", "translation", 1, 14, 2.1304853],

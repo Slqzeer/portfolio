@@ -1,4 +1,5 @@
 import { Icon } from "../components/Icon";
+import { useState } from "react";
 import { localize, portfolioContent } from "../content/portfolioContent";
 import type { Locale, Project, ProjectCategory } from "../content/types";
 import { ProjectCover } from "./ProjectCover";
@@ -8,6 +9,9 @@ interface ProjectGalleryProps {
   locale: Locale;
   activeCategory: ProjectCategory;
   onCategoryChange: (category: ProjectCategory) => void;
+  selectedProjectId?: string;
+  onProjectSelect?: (id: string) => void;
+  onScreenshotSelect?: (src: string) => void;
 }
 
 export function ProjectGallery({
@@ -15,10 +19,17 @@ export function ProjectGallery({
   locale,
   activeCategory,
   onCategoryChange,
+  selectedProjectId,
+  onProjectSelect,
+  onScreenshotSelect,
 }: ProjectGalleryProps) {
+  const [selection, setSelection] = useState<string | null>(null);
   const filtered = projects.filter(
     (project) => project.category === activeCategory,
   );
+  const selected =
+    filtered.find(({ id }) => id === (selectedProjectId ?? selection)) ??
+    filtered[0];
   return (
     <div className="project-gallery">
       <div
@@ -50,6 +61,29 @@ export function ProjectGallery({
             </button>
           ))}
       </div>
+      {filtered.length > 1 && (
+        <div
+          className="project-list"
+          aria-label={
+            locale === "fr" ? "Choisir un projet" : "Choose a project"
+          }
+        >
+          {filtered.map((project) => (
+            <button
+              type="button"
+              key={project.id}
+              aria-pressed={project.id === selected?.id}
+              onClick={() => {
+                setSelection(project.id);
+                onProjectSelect?.(project.id);
+              }}
+            >
+              {localize(project.name, locale)}
+              <Icon name="arrow" />
+            </button>
+          ))}
+        </div>
+      )}
       {filtered.length === 0 && (
         <div className="project-empty">
           <Icon name="grid" />
@@ -70,7 +104,8 @@ export function ProjectGallery({
           </button>
         </div>
       )}
-      {filtered.map((project, index) => {
+      {(selected ? [selected] : []).map((project) => {
+        const index = filtered.indexOf(project);
         const fields = [
           [locale === "fr" ? "L’intention" : "The intention", project.problem],
           [locale === "fr" ? "La réponse" : "The approach", project.solution],
@@ -86,7 +121,16 @@ export function ProjectGallery({
         ] as const;
         return (
           <article className="project-card" key={project.id}>
-            <ProjectCover variant={project.id} />
+            {project.screenshots?.length ? (
+              <ProjectScreenshots
+                key={project.id}
+                project={project}
+                locale={locale}
+                onSelect={onScreenshotSelect}
+              />
+            ) : (
+              <ProjectCover variant={project.id} />
+            )}
             <div className="project-card-copy">
               <div className="project-meta">
                 <span>
@@ -152,5 +196,57 @@ export function ProjectGallery({
         );
       })}
     </div>
+  );
+}
+
+function ProjectScreenshots({
+  project,
+  locale,
+  onSelect,
+}: {
+  project: Project;
+  locale: Locale;
+  onSelect?: (src: string) => void;
+}) {
+  const [index, setIndex] = useState(0);
+  const screenshots = project.screenshots!;
+  const screenshot = screenshots[index] ?? screenshots[0];
+  return (
+    <figure className="project-preview">
+      <img
+        key={screenshot.src}
+        className="project-screenshot"
+        src={screenshot.src}
+        alt={localize(screenshot.alt, locale)}
+        width="1440"
+        height="900"
+      />
+      <figcaption>
+        <span aria-live="polite">{localize(screenshot.alt, locale)}</span>
+        {screenshots.length > 1 && (
+          <div
+            className="project-preview-pages"
+            aria-label={
+              locale === "fr" ? "Captures du projet" : "Project screenshots"
+            }
+          >
+            {screenshots.map((shot, i) => (
+              <button
+                type="button"
+                key={shot.src}
+                aria-label={localize(shot.alt, locale)}
+                aria-pressed={index === i}
+                onClick={() => {
+                  setIndex(i);
+                  onSelect?.(shot.src);
+                }}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
+      </figcaption>
+    </figure>
   );
 }

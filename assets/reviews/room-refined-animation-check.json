@@ -1,9 +1,12 @@
 {
-  "source": "C:\\Users\\aypie\\Documents\\1-Repo\\1-Project\\9-Presentation\\portfolio\\assets\\blender\\refined\\portfolio-room-optimized.blend",
+  "source": "C:\\Users\\aypie\\Documents\\1-Repo\\1-Project\\9-Presentation\\portfolio\\assets\\blender\\refined\\portfolio-room.blend",
   "wall_manifold": true,
-  "background_top": 4.550000190734863,
+  "background_top": 16.0,
   "emission_curves": 93,
   "checks": [
+    "botanical garden geometry",
+    "individual leaves without ball canopies",
+    "Blender garden aperture",
     "blind day/night",
     "cord day/night",
     "foliage wind",
@@ -12,7 +15,7 @@
     "editor themes",
     "bookshelf corner",
     "controller status alignment",
-    "controller blink",
+    "controller startup",
     "loop endpoints"
   ]
 }

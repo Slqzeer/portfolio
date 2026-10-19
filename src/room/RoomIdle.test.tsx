@@ -1,6 +1,14 @@
 import { render } from "@testing-library/react";
 import { StrictMode } from "react";
-import { AnimationClip, Group, Object3D, VectorKeyframeTrack } from "three";
+import {
+  AnimationClip,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  NumberKeyframeTrack,
+  Object3D,
+  VectorKeyframeTrack,
+} from "three";
 import { describe, expect, it, vi } from "vitest";
 import { RoomIdle, type RoomIdleProps } from "./RoomIdle";
 
@@ -41,6 +49,53 @@ const advance = (count = 1) => {
 };
 
 describe("Blender animation playback", () => {
+  it("powers on only after controller focus arrives, holds the final glow, and powers off on exit", () => {
+    const { props } = setup();
+    const material = new MeshStandardMaterial({ emissiveIntensity: 1.8 });
+    const power = new Mesh(undefined, material);
+    power.name = "EMIT_Controller_Power";
+    props.scene.add(power);
+    props.animations = [
+      new AnimationClip("Focus_Lights_controller", 1, [
+        new NumberKeyframeTrack(
+          `${power.uuid}.material.emissiveIntensity`,
+          [0, 0.3, 0.5, 1],
+          [0, 2.4, 0.18, 1.8],
+        ),
+      ]),
+    ];
+    const view = (
+      activeObject: RoomIdleProps["activeObject"],
+      focusReady = true,
+      reducedMotion = false,
+    ) => (
+      <StrictMode>
+        <RoomIdle
+          {...props}
+          activeObject={activeObject}
+          focusReady={focusReady}
+          reducedMotion={reducedMotion}
+        />
+      </StrictMode>
+    );
+    const { rerender } = render(view(null));
+    advance(5);
+    expect(material.emissiveIntensity).toBe(0);
+    rerender(view("controller", false));
+    advance(5);
+    expect(material.emissiveIntensity).toBe(0);
+    rerender(view("controller"));
+    advance(3);
+    expect(material.emissiveIntensity).toBeCloseTo(2.4);
+    advance(20);
+    expect(material.emissiveIntensity).toBeCloseTo(1.8);
+    rerender(view(null));
+    expect(material.emissiveIntensity).toBe(0);
+    rerender(view("controller", true, true));
+    expect(material.emissiveIntensity).toBeCloseTo(1.8);
+    rerender(view(null, true, true));
+    expect(material.emissiveIntensity).toBe(0);
+  });
   it("shows complete code in monitor focus and resumes at the saved time across theme changes", () => {
     const { props, ball } = setup();
     ball.userData.screen_mask = true;

@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   AnimationClip,
   AnimationMixer,
+  Color,
   LoopOnce,
   DataTexture,
   FileLoader,
@@ -18,6 +19,7 @@ import {
   TextureLoader,
 } from "three";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
+import { gardenSunlight } from "./gardenPortal";
 import type { Lighting } from "../app/appState";
 
 // The baked lightmaps carry all light and shadow, so there is no ambient light (it
@@ -95,14 +97,20 @@ export function applyLightmaps(
       lit.envMap = environments[dayMap >= nightMap ? "day" : "night"];
       lit.envMapIntensity = exposure.day * dayMap + exposure.night * nightMap;
     }
-    if (material.userData.lightmapAtlas === "blind") {
+    if (
+      material.userData.lightmapAtlas === "blind" ||
+      material.userData.lightmapAtlas === "exterior"
+    ) {
+      const exterior = material.userData.lightmapAtlas === "exterior";
       // Keep ambient fill, but retain directional diffuse to reveal the slat faces.
       lit.lightMap = WHITE;
       lit.lightMapIntensity =
-        exposure.day * dayMap + FLAT_LIGHT.night * exposure.night * nightMap;
+        (exterior ? 0.15 : 1) * exposure.day * dayMap +
+        FLAT_LIGHT.night * exposure.night * nightMap;
       if (environments) lit.envMap = environments.day;
       lit.envMapIntensity =
-        0.6 * exposure.day * dayMap + 0.1 * exposure.night * nightMap;
+        (exterior ? 1.6 : 0.6) * exposure.day * dayMap +
+        0.1 * exposure.night * nightMap;
       continue;
     }
     if (!blends.has(material)) withoutIblDiffuse(material);
@@ -246,12 +254,24 @@ export function RoomLighting({
     }
     return [...materials];
   }, [scene, loaded, anisotropy]);
-  const windowView = useMemo(() => {
-    const mesh = scene.getObjectByName("EMIT_WindowView");
-    const material = mesh instanceof Mesh ? mesh.material : undefined;
-    return material instanceof MeshStandardMaterial
-      ? { material, base: material.emissiveIntensity }
-      : undefined;
+  const exterior = useMemo(() => {
+    const materials = new Set<MeshStandardMaterial>();
+    scene.traverse((object) => {
+      if (
+        object instanceof Mesh &&
+        (object.name === "EMIT_WindowView" || object.userData.exterior_surface)
+      ) {
+        for (const material of [object.material].flat()) {
+          if (material instanceof MeshStandardMaterial) materials.add(material);
+        }
+      }
+    });
+    return [...materials].map((material) => ({
+      material,
+      base: material.emissiveIntensity,
+      day: material.emissive.clone(),
+      night: material.emissive.clone().multiply(new Color("#718bb2")),
+    }));
   }, [scene]);
   const curtains = useMemo(
     () => createCurtainPlayback(scene, animations),
@@ -282,12 +302,13 @@ export function RoomLighting({
             1,
             nightMix.current +
               ((target ? 1 : -1) * Math.min(deltaSeconds, 0.1)) /
-                curtains.duration,
+                (curtains.duration * 1.4),
           ),
         );
     const mix = nightMix.current;
     const frame = lightingFrame("night", mix * mix * (3 - 2 * mix));
     if (lamp.current) lamp.current.intensity = frame.lamp;
+    gardenSunlight.value = 1.5 * frame.dayMap + 0.015 * frame.nightMap;
     applyLightmaps(
       bakedMaterials,
       lightmaps,
@@ -296,10 +317,10 @@ export function RoomLighting({
       environments,
       exposure,
     );
-    if (windowView) {
-      windowView.material.emissiveIntensity =
-        windowView.base * frame.windowView;
-    }
+    exterior.forEach(({ material, base, day, night }) => {
+      material.emissiveIntensity = base * frame.windowView;
+      material.emissive.lerpColors(day, night, frame.nightMap);
+    });
 
     // Blender already authors the easing and the sequence of slat movements.
     curtains.sample(mix);

@@ -19,6 +19,7 @@ export interface RoomCanvasProps {
   transitionId?: number;
   onArrive?: (transitionId: number) => void;
   interactionEnabled?: boolean;
+  projectPreview?: string;
 }
 
 function SceneMetrics() {
@@ -45,6 +46,12 @@ function SceneMetrics() {
       Math.round((sample.current.frames * 1000) / elapsed),
     );
     gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
+    const screen = scene.getObjectByName("Editor_monitor_day");
+    if (
+      screen instanceof Mesh &&
+      screen.material instanceof MeshStandardMaterial
+    )
+      gl.domElement.dataset.projectPreview = screen.material.map?.name ?? "";
     const breeze = scene.getObjectByName("Blind_Breeze");
     if (breeze)
       gl.domElement.dataset.blindBreeze = breeze.position.x.toFixed(5);
@@ -185,6 +192,7 @@ export function RoomCanvas(props: RoomCanvasProps) {
               transitionId={props.transitionId}
               onArrive={props.onArrive}
               interactionEnabled={props.interactionEnabled}
+              projectPreview={props.projectPreview}
             />
             <SceneMetrics />
           </Suspense>

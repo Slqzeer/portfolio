@@ -1,10 +1,12 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   AnimationAction,
   AnimationClip,
   AnimationMixer,
   LoopOnce,
+  Mesh,
+  MeshStandardMaterial,
   Object3D,
 } from "three";
 import type { RoomObjectId } from "../content/types";
@@ -18,6 +20,7 @@ export interface RoomIdleProps {
   activeObject?: RoomObjectId | null;
   hoveredObject?: RoomObjectId | null;
   lighting?: Lighting;
+  focusReady?: boolean;
 }
 
 // Shapes, amplitudes and timing come exclusively from the Blender clips.
@@ -29,10 +32,44 @@ export function RoomIdle({
   activeObject,
   hoveredObject,
   lighting = "day",
+  focusReady = true,
 }: RoomIdleProps) {
   const mixer = useMemo(() => new AnimationMixer(scene), [scene]);
   const resumed = useRef(true);
   const editorActions = useRef<AnimationAction[]>([]);
+
+  useLayoutEffect(() => {
+    const power = scene.getObjectByName("EMIT_Controller_Power");
+    if (
+      !(power instanceof Mesh) ||
+      !(power.material instanceof MeshStandardMaterial)
+    )
+      return;
+    const focused = activeObject === "controller" && focusReady;
+    const clips = animations.filter(
+      ({ name }) =>
+        name === "Focus_controller" || name === "Focus_Lights_controller",
+    );
+    const actions =
+      focused && !reducedMotion
+        ? clips.map((clip) => {
+            const action = mixer.clipAction(clip).reset().setLoop(LoopOnce, 1);
+            action.clampWhenFinished = true;
+            return action.play();
+          })
+        : [];
+    const lightValues = clips.find(
+      ({ name }) => name === "Focus_Lights_controller",
+    )?.tracks[0]?.values;
+    power.material.emissiveIntensity =
+      focused && reducedMotion
+        ? (lightValues?.[lightValues.length - 1] ?? 1.8)
+        : 0;
+    return () => {
+      actions.forEach((action) => action.stop());
+      power.material.emissiveIntensity = 0;
+    };
+  }, [activeObject, focusReady, animations, mixer, reducedMotion, scene]);
 
   useEffect(() => {
     if (paused || reducedMotion) resumed.current = true;

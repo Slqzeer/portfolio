@@ -56,6 +56,44 @@ function createScene() {
 }
 
 describe("RoomModel bindings", () => {
+  it("clips every primitive of an exported multi-material garden group", () => {
+    const source = createScene();
+    const crown = new Group();
+    crown.name = "Exterior_Botanical_Crown_00";
+    crown.userData.exterior_surface = true;
+    const branch = new Group();
+    const shared = new MeshStandardMaterial();
+    const leaf = new Mesh(new BoxGeometry(), shared);
+    leaf.name = "ExportedLeafPrimitive";
+    branch.add(leaf);
+    crown.add(branch);
+    source.add(crown);
+    const decoration = source.getObjectByName("DeskDecoration") as Mesh;
+    decoration.material = shared;
+
+    const scene = prepareRoomScene(source);
+    const primitive = scene.getObjectByName(leaf.name) as Mesh;
+    const material = primitive.material as MeshStandardMaterial;
+    expect(primitive.userData.exterior_surface).toBe(true);
+    expect(material.userData.lightmapAtlas).toBe("exterior");
+    const shader = {
+      vertexShader: "#include <project_vertex>",
+      fragmentShader: "#include <clipping_planes_fragment>",
+      uniforms: {},
+    } as Parameters<MeshStandardMaterial["onBeforeCompile"]>[0];
+    material.onBeforeCompile(
+      shader,
+      {} as Parameters<MeshStandardMaterial["onBeforeCompile"]>[1],
+    );
+    expect(shader.fragmentShader).toContain("gardenAperture");
+    expect((scene.getObjectByName(decoration.name) as Mesh).material).not.toBe(
+      material,
+    );
+    expect(
+      scene.getObjectByName(decoration.name)!.userData.exterior_surface,
+    ).toBeUndefined();
+    expect(leaf.userData.exterior_surface).toBeUndefined();
+  });
   it("selects the authored theme and updates masks without hiding notification children", () => {
     const source = createScene();
     const day = new Mesh(new BoxGeometry(), new MeshStandardMaterial());

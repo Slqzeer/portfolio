@@ -52,6 +52,13 @@ def sync_curtain_clips(path):
     parent_inverse = {i: world(parents[i]).inverted() if i in parents else Matrix.Identity(4) for i in targets}
     samples = {i: [] for i in targets}
     saved_frame = scene.frame_current
+    # Wind belongs to its own parent clip, never to the sampled blind movement.
+    breeze = bpy.data.objects.get('Blind_Breeze')
+    breeze_action = breeze.animation_data.action if breeze and breeze.animation_data else None
+    breeze_basis = breeze.matrix_basis.copy() if breeze else None
+    if breeze_action:
+        breeze.animation_data.action = None
+        breeze.location = (0, 0, 0)
     try:
         for frame in frames:
             scene.frame_set(frame)
@@ -59,6 +66,9 @@ def sync_curtain_clips(path):
                 authored = basis @ bpy.data.objects[nodes[i]['name']].matrix_world @ basis.inverted()
                 samples[i].append((parent_inverse[i] @ authored).decompose())
     finally:
+        if breeze_action:
+            breeze.animation_data.action = breeze_action
+            breeze.matrix_basis = breeze_basis
         scene.frame_set(saved_frame)
     times = accessor([(f - 1) / fps for f in frames], 1)
     for clip in gltf['animations']:
