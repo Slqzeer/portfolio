@@ -45,7 +45,7 @@ for (const viewport of [
                 (animation as CSSTransition).transitionProperty === "transform",
             );
           const layoutSlide = document
-            .querySelector(".room-scene")!
+            .querySelector(".room-frame")!
             .getAnimations()
             .find(
               (animation) =>
@@ -88,6 +88,9 @@ for (const viewport of [
     );
     await expect(panel).toHaveCSS("border-top-left-radius", /^(18|20)px$/);
     await expect(panel).toHaveCSS("opacity", "1");
+    await expect(panel).toHaveCSS("background-color", "rgb(253, 251, 246)");
+    await expect(panel).not.toHaveCSS("box-shadow", "none");
+    await expect(panel).toHaveCSS("border-top-width", "1px");
     await expect(panel).toBeInViewport();
     await expect(
       page.getByRole("heading", { name: "Projets", exact: true }),
@@ -104,14 +107,17 @@ for (const viewport of [
     );
     expect(new Set(positions.map(Math.round)).size).toBeGreaterThan(1);
     const roomBounds = (await page.locator(".room-scene").boundingBox())!;
+    const frameBounds = (await page.locator(".room-frame").boundingBox())!;
     const panelBounds = (await panel.boundingBox())!;
+    expect(roomBounds.width).toBeCloseTo(viewport.width, 0);
+    expect(roomBounds.y + roomBounds.height).toBeGreaterThan(panelBounds.y + 1);
     if (viewport.width > 760) {
-      expect(roomBounds.width).toBeGreaterThan(viewport.width * 0.6);
-      expect(roomBounds.x + roomBounds.width).toBeLessThanOrEqual(
+      expect(frameBounds.width).toBeGreaterThan(viewport.width * 0.6);
+      expect(frameBounds.x + frameBounds.width).toBeLessThanOrEqual(
         panelBounds.x,
       );
     } else {
-      expect(roomBounds.y + roomBounds.height).toBeLessThanOrEqual(
+      expect(frameBounds.y + frameBounds.height).toBeLessThanOrEqual(
         panelBounds.y + 1,
       );
     }

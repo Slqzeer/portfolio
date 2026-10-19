@@ -79,6 +79,13 @@ export function CameraRig({
     camera: state.camera,
     gl: state.gl,
   }));
+  const frame = useMemo(
+    () =>
+      gl.domElement
+        .closest(".room-scene")
+        ?.querySelector<HTMLElement>(".room-frame"),
+    [gl.domElement],
+  );
   const pointer = useRef(new Vector2());
   const scratch = useMemo(
     () => ({
@@ -120,7 +127,9 @@ export function CameraRig({
       camera instanceof OrthographicCamera &&
       typeof orthoScale === "number"
     ) {
-      const { width, height } = gl.domElement.getBoundingClientRect();
+      const { width, height } = (
+        frame ?? gl.domElement
+      ).getBoundingClientRect();
       camera.zoom = frameZoom(
         orthoScale * overviewFrameScale(width, height),
         width,
@@ -128,11 +137,11 @@ export function CameraRig({
       );
       camera.updateProjectionMatrix();
     }
-  }, [camera, gl.domElement, overview]);
+  }, [camera, gl.domElement, overview, frame]);
 
   useLayoutEffect(() => {
     if (!overview) return;
-    const { width, height } = gl.domElement.getBoundingClientRect();
+    const { width, height } = (frame ?? gl.domElement).getBoundingClientRect();
     const readPose = (name: string): CameraPose => {
       const anchor = anchors[name] ?? overview;
       const quaternion = anchor.getWorldQuaternion(new Quaternion());
@@ -215,7 +224,9 @@ export function CameraRig({
     const animations = Array.from(
       gl.domElement
         .closest("main")
-        ?.querySelectorAll<HTMLElement>(".room-scene, .object-details") ?? [],
+        ?.querySelectorAll<HTMLElement>(
+          ".room-scene, .room-frame, .object-details",
+        ) ?? [],
     ).flatMap((element) => element.getAnimations());
     if (legs.length) {
       animations.forEach((animation) => {
@@ -250,6 +261,7 @@ export function CameraRig({
     destination,
     gl.domElement,
     overview,
+    frame,
   ]);
 
   useEffect(() => {
@@ -281,6 +293,19 @@ export function CameraRig({
   }, [gl.domElement, pointerEnabled, reducedMotion]);
 
   useFrame(({ size }, deltaSeconds) => {
+    const { width, height } = frame?.getBoundingClientRect() ?? size;
+    const updateProjection = () => {
+      if (!(camera instanceof OrthographicCamera)) return;
+      // Render behind the transparent panel, keeping focus in its clear area.
+      camera.setViewOffset(
+        size.width,
+        size.height,
+        (size.width - width) / 2,
+        (size.height - height) / 2,
+        size.width,
+        size.height,
+      );
+    };
     const journey = travel.current;
     if (journey) {
       // Do not jump across waypoints after a stalled render or a tab resume.
@@ -318,9 +343,9 @@ export function CameraRig({
               travelEase(journey.elapsed / leg.duration),
             ),
             scale:
-              poseScale(leg.from, size.width, size.height) +
-              (poseScale(leg.to, size.width, size.height) -
-                poseScale(leg.from, size.width, size.height)) *
+              poseScale(leg.from, width, height) +
+              (poseScale(leg.to, width, height) -
+                poseScale(leg.from, width, height)) *
                 travelEase(journey.elapsed / leg.duration),
           }
         : journey.legs[journey.legs.length - 1]?.to;
@@ -328,14 +353,13 @@ export function CameraRig({
         camera.position.copy(pose.position);
         camera.quaternion.copy(pose.quaternion);
         if (camera instanceof OrthographicCamera) {
-          // Match the frustum R3F actually rendered, not a newer DOM resize.
-          const { width, height } = size;
+          // Fit the clear area while the full canvas stays visible.
           camera.zoom = frameZoom(
             poseScale(pose, width, height),
             width,
             height,
           );
-          camera.updateProjectionMatrix();
+          updateProjection();
         }
       }
       if (!leg) {
@@ -355,7 +379,6 @@ export function CameraRig({
     target.getWorldPosition(scratch.position);
     target.getWorldQuaternion(scratch.quaternion);
     if (!(target instanceof Camera)) scratch.quaternion.multiply(EMPTY_AIM);
-    const { width, height } = size;
 
     if (
       !anchorName &&
@@ -398,7 +421,7 @@ export function CameraRig({
         height,
       );
       camera.zoom += (zoom - camera.zoom) * factor;
-      camera.updateProjectionMatrix();
+      updateProjection();
     }
     camera.position.lerp(scratch.position, factor);
     camera.quaternion.slerp(scratch.quaternion, factor);

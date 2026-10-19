@@ -36,6 +36,7 @@ scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_
 scene.render.image_settings.color_depth='8'
 scene.render.film_transparent=True
 views={
+    'controller':(130,(-3.5,-1.8,2.9),(-3.1,-.45,1.1),1.2),
     'screens':(1,(-2.3,-.3,3.8),(-2.6,3.9,2.15),4.8),
     'monitor':(1,(-1.95,2.0,2.65),(-1.95,4.02,2.60),2.3),
     'typing':(235,(-1.95,2.0,2.65),(-1.95,4.02,2.60),2.3),

@@ -56,6 +56,9 @@ for frame,night in ((1,False),(23,True)):
     assert bpy.data.objects['Editor_monitor_night'].hide_viewport!=night
 assert bpy.data.objects['Bookshelf_Carcass'].get('corner_repaired')
 power=bpy.data.objects['EMIT_Controller_Power']
+assert power.get('status_button_aligned')
+assert (power.location-Vector((0,-.004,.0414))).length<1e-5, 'Controller status ring misses the centre button'
+assert max(v.co.length for v in power.data.vertices)<.006, 'Controller status ring exceeds the physical button'
 node=next(node for node in power.data.materials[0].node_tree.nodes if node.type=='BSDF_PRINCIPLED')
 scene.frame_set(130)
 on=node.inputs['Emission Strength'].default_value
@@ -69,6 +72,6 @@ for curve in curves:
     assert abs(curve['keys'][0][1]-curve['keys'][-1][1])<1e-4
 scene.frame_set(1)
 report={'source':bpy.data.filepath,'wall_manifold':True,'background_top':max(point.z for point in points),
-        'emission_curves':len(curves),'checks':['blind day/night','cord day/night','foliage wind','phone alignment and settling','screen typing','editor themes','bookshelf corner','controller blink','loop endpoints']}
+        'emission_curves':len(curves),'checks':['blind day/night','cord day/night','foliage wind','phone alignment and settling','screen typing','editor themes','bookshelf corner','controller status alignment','controller blink','loop endpoints']}
 (ROOT/'assets/reviews/room-refined-animation-check.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print('[validate] '+json.dumps(report),flush=True)

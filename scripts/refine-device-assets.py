@@ -229,6 +229,22 @@ def shelf_corner():
     obj['corner_repaired']='Side panels meet the underside of the top board; no exposed overlapping faces.'
 
 
+def controller_status():
+    power=bpy.data.objects['EMIT_Controller_Power']
+    # Match the physical centre button, not an offset from the touchpad.
+    for vertex in power.data.vertices:
+        vertex.co *= .0048/.018
+    power.matrix_parent_inverse=Matrix.Identity(4)
+    power.location=(0,-.004,.0414)
+    power.rotation_euler=(0,0,0)
+    power.scale=(1,1,1)
+    power['status_button_aligned']=True
+    bpy.context.view_layer.update()
+    local=power.parent.matrix_world.inverted()@power.matrix_world.translation
+    assert (local-Vector((0,-.004,.0414))).length<1e-5
+    assert max(v.co.length for v in power.data.vertices)<.006
+
+
 for filename in ('portfolio-room.blend','portfolio-room-optimized.blend'):
     bpy.ops.wm.open_mainfile(filepath=str(SOURCE/filename))
     scene=bpy.context.scene;scene.frame_set(1)
@@ -245,7 +261,7 @@ for filename in ('portfolio-room.blend','portfolio-room-optimized.blend'):
         scene['screen_night']=value;scene.keyframe_insert(data_path='["screen_night"]',frame=frame)
     editor(bpy.data.objects['Monitor_Screen'],'monitor')
     editor(bpy.data.objects['Laptop_Screen'],'laptop')
-    phone();foliage();shelf_corner()
+    phone();foliage();shelf_corner();controller_status()
     scene.frame_set(1);bpy.context.view_layer.update()
     for name,matrix in anchors.items():
         assert max(abs(matrix[i][j]-bpy.data.objects[name].matrix_world[i][j]) for i in range(4) for j in range(4))<1e-5,name

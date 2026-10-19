@@ -56,3 +56,26 @@ nodes and 72 clips. Reports and screenshots are in `assets/reviews/room-refined-
 
 Physical mobile-device performance was not benchmarked. Changes are local;
 production deployment was not performed.
+
+## Controller and transparent details follow-up
+
+Both refined Blender sources place the controller's emissive status ring around
+its existing centre button. `controller_status()` in the refinement script
+reproduces the placement and size; the source and GLB validators enforce it.
+The GLB and both overview posters were re-exported. Existing lightmaps and
+reflection probes are retained: the casing, UVs, room geometry and lighting
+remain unchanged; only the small emissive ring moved.
+
+The controller now has a clickable dot on desktop and mobile. Detail cards keep
+their opaque theme surface, rounded corners, border and shadow. The rectangular
+area behind each card is transparent so the room is visible around its edges.
+The room renders behind them, while an
+invisible `.room-frame` reserves the clear area for camera framing and shares
+the slide animation's clock. Cards use the site's normal day/night text palette.
+
+Build, Blender checks, GLB contract, 128 unit tests and six focused browser cases
+pass. Browser coverage includes controller clicks in both themes at 1440px and
+390px, closing back to the room, and synchronised panel/camera transitions at
+both widths. Visual evidence and hashes are in `assets/reviews/controller-details-check.json`
+and `room-controller-panel-*`. Browser checks used Chromium with GPU rendering;
+the software-rendered headless shell timed out. Physical phones were not tested.

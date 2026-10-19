@@ -37,6 +37,16 @@ for (const node of [
   if (!names.has(node)) throw new Error(`Missing living-room node: ${node}`);
 }
 // A new breeze parent must preserve the approved blind's world placement.
+const controllerPower = gltf.nodes.find(
+  ({ name }) => name === "EMIT_Controller_Power",
+);
+if (
+  !controllerPower.extras?.status_button_aligned ||
+  new Vector3(...(controllerPower.translation ?? [0, 0, 0])).distanceTo(
+    new Vector3(0, 0.0414, 0.004),
+  ) > 1e-5
+)
+  throw new Error("Controller status ring misses the centre button");
 const parents = new Map();
 gltf.nodes.forEach((node, index) =>
   node.children?.forEach((child) => parents.set(child, index)),

@@ -12,6 +12,7 @@ const markers = [
   { id: "bookshelf", fr: "Les compétences", en: "The skills" },
   { id: "education", fr: "Le parcours", en: "The journey" },
   { id: "volleyball", fr: "Un peu de moi", en: "A bit about me" },
+  { id: "controller", fr: "Les jeux", en: "The games" },
   {
     id: "contact",
     fr: "Restons en contact",
@@ -74,7 +75,7 @@ export function RoomHotspots({
                     ? "left"
                     : "right"
                 }
-                data-secondary={index > 3}
+                data-secondary={index > 3 && marker.id !== "controller"}
                 aria-label={marker[locale]}
                 onPointerEnter={() => onHover(marker.id)}
                 onPointerLeave={() => onHover(null)}

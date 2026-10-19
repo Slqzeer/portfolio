@@ -386,6 +386,58 @@ describe("CameraRig", () => {
     );
   });
 
+  it.each([
+    [1280, 720, 850, 720],
+    [390, 844, 390, 388],
+  ])(
+    "keeps focus in the clear %dx%d frame while rendering behind details",
+    (width, height, clearWidth, clearHeight) => {
+      setCanvasSize(width, height);
+      const camera = new OrthographicCamera(
+        -width / 2,
+        width / 2,
+        height / 2,
+        -height / 2,
+      );
+      fiber.camera = camera;
+      const scene = document.createElement("section");
+      scene.className = "room-scene";
+      const frame = document.createElement("div");
+      frame.className = "room-frame";
+      vi.spyOn(frame, "getBoundingClientRect").mockReturnValue({
+        ...fiber.canvas!.getBoundingClientRect(),
+        width: clearWidth,
+        height: clearHeight,
+      });
+      scene.append(frame, fiber.canvas!);
+      document.body.append(scene);
+      const desk = anchor("CAM_Anchor_Desk", [1, 2, 3]);
+      desk.userData.ortho_scale = 7.4;
+      const { unmount } = render(
+        <CameraRig
+          activeObject="desk"
+          anchors={{
+            CAM_Overview: anchor("CAM_Overview", [0, 0, 10]),
+            CAM_Anchor_Desk: desk,
+          }}
+          reducedMotion
+          pointerEnabled={false}
+        />,
+      );
+      advance(1 / 60);
+      camera.updateMatrixWorld();
+      const focus = new Vector3(0, 0, -1)
+        .applyQuaternion(camera.quaternion)
+        .add(camera.position)
+        .project(camera);
+      expect(focus.x).toBeCloseTo(-(width - clearWidth) / width);
+      expect(focus.y).toBeCloseTo((height - clearHeight) / height);
+      expect(camera.zoom).toBeCloseTo(frameZoom(7.4, clearWidth, clearHeight));
+      unmount();
+      scene.remove();
+    },
+  );
+
   it("disables pointer follow on narrow screens", () => {
     setCanvasSize(390, 844);
     render(

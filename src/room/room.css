@@ -8,7 +8,15 @@
     right 900ms cubic-bezier(0.65, 0, 0.35, 1),
     bottom 900ms cubic-bezier(0.65, 0, 0.35, 1);
 }
-main[data-detail-open="true"] .room-scene {
+.room-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition:
+    right 900ms cubic-bezier(0.65, 0, 0.35, 1),
+    bottom 900ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+main[data-detail-open="true"] .room-frame {
   transition-duration: 1100ms;
 }
 

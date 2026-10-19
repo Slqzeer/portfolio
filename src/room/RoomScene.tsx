@@ -62,6 +62,7 @@ export function RoomScene({
       data-reading={readingMode}
       aria-label={locale === "fr" ? "Chambre interactive" : "Interactive room"}
     >
+      <div className="room-frame" aria-hidden="true" />
       {readingMode ? (
         <div className="reading-stage">
           {poster}

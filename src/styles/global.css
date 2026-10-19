@@ -248,7 +248,10 @@ h1 em {
 main[data-intro-open="true"] .room-scene {
   left: 21%;
 }
-main[data-detail-open="true"] .room-scene {
+main[data-detail-open="true"] .room-frame {
+  right: var(--detail-width);
+}
+main[data-reading-mode="true"][data-detail-open="true"] .room-scene {
   right: var(--detail-width);
 }
 main[data-reading-mode="true"] {
@@ -343,10 +346,10 @@ main {
   .social-actions {
     margin-top: 8px;
   }
-  main[data-detail-open="true"] .room-scene {
+  main[data-detail-open="true"] .room-frame {
     inset: 0 0 54dvh;
   }
-  main[data-reading-mode="true"] .room-scene {
+  main[data-reading-mode="true"][data-detail-open="true"] .room-scene {
     inset: 0 0 70dvh;
   }
 }
