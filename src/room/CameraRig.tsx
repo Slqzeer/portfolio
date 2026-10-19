@@ -51,6 +51,13 @@ interface CameraPose {
   position: Vector3;
   quaternion: Quaternion;
   scale: number;
+  overviewScale?: number;
+}
+
+function poseScale(pose: CameraPose, width: number, height: number) {
+  return pose.overviewScale === undefined
+    ? pose.scale
+    : pose.overviewScale * overviewFrameScale(width, height);
 }
 
 interface CameraLeg {
@@ -91,6 +98,9 @@ export function CameraRig({
     legs: CameraLeg[];
     index: number;
     elapsed: number;
+    seconds: number;
+    duration: number;
+    animations: Animation[];
     id: number;
   } | null>(null);
   const destination = activeObject
@@ -135,6 +145,11 @@ export function CameraRig({
             ? anchor.userData.ortho_scale *
               (name === HOME_CAMERA ? overviewFrameScale(width, height) : 1)
             : 1,
+        overviewScale:
+          name === HOME_CAMERA &&
+          typeof anchor.userData.ortho_scale === "number"
+            ? anchor.userData.ortho_scale
+            : undefined,
       };
     };
     let from: CameraPose = {
@@ -163,7 +178,18 @@ export function CameraRig({
         from.quaternion.angleTo(to.quaternion) > 0.0001 ||
         Math.abs(from.scale - to.scale) > 0.0001
       ) {
-        legs.push({ name, from, to, duration: Math.max(0.5, distance) });
+        legs.push({
+          name,
+          from,
+          to,
+          // Budget for visible zoom and rotation as well as world-space travel.
+          duration: Math.max(
+            0.5,
+            distance / Math.min(from.scale, to.scale),
+            from.quaternion.angleTo(to.quaternion),
+            Math.abs(Math.log(to.scale / from.scale)) * 2,
+          ),
+        });
       } else {
         lastAnchor.current = name;
       }
@@ -184,13 +210,38 @@ export function CameraRig({
       leg.duration =
         minimum + ((duration - minimum * legs.length) * leg.duration) / weight;
     });
+    // CSS layout and the entire card share the rendered camera clock, even on
+    // slow frames; independent compositor timelines would finish ahead of it.
+    const animations = Array.from(
+      gl.domElement
+        .closest("main")
+        ?.querySelectorAll<HTMLElement>(".room-scene, .object-details") ?? [],
+    ).flatMap((element) => element.getAnimations());
+    if (legs.length) {
+      animations.forEach((animation) => {
+        animation.pause();
+        animation.currentTime = 0;
+      });
+    }
     travel.current = legs.length
-      ? { legs, index: 0, elapsed: 0, id: transitionId }
+      ? {
+          legs,
+          index: 0,
+          elapsed: 0,
+          seconds: 0,
+          duration,
+          animations,
+          id: transitionId,
+        }
       : null;
     pointer.current.set(0, 0);
     gl.domElement.dataset.cameraTarget = destination;
     gl.domElement.dataset.cameraMoving = legs.length ? "true" : "false";
     if (!legs.length) arrival.current?.(transitionId);
+    return () =>
+      animations.forEach((animation) => {
+        if (animation.playState !== "finished") animation.play();
+      });
   }, [
     activeObject,
     transitionId,
@@ -229,10 +280,22 @@ export function CameraRig({
     };
   }, [gl.domElement, pointerEnabled, reducedMotion]);
 
-  useFrame((_, deltaSeconds) => {
+  useFrame(({ size }, deltaSeconds) => {
     const journey = travel.current;
     if (journey) {
-      journey.elapsed += deltaSeconds;
+      // Do not jump across waypoints after a stalled render or a tab resume.
+      const step = Math.min(deltaSeconds, 0.05);
+      journey.elapsed += step;
+      journey.seconds += step;
+      const progress = reducedMotion
+        ? 1
+        : Math.min(1, journey.seconds / journey.duration);
+      journey.animations.forEach((animation) => {
+        const timing = animation.effect?.getTiming();
+        if (timing && typeof timing.duration === "number")
+          animation.currentTime =
+            progress * ((timing.delay ?? 0) + timing.duration);
+      });
       let leg = journey.legs[journey.index];
       while (leg && (reducedMotion || journey.elapsed >= leg.duration)) {
         camera.position.copy(leg.to.position);
@@ -255,8 +318,9 @@ export function CameraRig({
               travelEase(journey.elapsed / leg.duration),
             ),
             scale:
-              leg.from.scale +
-              (leg.to.scale - leg.from.scale) *
+              poseScale(leg.from, size.width, size.height) +
+              (poseScale(leg.to, size.width, size.height) -
+                poseScale(leg.from, size.width, size.height)) *
                 travelEase(journey.elapsed / leg.duration),
           }
         : journey.legs[journey.legs.length - 1]?.to;
@@ -264,14 +328,20 @@ export function CameraRig({
         camera.position.copy(pose.position);
         camera.quaternion.copy(pose.quaternion);
         if (camera instanceof OrthographicCamera) {
-          const { width, height } = gl.domElement.getBoundingClientRect();
-          camera.zoom = frameZoom(pose.scale, width, height);
+          // Match the frustum R3F actually rendered, not a newer DOM resize.
+          const { width, height } = size;
+          camera.zoom = frameZoom(
+            poseScale(pose, width, height),
+            width,
+            height,
+          );
           camera.updateProjectionMatrix();
         }
       }
       if (!leg) {
         travel.current = null;
         gl.domElement.dataset.cameraMoving = "false";
+        journey.animations.forEach((animation) => animation.finish());
         arrival.current?.(journey.id);
       }
       return;
@@ -285,7 +355,7 @@ export function CameraRig({
     target.getWorldPosition(scratch.position);
     target.getWorldQuaternion(scratch.quaternion);
     if (!(target instanceof Camera)) scratch.quaternion.multiply(EMPTY_AIM);
-    const { width, height } = gl.domElement.getBoundingClientRect();
+    const { width, height } = size;
 
     if (
       !anchorName &&

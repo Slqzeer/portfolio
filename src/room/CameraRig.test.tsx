@@ -12,7 +12,10 @@ import { CameraRig, frameZoom } from "./CameraRig";
 const fiber = vi.hoisted(() => ({
   frame: undefined as
     | ((
-        state: { camera: PerspectiveCamera | OrthographicCamera },
+        state: {
+          camera: PerspectiveCamera | OrthographicCamera;
+          size: { width: number; height: number };
+        },
         delta: number,
       ) => void)
     | undefined,
@@ -23,7 +26,10 @@ const fiber = vi.hoisted(() => ({
 vi.mock("@react-three/fiber", () => ({
   useFrame: (
     callback: (
-      state: { camera: PerspectiveCamera | OrthographicCamera },
+      state: {
+        camera: PerspectiveCamera | OrthographicCamera;
+        size: { width: number; height: number };
+      },
       delta: number,
     ) => void,
   ) => {
@@ -37,8 +43,16 @@ vi.mock("@react-three/fiber", () => ({
   ) => selector({ camera: fiber.camera!, gl: { domElement: fiber.canvas! } }),
 }));
 
+function advance(delta: number) {
+  fiber.frame!(
+    { camera: fiber.camera!, size: fiber.canvas!.getBoundingClientRect() },
+    delta,
+  );
+}
+
 function anchor(name: string, position: [number, number, number]) {
-  const object = new Object3D();
+  const object =
+    name === "CAM_Overview" ? new PerspectiveCamera() : new Object3D();
   object.name = name;
   object.position.set(...position);
   object.updateMatrixWorld();
@@ -46,6 +60,81 @@ function anchor(name: string, position: [number, number, number]) {
 }
 
 describe("CameraRig", () => {
+  it("does not skip the approach after a slow frame", () => {
+    const onArrive = vi.fn();
+    const anchors = {
+      CAM_Overview: anchor("CAM_Overview", [0, 0, 10]),
+      CAM_Anchor_Desk: anchor("CAM_Anchor_Desk", [2, 2, 8]),
+      CAM_Anchor_Monitor: anchor("CAM_Anchor_Monitor", [4, 2, 5]),
+    };
+    render(
+      <CameraRig
+        activeObject="monitor"
+        anchors={anchors}
+        reducedMotion={false}
+        pointerEnabled={false}
+        onArrive={onArrive}
+      />,
+    );
+    const start = fiber.camera!.position.clone();
+    advance(0.8);
+    expect(fiber.camera!.position.distanceTo(start)).toBeLessThan(0.1);
+    expect(onArrive).not.toHaveBeenCalled();
+  });
+
+  it("advances the whole card and scene layout on the camera clock", () => {
+    const main = document.createElement("main");
+    const scene = document.createElement("section");
+    scene.className = "room-scene";
+    scene.append(fiber.canvas!);
+    const panel = document.createElement("aside");
+    panel.className = "object-details";
+    main.append(scene, panel);
+    document.body.append(main);
+    const layoutAnimation = {
+      pause: vi.fn(),
+      play: vi.fn(),
+      finish: vi.fn(),
+      currentTime: 0,
+      effect: { getTiming: () => ({ delay: 0, duration: 1100 }) },
+    };
+    const cardAnimation = {
+      pause: vi.fn(),
+      play: vi.fn(),
+      finish: vi.fn(),
+      currentTime: 0,
+      effect: { getTiming: () => ({ delay: 0, duration: 800 }) },
+    };
+    scene.getAnimations = () => [layoutAnimation as unknown as Animation];
+    panel.getAnimations = () => [cardAnimation as unknown as Animation];
+    const { unmount } = render(
+      <CameraRig
+        activeObject="monitor"
+        anchors={{
+          CAM_Overview: anchor("CAM_Overview", [0, 0, 10]),
+          CAM_Anchor_Desk: anchor("CAM_Anchor_Desk", [2, 2, 8]),
+          CAM_Anchor_Monitor: anchor("CAM_Anchor_Monitor", [4, 2, 5]),
+        }}
+        reducedMotion={false}
+        pointerEnabled={false}
+      />,
+    );
+    expect(layoutAnimation.pause).toHaveBeenCalled();
+    expect(cardAnimation.pause).toHaveBeenCalled();
+    for (let frame = 0; frame < 24; frame++) advance(1 / 60);
+    expect(layoutAnimation.currentTime / 1100).toBeCloseTo(0.4 / 1.1);
+    expect(cardAnimation.currentTime / 800).toBeCloseTo(0.4 / 1.1);
+    advance(0.8);
+    expect(layoutAnimation.currentTime / 1100).toBeCloseTo(0.45 / 1.1);
+    expect(cardAnimation.currentTime / 800).toBeCloseTo(0.45 / 1.1);
+    for (let frame = 0; frame < 45; frame++) advance(1 / 60);
+    expect(layoutAnimation.finish).toHaveBeenCalledOnce();
+    expect(cardAnimation.finish).toHaveBeenCalledOnce();
+    unmount();
+    expect(cardAnimation.play).toHaveBeenCalled();
+    main.remove();
+  });
+
   it("arrives once after finite travel and cancels an interrupted arrival", () => {
     const onArrive = vi.fn();
     const anchors = {
@@ -64,7 +153,7 @@ describe("CameraRig", () => {
         onArrive={onArrive}
       />,
     );
-    fiber.frame!({ camera: fiber.camera! }, 0.4);
+    for (let frame = 0; frame < 24; frame++) advance(1 / 60);
     expect(onArrive).not.toHaveBeenCalled();
     rerender(
       <CameraRig
@@ -76,10 +165,10 @@ describe("CameraRig", () => {
         onArrive={onArrive}
       />,
     );
-    fiber.frame!({ camera: fiber.camera! }, 1.11);
+    for (let frame = 0; frame < 90; frame++) advance(1 / 60);
     expect(onArrive.mock.calls).toEqual([[2]]);
     expect(fiber.camera!.position.toArray()).toEqual([-3, 2, 6]);
-    fiber.frame!({ camera: fiber.camera! }, 1);
+    advance(1);
     expect(onArrive).toHaveBeenCalledOnce();
   });
 
@@ -100,7 +189,7 @@ describe("CameraRig", () => {
         onArrive={onArrive}
       />,
     );
-    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    advance(1 / 60);
     expect(fiber.camera!.position.toArray()).toEqual([4, 2, 5]);
     expect(onArrive).toHaveBeenCalledWith(1);
   });
@@ -124,6 +213,39 @@ describe("CameraRig", () => {
     setCanvasSize(1280, 720);
   });
 
+  it("finishes a resizing return at the final overview framing", () => {
+    fiber.camera = new OrthographicCamera();
+    setCanvasSize(800, 900);
+    const overview = anchor("CAM_Overview", [0, 0, 10]);
+    overview.userData.ortho_scale = 20;
+    const desk = anchor("CAM_Anchor_Desk", [2, 2, 8]);
+    desk.userData.ortho_scale = 7.4;
+    const anchors = { CAM_Overview: overview, CAM_Anchor_Desk: desk };
+    const { rerender } = render(
+      <CameraRig
+        activeObject="desk"
+        anchors={anchors}
+        reducedMotion={false}
+        pointerEnabled={false}
+      />,
+    );
+    for (let frame = 0; frame < 70; frame++) advance(1 / 60);
+    rerender(
+      <CameraRig
+        activeObject={null}
+        anchors={anchors}
+        reducedMotion={false}
+        pointerEnabled={false}
+      />,
+    );
+    setCanvasSize(1800, 700);
+    for (let frame = 0; frame < 55; frame++) advance(1 / 60);
+    expect(fiber.camera.zoom).toBeCloseTo(frameZoom(20, 1800, 700));
+    const arrivedZoom = fiber.camera.zoom;
+    advance(1 / 60);
+    expect(fiber.camera.zoom).toBeCloseTo(arrivedZoom);
+  });
+
   it("follows the pointer around overview and settles back on leave", () => {
     const overview = new PerspectiveCamera();
     overview.position.set(0, 0, 10);
@@ -141,13 +263,13 @@ describe("CameraRig", () => {
     fiber.canvas!.dispatchEvent(
       new MouseEvent("pointermove", { clientX: 1280, clientY: 0 }),
     );
-    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    advance(1 / 60);
     const movedX = fiber.camera!.position.x;
     expect(movedX).toBeGreaterThan(0);
     expect(fiber.camera!.position.y).toBeGreaterThan(0);
 
     fiber.canvas!.dispatchEvent(new MouseEvent("pointerleave"));
-    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    advance(1 / 60);
     expect(fiber.camera!.position.x).toBeLessThan(movedX);
   });
 
@@ -169,7 +291,7 @@ describe("CameraRig", () => {
       new MouseEvent("pointermove", { clientX: 100, clientY: 0 }),
     );
     for (let frame = 0; frame < 120; frame += 1) {
-      fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+      advance(1 / 60);
     }
     expect(fiber.camera!.position.x).toBeCloseTo(4, 2);
     expect(fiber.camera!.position.y).toBeCloseTo(2, 2);
@@ -184,7 +306,7 @@ describe("CameraRig", () => {
       />,
     );
     for (let frame = 0; frame < 120; frame += 1) {
-      fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+      advance(1 / 60);
     }
     expect(fiber.camera!.position.x).toBeCloseTo(0, 2);
     expect(fiber.camera!.position.z).toBeCloseTo(10, 2);
@@ -206,7 +328,7 @@ describe("CameraRig", () => {
       />,
     );
 
-    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    advance(1 / 60);
 
     const looking = fiber.camera!.getWorldDirection(new Vector3());
     const aim = new Vector3(0, -1, 0).applyQuaternion(desk.quaternion);
@@ -228,7 +350,7 @@ describe("CameraRig", () => {
       />,
     );
 
-    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    advance(1 / 60);
 
     expect(
       fiber.camera!.quaternion.angleTo(
@@ -257,7 +379,7 @@ describe("CameraRig", () => {
       />,
     );
 
-    fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+    advance(1 / 60);
 
     expect((fiber.camera as OrthographicCamera).zoom).toBeCloseTo(
       frameZoom(7.4, 1280, 720),
@@ -279,7 +401,7 @@ describe("CameraRig", () => {
       new MouseEvent("pointermove", { clientX: 390, clientY: 0 }),
     );
     for (let frame = 0; frame < 30; frame += 1) {
-      fiber.frame!({ camera: fiber.camera! }, 1 / 60);
+      advance(1 / 60);
     }
 
     expect(fiber.camera!.position.x).toBeCloseTo(0, 5);

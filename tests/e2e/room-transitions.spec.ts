@@ -30,6 +30,30 @@ for (const viewport of [
           const bounds = panel.getBoundingClientRect();
           positions.push(window.innerWidth > 760 ? bounds.x : bounds.y);
           main.dataset.panelPositions = JSON.stringify(positions);
+          const cardSlide = panel
+            .getAnimations()
+            .find(
+              (animation) =>
+                (animation as CSSTransition).transitionProperty === "transform",
+            );
+          const layoutSlide = document
+            .querySelector(".room-scene")!
+            .getAnimations()
+            .find(
+              (animation) =>
+                (animation as CSSTransition).transitionProperty ===
+                (window.innerWidth > 760 ? "right" : "bottom"),
+            );
+          if (cardSlide && layoutSlide) {
+            const progress = (animation: Animation) => {
+              const timing = animation.effect!.getComputedTiming();
+              return Number(animation.currentTime) / Number(timing.endTime);
+            };
+            const drift = Math.abs(progress(cardSlide) - progress(layoutSlide));
+            main.dataset.timelineDrift = String(
+              Math.max(Number(main.dataset.timelineDrift ?? 0), drift),
+            );
+          }
           if (main.dataset.navigationPhase === "FOCUS")
             requestAnimationFrame(sample);
         };
@@ -50,6 +74,12 @@ for (const viewport of [
       timeout: 20000,
     });
     const panel = page.getByRole("dialog", { name: "Projets" });
+    await expect(main).toHaveAttribute("data-timeline-drift", /\d/);
+    expect(Number(await main.getAttribute("data-timeline-drift"))).toBeLessThan(
+      0.02,
+    );
+    await expect(panel).toHaveCSS("border-top-left-radius", /^(18|20)px$/);
+    await expect(panel).toHaveCSS("opacity", "1");
     await expect(panel).toBeInViewport();
     await expect(
       page.getByRole("heading", { name: "Projets", exact: true }),
@@ -85,12 +115,12 @@ for (const viewport of [
     await panel.getByRole("button", { name: "Fermer" }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(page.locator(".object-details")).toHaveAttribute("inert", "");
+    await expect(main).toHaveAttribute("data-navigation-phase", "ROOM", {
+      timeout: 20000,
+    });
     await expect(page.locator(".object-details")).toHaveCSS(
       "visibility",
       "hidden",
     );
-    await expect(main).toHaveAttribute("data-navigation-phase", "ROOM", {
-      timeout: 20000,
-    });
   });
 }
