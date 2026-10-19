@@ -41,6 +41,36 @@ const advance = (count = 1) => {
 };
 
 describe("Blender animation playback", () => {
+  it("shows complete code in monitor focus and resumes at the saved time across theme changes", () => {
+    const { props, ball } = setup();
+    ball.userData.screen_mask = true;
+    props.animations = [
+      new AnimationClip("Ambient_Editor_monitor_Typing", 1, [
+        new VectorKeyframeTrack(
+          "INT_Volleyball.position",
+          [0, 1],
+          [0, 0, 0, 1, 0, 0],
+        ),
+      ]),
+    ];
+    const { rerender } = render(<RoomIdle {...props} />);
+    advance(2);
+    expect(ball.position.x).toBeCloseTo(0.2);
+    rerender(<RoomIdle {...props} activeObject="monitor" />);
+    expect(ball.visible).toBe(false);
+    advance(4);
+    expect(ball.position.x).toBeCloseTo(0.2);
+    rerender(<RoomIdle {...props} activeObject="monitor" lighting="night" />);
+    advance(4);
+    expect(ball.position.x).toBeCloseTo(0.2);
+    rerender(<RoomIdle {...props} lighting="night" />);
+    expect(ball.visible).toBe(true);
+    advance();
+    expect(ball.position.x).toBeCloseTo(0.3);
+    rerender(<RoomIdle {...props} reducedMotion />);
+    expect(ball.visible).toBe(false);
+    expect(ball.position.x).toBe(0);
+  });
   it("plays the authored ambient clip, suspends exterior wind at night and restores rest for reduced motion", () => {
     const { props, ball } = setup();
     const ambient = new AnimationClip("Ambient_Exterior_Wind", 1, [

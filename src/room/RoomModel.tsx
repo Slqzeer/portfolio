@@ -1,6 +1,13 @@
 import { useCursor, useGLTF } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Light, Material, Mesh, MeshPhysicalMaterial, Object3D } from "three";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  Light,
+  Material,
+  Mesh,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Object3D,
+} from "three";
 import type { Locale, RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 import { CameraRig } from "./CameraRig";
@@ -97,11 +104,19 @@ function prepareLighting(scene: Object3D) {
       const key = `${material.uuid}:${atlas}`;
       if (!baked.has(key)) {
         const clone = material.clone();
-        clone.userData.lightmapAtlas = atlas;
+        // Hide just the old phone display, keeping its notification children visible.
+        if (object.userData.device_hidden_base) clone.visible = false;
+        if (object.userData.device_surface) {
+          // These are emissive displays authored in Blender, with exact site colours.
+          clone.toneMapped = false;
+        } else {
+          clone.userData.lightmapAtlas = atlas;
+        }
         // three.js lays sheen over the flat lightmap irradiance as a grey veil,
         // turning the navy sofa and rug slate; the bake already shades them.
         if (clone instanceof MeshPhysicalMaterial) clone.sheen = 0;
-        if (atlas !== "blind") withoutIblDiffuse(clone);
+        if (atlas !== "blind" && !object.userData.device_surface)
+          withoutIblDiffuse(clone);
         baked.set(key, clone);
       }
       return baked.get(key)!;
@@ -116,6 +131,27 @@ export function showLocaleFlag(scene: Object3D, locale: Locale) {
   for (const [flagLocale, nodeName] of Object.entries(localeFlags)) {
     scene.getObjectByName(nodeName)!.visible = flagLocale === locale;
   }
+}
+
+export function showDeviceTheme(scene: Object3D, lighting: Lighting) {
+  scene.traverse((object) => {
+    if (object.userData.screen_theme) {
+      object.visible = object.userData.screen_theme === lighting;
+    }
+    if (!(object instanceof Mesh)) return;
+    for (const material of [object.material].flat()) {
+      if (
+        !(material instanceof MeshStandardMaterial) ||
+        !material.userData.screen_palette
+      )
+        continue;
+      const palette = JSON.parse(material.userData.screen_palette) as Record<
+        Lighting,
+        [number, number, number]
+      >;
+      material.emissive.setRGB(...palette[lighting]);
+    }
+  });
 }
 
 export function createRoomInteractionHandlers(
@@ -193,6 +229,10 @@ export function RoomModel({
   useEffect(() => {
     showLocaleFlag(scene, locale);
   }, [locale, scene]);
+
+  useLayoutEffect(() => {
+    showDeviceTheme(scene, lighting);
+  }, [lighting, scene]);
 
   useEffect(() => {
     scene.userData.activeRoomObject = activeObject;

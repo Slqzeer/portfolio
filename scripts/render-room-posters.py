@@ -23,6 +23,7 @@ scene.render.use_compositing = False
 formats = scene.render.image_settings.bl_rna.properties["file_format"].enum_items
 scene.render.image_settings.file_format = next(item.identifier for item in formats if item.identifier.lower() == "png")
 scene.render.image_settings.color_mode = "RGBA"
+scene.render.image_settings.color_depth = "8"
 scene.cycles.samples = 24
 scene.cycles.use_denoising = True
 for name, frame in [("day", 1), ("night", 23)]:

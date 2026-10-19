@@ -23,9 +23,11 @@ La barre compacte rassemble les commandes : **Explorer** donne accès aux rubriq
 
 ## Remplacer les visuels
 
+Current device surfaces and exterior pipeline: [Blender refinement](docs/design/device-refinement.md).
+
 - Référence de composition : [Canva](https://www.canva.com/d/Hy2EbjsPEIPOa6D)
-- Source Blender éditable actuelle : `assets/blender/living/portfolio-room.blend`
-- Source Blender optimisée actuelle : `assets/blender/living/portfolio-room-optimized.blend`
+- Source Blender éditable actuelle : `assets/blender/refined/portfolio-room.blend`
+- Source Blender optimisée actuelle : `assets/blender/refined/portfolio-room-optimized.blend`
 - Les sources d’origine restent conservées dans `assets/blender/` ; `art-v2` est une expérience non validée conservée pour comparaison.
 - Scène web : `public/assets/room/portfolio-room.glb`
 - Posters transparents de secours et de lecture : `public/assets/room/room-overview-day.png` et `room-overview-night.png`, régénérés par `scripts/render-room-posters.py` sans enregistrer le master Blender

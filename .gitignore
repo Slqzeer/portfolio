@@ -12,6 +12,7 @@ optix7cache.db*
 assets/blender/lightmaps/
 assets/blender/art-v2/lightmaps/
 assets/blender/living/lightmaps/
+assets/blender/refined/lightmaps/
 *.blend1
 
 # Blender animation renders (Render > Render Animation output)

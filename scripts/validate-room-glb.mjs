@@ -19,14 +19,20 @@ const gltf = JSON.parse(
 );
 for (const node of [
   "Wall_Continuous",
-  "Exterior_Bird",
+  "Exterior_Foliage_00",
   "Blind_Breeze",
   "Blind_Slat_37",
   "Blind_Cord_01",
   "EMIT_Controller_Power",
   "Phone_Notification_0",
-  "Monitor_Screen_Typing_0_1",
-  "Laptop_Screen_Typing_0_1",
+  "Editor_monitor_TypingMask",
+  "Editor_laptop_TypingMask",
+  "Editor_monitor_day",
+  "Editor_monitor_night",
+  "Editor_laptop_day",
+  "Editor_laptop_night",
+  "Phone_Display_day",
+  "Phone_Display_night",
 ]) {
   if (!names.has(node)) throw new Error(`Missing living-room node: ${node}`);
 }
@@ -58,15 +64,39 @@ if (
     `Blind shifted during Blender export: ${blindPosition.toArray().join(", ")}`,
   );
 for (const name of [
-  "Ambient_Exterior_Bird_Flight",
+  "Ambient_Exterior_Foliage_00",
   "Ambient_Blind_Breeze",
   "Ambient_Phone_Notification_0",
-  "Ambient_Screen_Monitor_Screen_0_1",
-  "Ambient_Screen_Laptop_Screen_0_1",
+  "Ambient_Editor_monitor_Typing",
+  "Ambient_Editor_laptop_Typing",
 ]) {
   if (!gltf.animations.some((clip) => clip.name === name))
     throw new Error(`Missing Blender ambient clip: ${name}`);
 }
+if (
+  names.has("Exterior_Bird") ||
+  names.has("Monitor_Screen_Terminal_Background")
+)
+  throw new Error(
+    "Legacy bird or floating terminal survived the Blender export",
+  );
+for (const device of ["monitor", "laptop"]) {
+  for (const theme of ["day", "night"]) {
+    const node = gltf.nodes.find(
+      ({ name }) => name === `Editor_${device}_${theme}`,
+    );
+    if (node.extras?.screen_theme !== theme || !node.extras?.device_surface)
+      throw new Error(`Missing authored display metadata: ${device}/${theme}`);
+    const primitive = gltf.meshes[node.mesh].primitives[0];
+    if (!gltf.materials[primitive.material].emissiveTexture)
+      throw new Error(`Missing editor artwork: ${device}/${theme}`);
+  }
+}
+if (
+  !gltf.nodes.find(({ name }) => name === "Bookshelf_Carcass")?.extras
+    ?.corner_repaired
+)
+  throw new Error("Bookshelf corner repair missing from Blender export");
 for (const material of [
   "MAT_Review_Floor_LightWood",
   "MAT_Review_Desk_Wood",

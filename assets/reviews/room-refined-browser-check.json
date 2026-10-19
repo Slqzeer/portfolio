@@ -1,0 +1,14 @@
+{
+  "cases": [
+    "overview-day",
+    "overview-night",
+    "monitor-day",
+    "monitor-night",
+    "phone-day",
+    "phone-night",
+    "bookshelf-day",
+    "mobile-day",
+    "small-mobile-night"
+  ],
+  "errors": []
+}

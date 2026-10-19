@@ -1,0 +1,58 @@
+{
+  "palettes": {
+    "day": {
+      "bg": "#fdfbf6",
+      "panel": "#f0f0e8",
+      "bar": "#e9ece2",
+      "ink": "#263e35",
+      "muted": "#657269",
+      "accent": "#39705d",
+      "keyword": "#89503c",
+      "string": "#39705d",
+      "number": "#86642e",
+      "line": "#d8ddd2"
+    },
+    "night": {
+      "bg": "#14211d",
+      "panel": "#1c2c26",
+      "bar": "#213436",
+      "ink": "#e7e8dc",
+      "muted": "#9caea7",
+      "accent": "#9bc8ae",
+      "keyword": "#e6b98c",
+      "string": "#9bc8ae",
+      "number": "#cfbf91",
+      "line": "#34483f"
+    }
+  },
+  "monitor": {
+    "line": {
+      "x": 0.263125,
+      "y": 0.5233333333333333,
+      "w": 0.300330810546875,
+      "h": 0.034444444444444444,
+      "characters": 38
+    },
+    "terminal": {
+      "x": 0.228125,
+      "y": 0.8322222222222222,
+      "w": 0.7,
+      "rowHeight": 0.042222222222222223
+    }
+  },
+  "laptop": {
+    "line": {
+      "x": 0.263125,
+      "y": 0.471,
+      "w": 0.1975860595703125,
+      "h": 0.031,
+      "characters": 25
+    },
+    "terminal": {
+      "x": 0.228125,
+      "y": 0.849,
+      "w": 0.7,
+      "rowHeight": 0.038
+    }
+  }
+}

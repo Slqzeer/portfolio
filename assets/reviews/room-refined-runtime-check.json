@@ -1,0 +1,71 @@
+{
+  "assets": {
+    "portfolio-room.glb": {
+      "sha256": "28c66cc5218279a48a5abb176d960f0eea37c3a84a6733b9ffab6c942137afaa",
+      "bytes": 6474456
+    },
+    "room-overview-day.png": {
+      "sha256": "91a30a81df1bb41d1eb1a677df0650d9b43e4071d3551d63907231c0e47a9b15",
+      "bytes": 476209
+    },
+    "room-overview-night.png": {
+      "sha256": "579e2238fac826f0e90fad49cb38abaf4a9df7613c49bd5630c2ab6851637b6f",
+      "bytes": 427860
+    },
+    "env/env_day.hdr": {
+      "sha256": "659b5aad0a79863cf88b32fa9612549fc8abbe220375400fd78139bf51a3830f",
+      "bytes": 699826
+    },
+    "env/env_night.hdr": {
+      "sha256": "a8522f485950a3f18d642d06131e6701ca2fd5f0b692114d6c4619aef4066d0e",
+      "bytes": 717025
+    },
+    "lightmaps/scales.json": {
+      "sha256": "6f6667f7c96daea87c6802e41ad2af9c5f3aab558a866ddbfadfc93ef2b7e8a2",
+      "bytes": 122
+    },
+    "lightmaps/LM_props_day.webp": {
+      "sha256": "4508be89c33a5fb04ab5ce5bd6cc29273a92d8d18e0281df490068ddd60d9596",
+      "bytes": 422846
+    },
+    "lightmaps/LM_props_night.webp": {
+      "sha256": "704060293e7201301c8ac9720e94979f2c991a7d150a120d7ab45f824d9a340f",
+      "bytes": 437554
+    },
+    "lightmaps/LM_shell_day.webp": {
+      "sha256": "637507b0941403726bc479a81c7bbdaacfc11b45bd9937acc526bf10f82fc9a0",
+      "bytes": 53264
+    },
+    "lightmaps/LM_shell_night.webp": {
+      "sha256": "82dd67636a2a49b265fa72741643e1dc8298854b8a8c38a4818724d549f141bd",
+      "bytes": 46288
+    }
+  },
+  "nodes": 343,
+  "clips": 72,
+  "sources": {
+    "portfolio-room.blend": "3efb902b1101941278c67633a0115293d0bcf3c3c201586a1e7dc803f453a7d3",
+    "portfolio-room-optimized.blend": "d8a645b15184c5944302ee5967f43cc412075992d432a64968f704cf2278228c"
+  },
+  "unitTests": 126,
+  "browserViews": {
+    "cases": [
+      "overview-day",
+      "overview-night",
+      "monitor-day",
+      "monitor-night",
+      "phone-day",
+      "phone-night",
+      "bookshelf-day",
+      "mobile-day",
+      "small-mobile-night"
+    ],
+    "errors": []
+  },
+  "physicalDevicePerformanceTested": false,
+  "browserValidation": {
+    "uniqueScenariosVerified": 16,
+    "initialPasses": 14,
+    "targetedRerunPasses": 3
+  }
+}

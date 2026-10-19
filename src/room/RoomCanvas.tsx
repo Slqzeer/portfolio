@@ -48,11 +48,9 @@ function SceneMetrics() {
     const breeze = scene.getObjectByName("Blind_Breeze");
     if (breeze)
       gl.domElement.dataset.blindBreeze = breeze.position.x.toFixed(5);
-    const bird = scene.getObjectByName("Exterior_Bird");
-    if (bird)
-      gl.domElement.dataset.birdHeight = bird
-        .getWorldPosition(position.current)
-        .y.toFixed(4);
+    const foliage = scene.getObjectByName("Exterior_Foliage_00");
+    if (foliage)
+      gl.domElement.dataset.foliageWind = foliage.rotation.z.toFixed(5);
     gl.domElement.dataset.rackActivity = [
       "EMIT_Rack_00_00",
       "EMIT_Rack_00_01",
@@ -73,12 +71,16 @@ function SceneMetrics() {
         power.material.emissiveIntensity.toFixed(4);
     for (const [attribute, name] of [
       ["phoneNotification", "Phone_Notification_0"],
-      ["screenTyping", "Monitor_Screen_Typing_0_1"],
-      ["exteriorBird", "Exterior_Bird"],
+      ["screenTyping", "Editor_monitor_TypingMask"],
     ]) {
       const object = scene.getObjectByName(name);
       if (object) gl.domElement.dataset[attribute] = object.scale.x.toFixed(5);
     }
+    const editor = scene.getObjectByName("Editor_monitor_day");
+    if (editor)
+      gl.domElement.dataset.editorTheme = editor.visible ? "day" : "night";
+    const mask = scene.getObjectByName("Editor_monitor_TypingMask");
+    if (mask) gl.domElement.dataset.editorReading = String(!mask.visible);
     sample.current = { frames: 0, startedAt: now };
   });
 

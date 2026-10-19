@@ -68,6 +68,16 @@ for material in bpy.data.materials:
         bsdf.inputs["Sheen Tint"].default_value = (*(c * weight for c in tint[:3]), 1)
         bsdf.inputs["Sheen Weight"].default_value = 1
 scene.frame_set(1)
+# Both Blender-authored themes must travel in the GLB. The website selects the
+# matching surface; hide_render drivers are only for reviewing/baking in Blender.
+for obj in scene.objects:
+    if obj.get('screen_theme'):
+        obj.animation_data_clear()
+        obj.hide_render = False
+        obj.hide_viewport = False
+    if obj.get('device_hidden_base'):
+        obj.hide_render = False
+        obj.hide_viewport = False
 bpy.ops.export_scene.gltf(
     filepath=output,
     export_format="GLB",

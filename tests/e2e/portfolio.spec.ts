@@ -193,6 +193,10 @@ test("routes focus, curtains, and flag without control zoom", async ({
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(page).not.toHaveURL(/#room\//);
+  // Returning focus reopens its menu on camera arrival; let that finish first.
+  await expect(canvas).toHaveAttribute("data-camera-moving", "false", {
+    timeout: 60000,
+  });
   await openSettings(page);
   await page.getByRole("button", { name: "Basculer jour / nuit" }).click();
   await expect(page.getByTestId("room-scene")).toHaveAttribute(

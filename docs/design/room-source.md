@@ -2,7 +2,11 @@
 
 Status: **implemented in Blender and exported as the runtime GLB**
 
-Current production source (18 October 2026): **Blender is the source of truth** for assets, materials, lighting and animations. `assets/blender/living/portfolio-room.blend` and `portfolio-room-optimized.blend` extend the restored baseline with the welded corner, garden, device animations and exported surface normals. See [the current production pipeline](room-life.md) and [the earlier scoped restoration](room-baseline-restore.md). The original files, `baseline` and the unapproved `art-v2` experiment remain intact.
+The 19 October device/exterior refinement is documented in
+[Device surfaces and exterior refinement](device-refinement.md). It supersedes
+the earlier bird, terminal overlays and phone notifications described below.
+
+Current production source (19 October 2026): **Blender is the source of truth** for assets, materials, lighting and animations. `assets/blender/refined/portfolio-room.blend` and `portfolio-room-optimized.blend` extend the restored baseline with the welded corner, garden, device animations and exported surface normals. See [the current production pipeline](room-life.md) and [the earlier scoped restoration](room-baseline-restore.md). The original files, `baseline` and the unapproved `art-v2` experiment remain intact.
 
 ## Visual reference
 
@@ -29,8 +33,8 @@ The original Canva exports remain as migration sources and visual receipts. Figm
 
 ## Production assets
 
-- Editable master: `assets/blender/living/portfolio-room.blend`
-- Web-optimized derivative: `assets/blender/living/portfolio-room-optimized.blend`
+- Editable master: `assets/blender/refined/portfolio-room.blend`
+- Web-optimized derivative: `assets/blender/refined/portfolio-room-optimized.blend`
 - Runtime scene: `public/assets/room/portfolio-room.glb`
 - Loading/reading posters: `public/assets/room/room-overview-day.png` and `room-overview-night.png`
 - Overview camera: `CAM_Overview`

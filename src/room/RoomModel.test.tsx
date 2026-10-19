@@ -14,6 +14,7 @@ import {
   createRoomInteractionHandlers,
   prepareRoomScene,
   showLocaleFlag,
+  showDeviceTheme,
 } from "./RoomModel";
 
 function createScene() {
@@ -55,6 +56,46 @@ function createScene() {
 }
 
 describe("RoomModel bindings", () => {
+  it("selects the authored theme and updates masks without hiding notification children", () => {
+    const source = createScene();
+    const day = new Mesh(new BoxGeometry(), new MeshStandardMaterial());
+    day.name = "Editor_monitor_day";
+    day.userData = { screen_theme: "day", device_surface: true };
+    const night = day.clone();
+    night.name = "Editor_monitor_night";
+    night.userData.screen_theme = "night";
+    source.add(day, night);
+    const phone = new Mesh(new BoxGeometry(), new MeshStandardMaterial());
+    phone.name = "PhoneBase";
+    phone.userData.device_hidden_base = true;
+    phone.add(new Object3D());
+    source.add(phone);
+    const mask = new Mesh(new BoxGeometry(), new MeshStandardMaterial());
+    mask.name = "Mask";
+    mask.userData.device_surface = true;
+    mask.material.userData.screen_palette = JSON.stringify({
+      day: [0.8, 0.7, 0.6],
+      night: [0.1, 0.2, 0.3],
+    });
+    source.add(mask);
+    const scene = prepareRoomScene(source);
+    showDeviceTheme(scene, "night");
+    expect(scene.getObjectByName(day.name)!.visible).toBe(false);
+    expect(scene.getObjectByName(night.name)!.visible).toBe(true);
+    const material = (scene.getObjectByName(mask.name) as Mesh)
+      .material as MeshStandardMaterial;
+    expect(material.emissive.toArray()).toEqual([0.1, 0.2, 0.3]);
+    expect(material.toneMapped).toBe(false);
+    expect(material.userData.lightmapAtlas).toBeUndefined();
+    const base = scene.getObjectByName(phone.name) as Mesh;
+    expect(base.visible && base.children[0].visible).toBe(true);
+    expect((base.material as MeshStandardMaterial).visible).toBe(false);
+    showDeviceTheme(scene, "day");
+    expect(scene.getObjectByName(day.name)!.visible).toBe(true);
+    expect(scene.getObjectByName(night.name)!.visible).toBe(false);
+    expect(material.emissive.toArray()).toEqual([0.8, 0.7, 0.6]);
+    expect(day.material.toneMapped).toBe(true);
+  });
   it("keeps directional environment shading on the animated blind slats", () => {
     const source = createScene();
     const slat = new Mesh(

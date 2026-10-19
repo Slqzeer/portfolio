@@ -1,6 +1,12 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { AnimationClip, AnimationMixer, LoopOnce, Object3D } from "three";
+import {
+  AnimationAction,
+  AnimationClip,
+  AnimationMixer,
+  LoopOnce,
+  Object3D,
+} from "three";
 import type { RoomObjectId } from "../content/types";
 import type { Lighting } from "../app/appState";
 
@@ -26,6 +32,7 @@ export function RoomIdle({
 }: RoomIdleProps) {
   const mixer = useMemo(() => new AnimationMixer(scene), [scene]);
   const resumed = useRef(true);
+  const editorActions = useRef<AnimationAction[]>([]);
 
   useEffect(() => {
     if (paused || reducedMotion) resumed.current = true;
@@ -37,17 +44,52 @@ export function RoomIdle({
       .filter(
         ({ name }) =>
           name.startsWith("Ambient_") &&
-          (lighting === "day" ||
-            !(
-              name.startsWith("Ambient_Exterior_") ||
-              name.startsWith("Ambient_Blind_")
-            )),
+          !name.startsWith("Ambient_Editor_") &&
+          !name.startsWith("Ambient_Exterior_") &&
+          !name.startsWith("Ambient_Blind_"),
+      )
+      .map((clip) => mixer.clipAction(clip).reset().play());
+    return () => {
+      actions.forEach((action) => action.stop());
+    };
+  }, [animations, mixer, reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion || lighting !== "day") return;
+    const actions = animations
+      .filter(
+        ({ name }) =>
+          name.startsWith("Ambient_Exterior_") ||
+          name.startsWith("Ambient_Blind_"),
       )
       .map((clip) => mixer.clipAction(clip).reset().play());
     return () => {
       actions.forEach((action) => action.stop());
     };
   }, [animations, mixer, reducedMotion, lighting]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    editorActions.current = animations
+      .filter(({ name }) => name.startsWith("Ambient_Editor_"))
+      .map((clip) => mixer.clipAction(clip).reset().play());
+    return () => {
+      editorActions.current.forEach((action) => action.stop());
+      editorActions.current = [];
+    };
+  }, [animations, mixer, reducedMotion]);
+
+  useEffect(() => {
+    const focused = activeObject === "monitor";
+    editorActions.current.forEach((action) => {
+      action.paused = focused;
+    });
+    // Reveal the complete authored code while reading; retain the clip time for resume.
+    scene.traverse((object) => {
+      if (object.userData.screen_mask)
+        object.visible = !focused && !reducedMotion;
+    });
+  }, [activeObject, reducedMotion, animations, scene]);
 
   useEffect(
     () => () => {
@@ -56,18 +98,6 @@ export function RoomIdle({
     },
     [mixer, scene],
   );
-
-  useEffect(() => {
-    if (reducedMotion || activeObject === "monitor") return;
-    const clip = animations.find(
-      ({ name }) => name === "IDLE_Monitor_CursorAction",
-    );
-    if (!clip) return;
-    const action = mixer.clipAction(clip).reset().play();
-    return () => {
-      action.stop();
-    };
-  }, [animations, mixer, reducedMotion, activeObject]);
 
   useEffect(() => {
     if (reducedMotion || !hoveredObject) return;

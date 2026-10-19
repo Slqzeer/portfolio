@@ -16,6 +16,14 @@ for (const viewport of [
       "true",
       { timeout: 30000 },
     );
+    await page.getByRole("button", { name: "Explorer la chambre" }).click();
+    await expect
+      .poll(() =>
+        page
+          .locator(".room-scene")
+          .evaluate((node) => node.getAnimations().length),
+      )
+      .toBe(0);
     await page.screenshot({ path: info.outputPath("overview.png") });
     await openNavigation(page);
     await page.evaluate(() => {
