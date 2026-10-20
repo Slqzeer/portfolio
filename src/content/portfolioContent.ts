@@ -9,17 +9,17 @@ export const portfolioContent: PortfolioContent = {
   identity: {
     name: "Martin Couturier",
     role: text(
-      "Étudiant en 5e année · Développement fullstack",
-      "Fifth-year student · Fullstack development",
+      "Étudiant ingénieur EPITA · IA, Data & développement fullstack",
+      "EPITA engineering student · AI, Data & fullstack development",
     ),
     introduction: text(
-      "Bienvenue chez moi. Une chambre à explorer, des projets à découvrir et une autre façon de faire connaissance.",
-      "Welcome to my space. A room to explore, projects to discover, and a different way to get to know me.",
+      "Spécialisé en data science et intelligence artificielle, je conçois des produits logiciels de bout en bout. Bienvenue dans une autre façon de découvrir mon parcours.",
+      "Specializing in data science and artificial intelligence, I build software products end to end. Welcome to a different way to discover my journey.",
     ),
   },
   availability: text(
-    "Construire, expérimenter, partager.",
-    "Build, experiment, share.",
+    "Stage IA/Data en Île-de-France · Dès le 8 février 2027 · 5 mois minimum",
+    "AI/Data internship in the Paris Region · From February 8, 2027 · 5 months minimum",
   ),
   navigation: {
     home: text("Accueil", "Home"),
@@ -41,10 +41,13 @@ export const portfolioContent: PortfolioContent = {
     },
     linkedin: {
       label: text("LinkedIn", "LinkedIn"),
-      href: "https://www.linkedin.com/in/martin-couturier",
+      href: "https://www.linkedin.com/in/martin-couturier/",
     },
     cv: { label: text("CV", "Résumé"), href: "" },
-    email: { label: text("E-mail", "Email"), href: "" },
+    email: {
+      label: text("E-mail", "Email"),
+      href: "mailto:martin.couturier.pro@gmail.com",
+    },
   },
   skills: [
     {
@@ -72,6 +75,41 @@ export const portfolioContent: PortfolioContent = {
     experiments: text("Expériences", "Experiments"),
   },
   projects: [
+    {
+      id: "advanced-rag",
+      name: text(
+        "Advanced RAG Knowledge Assistant",
+        "Advanced RAG Knowledge Assistant",
+      ),
+      category: "data-ai",
+      summary: text(
+        "Un assistant documentaire RAG conçu pour produire des réponses traçables et mesurer chaque amélioration du retrieval.",
+        "A document RAG assistant designed to produce traceable answers and measure every retrieval improvement.",
+      ),
+      problem: text(
+        "Construire un système RAG fiable sans sélectionner ses composants sur une simple impression de qualité.",
+        "Build a reliable RAG system without selecting components from subjective quality impressions.",
+      ),
+      solution: text(
+        "Un pipeline progressif où le découpage, la recherche hybride, le reranking, les transformations de requête et la compression sont comparés sur un jeu d’évaluation annoté.",
+        "A progressive pipeline where chunking, hybrid search, reranking, query transformations, and compression are compared on an annotated evaluation set.",
+      ),
+      architecture: text(
+        "Ingestion de documents Markdown, embeddings mis en cache, indexation Qdrant, génération avec citations validées et bancs d’essai reproductibles.",
+        "Markdown ingestion, cached embeddings, Qdrant indexing, generation with validated citations, and reproducible benchmarks.",
+      ),
+      challenges: text(
+        "Mesurer honnêtement les variantes, conserver les résultats négatifs et ne promouvoir une technique que lorsqu’elle dépasse un seuil défini à l’avance.",
+        "Measure variants honestly, retain negative results, and only promote a technique when it exceeds a predefined threshold.",
+      ),
+      learnings: text(
+        "La compression contextuelle a porté le Recall@context de 0,721 à 0,814, tandis que plusieurs techniques plus complexes n’ont pas amélioré le Recall@5.",
+        "Contextual compression raised Recall@context from 0.721 to 0.814, while several more complex techniques did not improve Recall@5.",
+      ),
+      stack: ["Python", "Qdrant", "Docker", "RAGAS"],
+      status: text("Projet personnel en cours", "Ongoing personal project"),
+      github: "https://github.com/Slqzeer/Advanced-RAG-Knowledge-Assistant",
+    },
     {
       id: "portfolio",
       screenshots: [
@@ -177,19 +215,29 @@ export const portfolioContent: PortfolioContent = {
   ],
   homelab: {
     description: text(
-      "Le rack de la chambre ouvre un espace dédié aux systèmes et à l’auto-hébergement. Sa présentation technique sera complétée avec la configuration réelle.",
-      "The room’s rack opens a space for systems and self-hosting. Its technical presentation will be completed with the actual configuration.",
+      "Un cluster Kubernetes auto-hébergé et piloté en GitOps pour expérimenter le déploiement, la sécurité, l’identité, les données et l’observabilité dans des conditions réelles.",
+      "A self-hosted Kubernetes cluster managed through GitOps to explore deployment, security, identity, data, and observability under real conditions.",
     ),
-    services: [],
+    services: [
+      "Kubernetes",
+      "Argo CD",
+      "HashiCorp Vault",
+      "Tailscale",
+      "PostgreSQL & Redis",
+      "Prometheus & Grafana",
+    ],
   },
   timeline: [
     {
       id: "current-studies",
-      period: text("En cours", "Current"),
-      title: text("Étudiant en 5e année", "Fifth-year student"),
+      period: text("2022 — 2027", "2022 — 2027"),
+      title: text(
+        "Cycle ingénieur EPITA — majeure SCIA",
+        "EPITA engineering degree — SCIA major",
+      ),
       description: text(
-        "Dernière année d’études, avec une pratique centrée sur la conception et le développement de produits logiciels.",
-        "Final year of studies, with a focus on software product design and development.",
+        "Spécialisation en data science et intelligence artificielle, avec un diplôme d’ingénieur prévu en 2027.",
+        "Specializing in data science and artificial intelligence, with an engineering degree expected in 2027.",
       ),
     },
     {
@@ -241,8 +289,8 @@ export const portfolioContent: PortfolioContent = {
       "An idea, a project, or something to talk about?",
     ),
     location: text(
-      "Retrouvez-moi sur LinkedIn ou explorez mon code sur GitHub.",
-      "Find me on LinkedIn or explore my code on GitHub.",
+      "Basé en Île-de-France, je recherche en priorité un stage en IA/Data, ou en développement fullstack.",
+      "Based in the Paris Region, I am primarily looking for an AI/Data internship, or a fullstack development role.",
     ),
   },
   roomObjects: {
