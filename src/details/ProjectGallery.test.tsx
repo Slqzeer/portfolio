@@ -57,7 +57,9 @@ describe("ProjectGallery", () => {
     expect(screen.getByRole("heading", { name: "ClassPulse" })).toBeVisible();
     expect(screen.getByText("FastAPI")).toBeInTheDocument();
     await user.click(screen.getByText("Découvrir le projet"));
-    expect(screen.getByText(/Mon rôle : contribuer/)).toBeVisible();
+    expect(
+      screen.getByText(/Contribuer à la conception du système/),
+    ).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Logiciel" }));
     expect(onCategoryChange).toHaveBeenCalledWith("software");

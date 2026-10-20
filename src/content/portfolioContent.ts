@@ -32,7 +32,7 @@ export const portfolioContent: PortfolioContent = {
   },
   actions: {
     explore: text("Explorer la chambre", "Explore the room"),
-    replaceLink: text("Lien à remplacer", "Replace this link"),
+    replaceLink: text("Document bientôt disponible", "Document coming soon"),
   },
   social: {
     github: {
@@ -55,7 +55,13 @@ export const portfolioContent: PortfolioContent = {
         "Data & intelligence artificielle",
         "Data & artificial intelligence",
       ),
-      items: ["Python", "LLM", "RAG", "Big Data", "SVM & méthodes à noyaux"],
+      items: [
+        "Python",
+        "LLM",
+        "RAG",
+        "Big Data",
+        text("SVM et méthodes à noyaux", "SVMs and kernel methods"),
+      ],
     },
     {
       group: text("Interfaces web", "Web interfaces"),
@@ -68,8 +74,8 @@ export const portfolioContent: PortfolioContent = {
         "Java",
         "Spring Boot",
         "SonarQube",
-        "Backend testing",
-        "Product design",
+        text("Tests backend", "Backend testing"),
+        text("Conception produit", "Product design"),
       ],
     },
     {
@@ -86,7 +92,7 @@ export const portfolioContent: PortfolioContent = {
     software: text("Logiciel", "Software"),
     homelab: text("Homelab", "Homelab"),
     "game-development": text("Jeux", "Games"),
-    experiments: text("Expériences", "Experiments"),
+    experiments: text("Expérimentations", "Experiments"),
   },
   projects: [
     {
@@ -97,7 +103,7 @@ export const portfolioContent: PortfolioContent = {
       ),
       category: "data-ai",
       summary: text(
-        "Un assistant documentaire RAG conçu pour produire des réponses traçables et mesurer chaque amélioration du retrieval.",
+        "Un assistant documentaire RAG conçu pour produire des réponses traçables et évaluer la qualité de la recherche d’information.",
         "A document RAG assistant designed to produce traceable answers and measure every retrieval improvement.",
       ),
       problem: text(
@@ -113,8 +119,8 @@ export const portfolioContent: PortfolioContent = {
         "Markdown ingestion, cached embeddings, Qdrant indexing, generation with validated citations, and reproducible benchmarks.",
       ),
       challenges: text(
-        "Mesurer honnêtement les variantes, conserver les résultats négatifs et ne promouvoir une technique que lorsqu’elle dépasse un seuil défini à l’avance.",
-        "Measure variants honestly, retain negative results, and only promote a technique when it exceeds a predefined threshold.",
+        "Comparer les variantes sur des critères mesurables, documenter les résultats négatifs et ne retenir une technique que si elle dépasse un seuil défini à l’avance.",
+        "Compare variants against measurable criteria, document negative results, and adopt a technique only when it exceeds a predefined threshold.",
       ),
       learnings: text(
         "La compression contextuelle a porté le Recall@context de 0,721 à 0,814, tandis que plusieurs techniques plus complexes n’ont pas amélioré le Recall@5.",
@@ -208,12 +214,12 @@ export const portfolioContent: PortfolioContent = {
         en: "Design of an agent-based student support system.",
       },
       architecture: {
-        fr: "Un backend Python exposé avec FastAPI.",
-        en: "A Python backend exposed through FastAPI.",
+        fr: "Un backend Python dont l’API est développée avec FastAPI.",
+        en: "A Python backend with an API built using FastAPI.",
       },
       challenges: {
-        fr: "Mon rôle : contribuer à la conception, tester et vérifier le backend, et veiller à la qualité du produit.",
-        en: "My role: contribute to design, test and verify the backend, and oversee product quality.",
+        fr: "Contribuer à la conception du système et vérifier la fiabilité du backend par les tests.",
+        en: "Contribute to the system design and verify backend reliability through testing.",
       },
       learnings: {
         fr: "Faire de la vérification du backend et de la qualité produit une partie du travail de conception.",
@@ -231,8 +237,8 @@ export const portfolioContent: PortfolioContent = {
       name: text("Ping", "Ping"),
       category: "software",
       summary: text(
-        "Une application éducative consacrée à la gestion du matériel et à la prévention des troubles musculo-squelettiques dans les centres VHU.",
-        "An educational application focused on equipment management and preventing musculoskeletal disorders in vehicle recycling centers.",
+        "Un prototype réalisé dans le cadre d’un projet pédagogique, consacré au suivi du matériel et à la prévention des troubles musculosquelettiques (TMS) dans les centres de traitement des véhicules hors d’usage (VHU).",
+        "A prototype built as a coursework project, focused on equipment tracking and musculoskeletal disorder prevention in end-of-life vehicle treatment centers.",
       ),
       problem: text(
         "Réduire les risques liés aux gestes, aux postures et à l’utilisation du matériel dans un environnement de travail physique.",
@@ -247,12 +253,12 @@ export const portfolioContent: PortfolioContent = {
         "A team-built web application prototype centered on equipment tracking and risk situations.",
       ),
       challenges: text(
-        "Faire évoluer le positionnement du produit après avoir constaté que le marché de la simple gestion de matériel était déjà saturé.",
-        "Evolve the product positioning after finding that the basic equipment-management market was already saturated.",
+        "Faire évoluer le positionnement du produit pour mieux répondre aux besoins de prévention identifiés.",
+        "Refine the product positioning to better address the identified prevention needs.",
       ),
       learnings: text(
-        "Partir du besoin métier, remettre en question l’idée initiale et privilégier un problème utilisateur plus différenciant.",
-        "Start from the business need, challenge the initial idea, and prioritize a more differentiated user problem.",
+        "Partir du besoin métier et remettre en question l’idée initiale pour traiter un problème concret rencontré par les utilisateurs.",
+        "Start from the business need and challenge the initial idea to address a concrete user problem.",
       ),
       stack: ["Product design", "Application web"],
       status: text(
@@ -265,8 +271,8 @@ export const portfolioContent: PortfolioContent = {
       name: text("Pass-Through", "Pass-Through"),
       category: "game-development",
       summary: text(
-        "Un prototype éducatif de jeu d’action multijoueur développé en équipe avec Unity.",
-        "An educational multiplayer action-game prototype developed as a team with Unity.",
+        "Un prototype de jeu d’action multijoueur développé en équipe avec Unity dans le cadre d’un projet pédagogique.",
+        "A multiplayer action-game prototype developed as a team with Unity as part of a coursework project.",
       ),
       problem: text(
         "Construire une boucle de jeu multijoueur réunissant déplacement, combat, portails, ennemis et suivi des scores.",
@@ -298,8 +304,8 @@ export const portfolioContent: PortfolioContent = {
   ],
   homelab: {
     description: text(
-      "Un cluster Kubernetes auto-hébergé et piloté en GitOps pour expérimenter le déploiement, la sécurité, l’identité, les données et l’observabilité dans des conditions réelles.",
-      "A self-hosted Kubernetes cluster managed through GitOps to explore deployment, security, identity, data, and observability under real conditions.",
+      "Un laboratoire personnel auto-hébergé, organisé autour d’un cluster Kubernetes piloté en GitOps. J’y expérimente le déploiement de services, la sécurité, la gestion des identités, les données et l’observabilité.",
+      "A self-hosted personal lab built around a Kubernetes cluster managed through GitOps. I use it to explore service deployment, security, identity management, data, and observability.",
     ),
     services: [
       "Kubernetes",
@@ -364,8 +370,8 @@ export const portfolioContent: PortfolioContent = {
         "September 2025 - February 2026",
       ),
       title: text(
-        "Développeur fullstack stagiaire - Crédit Agricole CIB",
-        "Fullstack developer intern - Crédit Agricole CIB",
+        "Stage en développement full stack — Crédit Agricole CIB",
+        "Full-stack development internship — Crédit Agricole CIB",
       ),
       description: text(
         "Amélioration d’un tableau de bord existant qui centralise les métriques de qualité et de sécurité du code de plusieurs équipes, collectées notamment avec SonarQube. Backend Java / Spring Boot et frontend TypeScript / Angular.",
@@ -380,7 +386,7 @@ export const portfolioContent: PortfolioContent = {
         "Final engineering-cycle year - SCIA major",
       ),
       description: text(
-        "Approfondissement de la Data et de l’IA, avec un PFEE mené avec Wavestone à l’intersection de la cybersécurité et de l’intelligence artificielle. Diplôme d’ingénieur prévu en 2027.",
+        "Approfondissement de la data science et de l’IA, avec un projet de fin d’études en entreprise (PFEE) mené avec Wavestone à l’intersection de la cybersécurité et de l’intelligence artificielle. Diplôme d’ingénieur prévu en 2027.",
         "Advanced Data and AI studies, including a final-year project with Wavestone at the intersection of cybersecurity and artificial intelligence. Engineering degree expected in 2027.",
       ),
     },
@@ -402,8 +408,8 @@ export const portfolioContent: PortfolioContent = {
     text("3D pour le web", "3D for the web"),
     text("Prototypage de jeux en Luau", "Game prototyping with Luau"),
     text(
-      "Architecture de jeu client/serveur, microservices et EDA",
-      "Client/server game architecture, microservices, and EDA",
+      "Architecture de jeu client-serveur, microservices et architecture événementielle",
+      "Client-server game architecture, microservices, and event-driven architecture",
     ),
     text(
       "Création d’assets avec Blender, Unity et Penpot",
@@ -466,8 +472,8 @@ export const portfolioContent: PortfolioContent = {
     projects: {
       title: text("Projets", "Projects"),
       summary: text(
-        "Des projets expliqués par leur impact.",
-        "Projects explained through their impact.",
+        "Les objectifs, les choix techniques et les enseignements de mes projets.",
+        "The goals, technical decisions, and lessons behind my projects.",
       ),
     },
     homelab: {
@@ -487,26 +493,29 @@ export const portfolioContent: PortfolioContent = {
     experience: {
       title: text("Parcours", "Experience"),
       summary: text(
-        "Formation et expériences importantes.",
-        "Education and meaningful experience.",
+        "Ma formation et mes expériences professionnelles.",
+        "My education and professional experience.",
       ),
     },
     "game-development": {
       title: text("Création de jeux", "Game development"),
       summary: text(
-        "Un projet Unity public et des prototypes privés autour de Luau, du client/serveur, des microservices et de l’EDA.",
-        "A public Unity project and private prototypes exploring Luau, client/server systems, microservices, and EDA.",
+        "Un projet Unity public et des prototypes privés explorant Luau, les systèmes client-serveur, les microservices et l’architecture événementielle.",
+        "A public Unity project and private prototypes exploring Luau, client-server systems, microservices, and event-driven architecture.",
       ),
     },
     experiments: {
-      title: text("Expériences", "Experiments"),
-      summary: text("Des idées testées rapidement.", "Ideas tested quickly."),
+      title: text("Expérimentations", "Experiments"),
+      summary: text(
+        "Prototypes et applications personnelles.",
+        "Prototypes and personal applications.",
+      ),
     },
     exploring: {
       title: text("Compétences", "Skills"),
       summary: text(
-        "Des outils, des méthodes et une curiosité qui ne s’arrête pas.",
-        "Tools, methods, and a curiosity that keeps growing.",
+        "Les technologies et méthodes que je mobilise dans mes projets.",
+        "The technologies and methods I use in my projects.",
       ),
     },
     contact: {

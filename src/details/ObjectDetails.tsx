@@ -144,8 +144,8 @@ export function ObjectDetails({
           <>
             <p className="section-kicker">
               {locale === "fr"
-                ? "DANS LES COULISSES DE CE PORTFOLIO"
-                : "BEHIND THIS PORTFOLIO"}
+                ? "MES DOMAINES DE COMPÉTENCE"
+                : "MY AREAS OF EXPERTISE"}
             </p>
             {portfolioContent.skills.map((group, index) => (
               <section className="skill-group" key={group.group.fr}>
@@ -155,7 +155,9 @@ export function ObjectDetails({
                 </div>
                 <div className="skill-tags">
                   {group.items.map((item) => (
-                    <span key={item}>{item}</span>
+                    <span key={typeof item === "string" ? item : item.fr}>
+                      {typeof item === "string" ? item : localize(item, locale)}
+                    </span>
                   ))}
                 </div>
               </section>

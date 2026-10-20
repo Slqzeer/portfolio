@@ -91,8 +91,11 @@ export function useRoomNavigation(
     const saved = triggers.current.get(objectId);
     const focus = (trigger: HTMLElement | null) => {
       const menu = trigger?.closest("details");
-      if (menu) menu.open = true;
-      trigger?.focus();
+      if (menu && !menu.open) {
+        menu.querySelector("summary")?.focus();
+      } else {
+        trigger?.focus();
+      }
     };
     const fallback = () =>
       focus(

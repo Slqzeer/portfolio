@@ -140,7 +140,7 @@ describe("App", () => {
     await user.keyboard("{Escape}");
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(server).toHaveFocus();
+    expect(screen.getByLabelText("Toutes les rubriques")).toHaveFocus();
   });
 
   it("synchronizes browser history and ignores unknown hashes", () => {
@@ -211,8 +211,6 @@ describe("App", () => {
     await waitFor(() => expect(window.location.hash).toBe("#room/desk"));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    // Escape first dismisses the menu reopened to restore the shortcut focus.
-    await user.keyboard("{Escape}");
     await user.keyboard("{Escape}");
     await waitFor(() => expect(window.location.hash).toBe(""));
     expect(

@@ -99,7 +99,7 @@ export function ProjectGallery({
           </p>
           <button type="button" onClick={() => onCategoryChange("software")}>
             {locale === "fr"
-              ? "Découvrir les projets logiciel"
+              ? "Découvrir les projets logiciels"
               : "Discover software projects"}
           </button>
         </div>

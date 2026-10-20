@@ -60,6 +60,79 @@ function anchor(name: string, position: [number, number, number]) {
 }
 
 describe("CameraRig", () => {
+  it.each([
+    {
+      object: "smartphone" as const,
+      name: "CAM_Anchor_Smartphone",
+      position: [-0.4766, 2.1126, -3.4346] as [number, number, number],
+      rotation: [0.3216, -0.2331, 0.082, 0.9141],
+      foreground: [-2, 3.19, -4.0255],
+    },
+    {
+      object: "server" as const,
+      name: "CAM_Anchor_Homelab",
+      position: [0.2517, 3.0606, -3.5248] as [number, number, number],
+      rotation: [0.4244, -0.5186, 0.3314, 0.6642],
+      foreground: [-2.4, 4.5, -4.9],
+    },
+  ])("keeps foreground geometry intact while focusing $object", (fixture) => {
+    fiber.camera = new OrthographicCamera(-640, 640, 360, -360, 0.1, 100);
+    const target = anchor(fixture.name, fixture.position);
+    target.quaternion.fromArray(fixture.rotation).normalize();
+    target.userData.ortho_scale = 7.6;
+    target.updateMatrixWorld();
+    const anchors = {
+      CAM_Overview: anchor("CAM_Overview", [0, 8, 15]),
+      [fixture.name]: target,
+    };
+    const { rerender } = render(
+      <CameraRig
+        activeObject={fixture.object}
+        anchors={anchors}
+        reducedMotion={false}
+        pointerEnabled={false}
+      />,
+    );
+    for (let frame = 0; frame < 90; frame++) {
+      advance(1 / 60);
+      fiber.camera.updateMatrixWorld();
+      const depth = new Vector3()
+        .fromArray(fixture.foreground)
+        .project(fiber.camera).z;
+      expect(depth).toBeGreaterThanOrEqual(-1);
+      expect(depth).toBeLessThanOrEqual(1);
+    }
+    const reference = fiber.camera.clone();
+    reference.position.copy(target.position);
+    reference.updateMatrixWorld();
+    const expected = new Vector3()
+      .fromArray(fixture.foreground)
+      .project(reference);
+    for (let frame = 0; frame < 3; frame++) {
+      advance(1 / 60);
+      fiber.camera.updateMatrixWorld();
+      const projected = new Vector3()
+        .fromArray(fixture.foreground)
+        .project(fiber.camera);
+      expect(projected.x).toBeCloseTo(expected.x);
+      expect(projected.y).toBeCloseTo(expected.y);
+      expect(projected.z).toBeGreaterThanOrEqual(-1);
+      expect(projected.z).toBeLessThanOrEqual(1);
+    }
+    // Returning must not include the rendering offset in the next journey.
+    rerender(
+      <CameraRig
+        activeObject={null}
+        anchors={anchors}
+        reducedMotion
+        pointerEnabled={false}
+      />,
+    );
+    advance(1 / 60);
+    fiber.camera.updateMatrixWorld();
+    expect(new Vector3(0, 8, 0).project(fiber.camera).x).toBeCloseTo(0);
+  });
+
   it("does not skip the approach after a slow frame", () => {
     const onArrive = vi.fn();
     const anchors = {

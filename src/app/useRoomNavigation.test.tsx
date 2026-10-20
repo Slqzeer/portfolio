@@ -256,7 +256,7 @@ describe("room navigation", () => {
     expect(arriving).toHaveFocus();
   });
 
-  it("falls back to the navigation link when its hotspot does not return", () => {
+  it("focuses the closed menu summary without reopening Explorer when its hotspot does not return", () => {
     vi.useFakeTimers();
     const { rerender } = render(<FocusHarness />);
     fireEvent.click(screen.getByRole("button", { name: "Monitor marker" }));
@@ -266,7 +266,26 @@ describe("room navigation", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     fireEvent.click(screen.getByRole("button", { name: "Arrive" }));
     act(() => vi.advanceTimersByTime(5000));
-    expect(screen.getByRole("link", { name: "Projects link" })).toHaveFocus();
+    expect(screen.getByText("Navigation")).toHaveFocus();
+    expect(
+      screen.getByText("Navigation").closest("details"),
+    ).not.toHaveAttribute("open");
+  });
+
+  it("keeps Explorer closed after closing a project opened from navigation", () => {
+    render(<FocusHarness />);
+    const menu = screen.getByText("Navigation").closest("details")!;
+    menu.open = true;
+    fireEvent.click(screen.getByRole("link", { name: "Projects link" }));
+    act(() => {
+      window.history.replaceState(null, "", "#room/monitor");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+    menu.open = false;
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Arrive" }));
+    expect(menu).not.toHaveAttribute("open");
+    expect(screen.getByText("Navigation")).toHaveFocus();
   });
 
   it("cancels delayed focus work on unmount", async () => {

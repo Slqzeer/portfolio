@@ -34,7 +34,9 @@ describe("ObjectDetails", () => {
       />,
     );
     expect(
-      screen.getByText("Fullstack developer intern - Crédit Agricole CIB"),
+      screen.getByText(
+        "Full-stack development internship — Crédit Agricole CIB",
+      ),
     ).toBeInTheDocument();
 
     rerender(
@@ -54,6 +56,8 @@ describe("ObjectDetails", () => {
       />,
     );
     expect(screen.getByText("FastAPI")).toBeInTheDocument();
+    expect(screen.getByText("SVMs and kernel methods")).toBeInTheDocument();
+    expect(screen.getByText("Backend testing")).toBeInTheDocument();
 
     rerender(
       <ObjectDetails

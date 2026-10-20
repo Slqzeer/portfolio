@@ -38,6 +38,13 @@ export function frameZoom(orthoScale: number, width: number, height: number) {
   return Math.min(width / orthoScale, height / ((orthoScale * 9) / 16));
 }
 
+function placeRenderCamera(camera: Camera, position: Vector3) {
+  camera.position.copy(position);
+  // Orthographic framing is depth-independent. Keep the near plane outside
+  // this room's 16-unit diagonal so close-ups do not slice foreground meshes.
+  if (camera instanceof OrthographicCamera) camera.translateZ(20);
+}
+
 export interface CameraRigProps {
   activeObject: RoomObjectId | null;
   anchors: Record<string, Object3D>;
@@ -87,6 +94,7 @@ export function CameraRig({
     [gl.domElement],
   );
   const pointer = useRef(new Vector2());
+  const navigationPosition = useRef(new Vector3());
   const scratch = useMemo(
     () => ({
       position: new Vector3(),
@@ -120,8 +128,9 @@ export function CameraRig({
 
   useLayoutEffect(() => {
     if (!overview) return;
-    overview.getWorldPosition(camera.position);
+    overview.getWorldPosition(navigationPosition.current);
     overview.getWorldQuaternion(camera.quaternion);
+    placeRenderCamera(camera, navigationPosition.current);
     const orthoScale = overview.userData.ortho_scale;
     if (
       camera instanceof OrthographicCamera &&
@@ -162,7 +171,7 @@ export function CameraRig({
       };
     };
     let from: CameraPose = {
-      position: camera.position.clone(),
+      position: navigationPosition.current.clone(),
       quaternion: camera.quaternion.clone(),
       scale:
         camera instanceof OrthographicCamera && camera.zoom > 0
@@ -323,7 +332,7 @@ export function CameraRig({
       });
       let leg = journey.legs[journey.index];
       while (leg && (reducedMotion || journey.elapsed >= leg.duration)) {
-        camera.position.copy(leg.to.position);
+        navigationPosition.current.copy(leg.to.position);
         camera.quaternion.copy(leg.to.quaternion);
         lastAnchor.current = leg.name;
         journey.elapsed -= leg.duration;
@@ -350,7 +359,7 @@ export function CameraRig({
           }
         : journey.legs[journey.legs.length - 1]?.to;
       if (pose) {
-        camera.position.copy(pose.position);
+        navigationPosition.current.copy(pose.position);
         camera.quaternion.copy(pose.quaternion);
         if (camera instanceof OrthographicCamera) {
           // Fit the clear area while the full canvas stays visible.
@@ -368,6 +377,7 @@ export function CameraRig({
         journey.animations.forEach((animation) => animation.finish());
         arrival.current?.(journey.id);
       }
+      placeRenderCamera(camera, navigationPosition.current);
       return;
     }
     const anchorName = activeObject
@@ -423,8 +433,9 @@ export function CameraRig({
       camera.zoom += (zoom - camera.zoom) * factor;
       updateProjection();
     }
-    camera.position.lerp(scratch.position, factor);
+    navigationPosition.current.lerp(scratch.position, factor);
     camera.quaternion.slerp(scratch.quaternion, factor);
+    placeRenderCamera(camera, navigationPosition.current);
   });
 
   return null;
