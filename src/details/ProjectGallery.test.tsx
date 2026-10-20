@@ -8,10 +8,9 @@ describe("ProjectGallery", () => {
   it("switches real screenshots and resets the preview when selecting another project", async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    const projects = portfolioContent.projects.map((project) => ({
-      ...project,
-      category: "software" as const,
-    }));
+    const projects = portfolioContent.projects
+      .filter(({ id }) => id === "portfolio" || id === "classpulse")
+      .map((project) => ({ ...project, category: "software" as const }));
     render(
       <ProjectGallery
         projects={projects}
@@ -54,9 +53,8 @@ describe("ProjectGallery", () => {
       />,
     );
 
-    expect(
-      screen.getByRole("heading", { name: "ClassPulse" }),
-    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "ClassPulse" }));
+    expect(screen.getByRole("heading", { name: "ClassPulse" })).toBeVisible();
     expect(screen.getByText("FastAPI")).toBeInTheDocument();
     await user.click(screen.getByText("Découvrir le projet"));
     expect(screen.getByText(/Mon rôle : contribuer/)).toBeVisible();
@@ -84,7 +82,7 @@ describe("ProjectGallery", () => {
 
   it("renders populated project links with safe external attributes", () => {
     const project = {
-      ...portfolioContent.projects[0],
+      ...portfolioContent.projects.find(({ id }) => id === "portfolio")!,
       github: "https://github.com/example/project",
       demo: "https://example.com/demo",
     };

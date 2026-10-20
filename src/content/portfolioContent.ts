@@ -52,11 +52,18 @@ export const portfolioContent: PortfolioContent = {
   skills: [
     {
       group: text("Interfaces web", "Web interfaces"),
-      items: ["TypeScript", "React", "HTML", "CSS"],
+      items: ["TypeScript", "React", "Angular", "HTML", "CSS"],
     },
     {
       group: text("Backend & qualité produit", "Backend & product quality"),
-      items: ["Python", "FastAPI", "Backend testing", "Product design"],
+      items: [
+        "Python",
+        "FastAPI",
+        "Java",
+        "Spring Boot",
+        "Backend testing",
+        "Product design",
+      ],
     },
     {
       group: text("Création 3D", "3D creation"),
@@ -212,6 +219,75 @@ export const portfolioContent: PortfolioContent = {
       },
       github: "https://github.com/Ghost-in-xav/ClassPulse",
     },
+    {
+      id: "ping",
+      name: text("Ping", "Ping"),
+      category: "software",
+      summary: text(
+        "Une application éducative consacrée à la gestion du matériel et à la prévention des troubles musculo-squelettiques dans les centres VHU.",
+        "An educational application focused on equipment management and preventing musculoskeletal disorders in vehicle recycling centers.",
+      ),
+      problem: text(
+        "Réduire les risques liés aux gestes, aux postures et à l’utilisation du matériel dans un environnement de travail physique.",
+        "Reduce risks related to movement, posture, and equipment use in a physically demanding workplace.",
+      ),
+      solution: text(
+        "Recentrer une première idée de traçabilité du matériel vers la santé des employés et la prévention des TMS.",
+        "Refocus an initial equipment-tracking idea on employee health and musculoskeletal-disorder prevention.",
+      ),
+      architecture: text(
+        "Un prototype d’application web conçu en équipe autour du suivi du matériel et des situations à risque.",
+        "A team-built web application prototype centered on equipment tracking and risk situations.",
+      ),
+      challenges: text(
+        "Faire évoluer le positionnement du produit après avoir constaté que le marché de la simple gestion de matériel était déjà saturé.",
+        "Evolve the product positioning after finding that the basic equipment-management market was already saturated.",
+      ),
+      learnings: text(
+        "Partir du besoin métier, remettre en question l’idée initiale et privilégier un problème utilisateur plus différenciant.",
+        "Start from the business need, challenge the initial idea, and prioritize a more differentiated user problem.",
+      ),
+      stack: ["Product design", "Application web"],
+      status: text(
+        "Projet éducatif collectif · juin–juillet 2025",
+        "Team educational project · June–July 2025",
+      ),
+    },
+    {
+      id: "pass-through",
+      name: text("Pass-Through", "Pass-Through"),
+      category: "game-development",
+      summary: text(
+        "Un prototype éducatif de jeu d’action multijoueur développé en équipe avec Unity.",
+        "An educational multiplayer action-game prototype developed as a team with Unity.",
+      ),
+      problem: text(
+        "Construire une boucle de jeu multijoueur réunissant déplacement, combat, portails, ennemis et suivi des scores.",
+        "Build a multiplayer gameplay loop combining movement, combat, portals, enemies, and score tracking.",
+      ),
+      solution: text(
+        "Un prototype organisé autour de scènes de connexion, de lobby et de jeu, avec synchronisation réseau via Mirror.",
+        "A prototype organized around login, lobby, and gameplay scenes, with network synchronization through Mirror.",
+      ),
+      architecture: text(
+        "Un client Unity en C# avec des systèmes séparés pour le joueur, les armes, l’IA, les portails, l’interface, le kill feed et le tableau des scores.",
+        "A C# Unity client with separate systems for the player, weapons, AI, portals, UI, kill feed, and scoreboard.",
+      ),
+      challenges: text(
+        "Coordonner les systèmes de gameplay et leur comportement en réseau dans un premier projet collectif de cette ampleur.",
+        "Coordinate gameplay systems and their network behavior in a first team project of this scale.",
+      ),
+      learnings: text(
+        "Structurer une scène Unity, découper les responsabilités de gameplay et collaborer sur un dépôt commun.",
+        "Structure a Unity scene, separate gameplay responsibilities, and collaborate in a shared repository.",
+      ),
+      stack: ["Unity", "C#", "Mirror", "ShaderLab"],
+      status: text(
+        "Projet éducatif collectif · 2023",
+        "Team educational project · 2023",
+      ),
+      github: "https://github.com/Projet-s2-2027/Pass-Through",
+    },
   ],
   homelab: {
     description: text(
@@ -225,6 +301,7 @@ export const portfolioContent: PortfolioContent = {
       "Tailscale",
       "PostgreSQL & Redis",
       "Prometheus & Grafana",
+      "Penpot",
     ],
   },
   timeline: [
@@ -242,14 +319,17 @@ export const portfolioContent: PortfolioContent = {
     },
     {
       id: "cacib",
-      period: text("Expérience professionnelle", "Professional experience"),
+      period: text(
+        "Septembre 2025 — février 2026",
+        "September 2025 — February 2026",
+      ),
       title: text(
-        "Développement fullstack — CACIB",
-        "Fullstack development — CACIB",
+        "Développeur fullstack stagiaire — Crédit Agricole CIB",
+        "Fullstack developer intern — Crédit Agricole CIB",
       ),
       description: text(
-        "Une expérience en développement fullstack au sein de Crédit Agricole Corporate and Investment Bank.",
-        "Fullstack development experience at Crédit Agricole Corporate and Investment Bank.",
+        "Amélioration d’un tableau de bord existant qui centralise les métriques de qualité et de sécurité du code de plusieurs équipes, collectées notamment avec SonarQube. Backend Java / Spring Boot et frontend TypeScript / Angular.",
+        "Improved an existing dashboard centralizing code-quality and security metrics across several teams, collected notably through SonarQube. Java / Spring Boot backend and TypeScript / Angular frontend.",
       ),
     },
     {
@@ -280,6 +360,15 @@ export const portfolioContent: PortfolioContent = {
   explorationTopics: [
     text("Interfaces interactives", "Interactive interfaces"),
     text("3D pour le web", "3D for the web"),
+    text("Prototypage de jeux en Luau", "Game prototyping with Luau"),
+    text(
+      "Architecture de jeu client/serveur, microservices et EDA",
+      "Client/server game architecture, microservices, and EDA",
+    ),
+    text(
+      "Création d’assets avec Blender, Unity et Penpot",
+      "Asset creation with Blender, Unity, and Penpot",
+    ),
     text("Accessibilité", "Accessibility"),
     text("Performance", "Performance"),
   ],
@@ -365,8 +454,8 @@ export const portfolioContent: PortfolioContent = {
     "game-development": {
       title: text("Création de jeux", "Game development"),
       summary: text(
-        "Technique, systèmes et créativité.",
-        "Engineering, systems, and creativity.",
+        "Un projet Unity public et des prototypes privés autour de Luau, du client/serveur, des microservices et de l’EDA.",
+        "A public Unity project and private prototypes exploring Luau, client/server systems, microservices, and EDA.",
       ),
     },
     experiments: {

@@ -59,7 +59,9 @@ describe("portfolioContent", () => {
     expect(portfolioContent.identity.name).toBe("Martin Couturier");
     expect(
       portfolioContent.projects.every((project) =>
-        project.github.startsWith("https://github.com/"),
+        project.github
+          ? project.github.startsWith("https://github.com/")
+          : true,
       ),
     ).toBe(true);
   });

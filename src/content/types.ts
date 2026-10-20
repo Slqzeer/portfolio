@@ -47,7 +47,7 @@ export interface Project {
   learnings: LocalizedText;
   stack: string[];
   status: LocalizedText;
-  github: string;
+  github?: string;
   demo?: string;
   screenshots?: Array<{ src: string; alt: LocalizedText }>;
 }
