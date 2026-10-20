@@ -252,7 +252,7 @@ export function ObjectDetails({
         {details}
       </div>
       <footer className="detail-footer">
-        <span>MC — PORTFOLIO</span>
+        <span>MC - PORTFOLIO</span>
         <span>
           {locale === "fr"
             ? "EXPLORER. COMPRENDRE. ÉCHANGER."

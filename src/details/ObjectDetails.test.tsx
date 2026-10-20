@@ -34,7 +34,7 @@ describe("ObjectDetails", () => {
       />,
     );
     expect(
-      screen.getByText("Fullstack developer intern — Crédit Agricole CIB"),
+      screen.getByText("Fullstack developer intern - Crédit Agricole CIB"),
     ).toBeInTheDocument();
 
     rerender(

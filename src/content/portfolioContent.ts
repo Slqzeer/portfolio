@@ -9,8 +9,8 @@ export const portfolioContent: PortfolioContent = {
   identity: {
     name: "Martin Couturier",
     role: text(
-      "Étudiant ingénieur EPITA · IA, Data & développement fullstack",
-      "EPITA engineering student · AI, Data & fullstack development",
+      "Étudiant ingénieur EPITA · Data & intelligence artificielle",
+      "EPITA engineering student · Data & artificial intelligence",
     ),
     introduction: text(
       "Spécialisé en data science et intelligence artificielle, je conçois des produits logiciels de bout en bout. Bienvenue dans une autre façon de découvrir mon parcours.",
@@ -51,16 +51,23 @@ export const portfolioContent: PortfolioContent = {
   },
   skills: [
     {
+      group: text(
+        "Data & intelligence artificielle",
+        "Data & artificial intelligence",
+      ),
+      items: ["Python", "LLM", "RAG", "Big Data", "SVM & méthodes à noyaux"],
+    },
+    {
       group: text("Interfaces web", "Web interfaces"),
       items: ["TypeScript", "React", "Angular", "HTML", "CSS"],
     },
     {
       group: text("Backend & qualité produit", "Backend & product quality"),
       items: [
-        "Python",
         "FastAPI",
         "Java",
         "Spring Boot",
+        "SonarQube",
         "Backend testing",
         "Product design",
       ],
@@ -249,8 +256,8 @@ export const portfolioContent: PortfolioContent = {
       ),
       stack: ["Product design", "Application web"],
       status: text(
-        "Projet éducatif collectif · juin–juillet 2025",
-        "Team educational project · June–July 2025",
+        "Projet éducatif collectif · juin-juillet 2025",
+        "Team educational project · June-July 2025",
       ),
     },
     {
@@ -306,26 +313,59 @@ export const portfolioContent: PortfolioContent = {
   },
   timeline: [
     {
-      id: "current-studies",
-      period: text("2022 — 2027", "2022 — 2027"),
+      id: "epita-preparatory-cycle",
+      period: text("2022 - 2024", "2022 - 2024"),
+      title: text("Cycle préparatoire à l’EPITA", "EPITA preparatory cycle"),
+      description: text(
+        "Découverte de l’informatique bas niveau avec le C et réalisation de projets éducatifs, dont un OCR pour résoudre des sudokus et le jeu Unity/C# Pass-Through.",
+        "Introduction to low-level programming with C and educational projects, including OCR for solving Sudoku puzzles and the Unity/C# game Pass-Through.",
+      ),
+    },
+    {
+      id: "croatia-semester",
+      period: text("2023 - 2024", "2023 - 2024"),
       title: text(
-        "Cycle ingénieur EPITA — majeure SCIA",
-        "EPITA engineering degree — SCIA major",
+        "Deuxième année - semestre international en Croatie",
+        "Second year - international semester in Croatia",
       ),
       description: text(
-        "Spécialisation en data science et intelligence artificielle, avec un diplôme d’ingénieur prévu en 2027.",
-        "Specializing in data science and artificial intelligence, with an engineering degree expected in 2027.",
+        "Une immersion académique et culturelle qui m’a permis de gagner en autonomie et de participer à StreetSync, un projet web et mobile consacré aux événements et services locaux.",
+        "An academic and cultural immersion that helped me become more independent and contribute to StreetSync, a web and mobile project for local events and services.",
+      ),
+    },
+    {
+      id: "engineering-core",
+      period: text("2024 - 2025", "2024 - 2025"),
+      title: text(
+        "Première année du cycle ingénieur - tronc commun",
+        "First engineering-cycle year - common core",
+      ),
+      description: text(
+        "Acquisition des bases en Java, JavaScript, SQL et C++, avec un approfondissement de la programmation en C et de la conception logicielle.",
+        "Built foundations in Java, JavaScript, SQL, and C++, while deepening my knowledge of C programming and software design.",
+      ),
+    },
+    {
+      id: "scia-foundations",
+      period: text("2025 - 2026", "2025 - 2026"),
+      title: text(
+        "Deuxième année du cycle ingénieur - majeure SCIA",
+        "Second engineering-cycle year - SCIA major",
+      ),
+      description: text(
+        "Spécialisation en Data et IA : Big Data, modèles de langage, SVM, méthodes à noyaux et premiers projets appliqués.",
+        "Specialization in Data and AI: Big Data, language models, SVMs, kernel methods, and initial applied projects.",
       ),
     },
     {
       id: "cacib",
       period: text(
-        "Septembre 2025 — février 2026",
-        "September 2025 — February 2026",
+        "Septembre 2025 - février 2026",
+        "September 2025 - February 2026",
       ),
       title: text(
-        "Développeur fullstack stagiaire — Crédit Agricole CIB",
-        "Fullstack developer intern — Crédit Agricole CIB",
+        "Développeur fullstack stagiaire - Crédit Agricole CIB",
+        "Fullstack developer intern - Crédit Agricole CIB",
       ),
       description: text(
         "Amélioration d’un tableau de bord existant qui centralise les métriques de qualité et de sécurité du code de plusieurs équipes, collectées notamment avec SonarQube. Backend Java / Spring Boot et frontend TypeScript / Angular.",
@@ -333,23 +373,23 @@ export const portfolioContent: PortfolioContent = {
       ),
     },
     {
-      id: "classpulse",
-      period: text("Projet collectif", "Team project"),
+      id: "scia-final-year",
+      period: text("2026 - 2027", "2026 - 2027"),
       title: text(
-        "ClassPulse — conception & qualité",
-        "ClassPulse — design & quality",
+        "Troisième année du cycle ingénieur - majeure SCIA",
+        "Final engineering-cycle year - SCIA major",
       ),
       description: text(
-        "Conception du produit, tests et vérification du backend Python / FastAPI d’un système agentique d’aide aux étudiants.",
-        "Product design, testing, and verification of the Python / FastAPI backend of an agentic student support system.",
+        "Approfondissement de la Data et de l’IA, avec un PFEE mené avec Wavestone à l’intersection de la cybersécurité et de l’intelligence artificielle. Diplôme d’ingénieur prévu en 2027.",
+        "Advanced Data and AI studies, including a final-year project with Wavestone at the intersection of cybersecurity and artificial intelligence. Engineering degree expected in 2027.",
       ),
     },
   ],
   volleyball: {
     title: text("Le collectif avant le score", "Team first, score second"),
     narrative: text(
-      "Le volley nourrit ma constance et mon goût du travail collectif.",
-      "Volleyball builds consistency and a taste for teamwork.",
+      "Le volley m’a appris à progresser avec régularité, à communiquer et à jouer pour le collectif.",
+      "Volleyball taught me to improve consistently, communicate, and put the team first.",
     ),
     qualities: [
       text("Esprit d’équipe", "Teamwork"),
@@ -378,8 +418,8 @@ export const portfolioContent: PortfolioContent = {
       "An idea, a project, or something to talk about?",
     ),
     location: text(
-      "Basé en Île-de-France, je recherche en priorité un stage en IA/Data, ou en développement fullstack.",
-      "Based in the Paris Region, I am primarily looking for an AI/Data internship, or a fullstack development role.",
+      "Basé en Île-de-France, je recherche un stage en tant qu’ingénieur Data & IA à partir du 8 février 2027.",
+      "Based in the Paris Region, I am looking for a Data & AI engineering internship starting February 8, 2027.",
     ),
   },
   roomObjects: {
