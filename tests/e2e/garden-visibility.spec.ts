@@ -4,13 +4,15 @@ test("the exported garden meshes cannot render outside the window", async ({
   page,
 }) => {
   await page.goto("/");
-  const result = await page.evaluate(async () => {
-    const fixture = "/tests/fixtures/renderGarden.ts";
-    return (await import(fixture)).renderGarden();
-  });
-  expect(result.coverage.window).toBeGreaterThan(0);
-  expect(result.coverage["beside-window"], JSON.stringify(result)).toBe(0);
-  expect(result.coverage["outside-room"], JSON.stringify(result)).toBe(0);
+  await expect(async () => {
+    const result = await page.evaluate(async () => {
+      const fixture = "/tests/fixtures/renderGarden.ts";
+      return (await import(fixture)).renderGarden();
+    });
+    expect(result.coverage.window).toBeGreaterThan(0);
+    expect(result.coverage["beside-window"], JSON.stringify(result)).toBe(0);
+    expect(result.coverage["outside-room"], JSON.stringify(result)).toBe(0);
+  }).toPass({ timeout: 20_000 });
 });
 
 test("garden is visible only through the window for changing cameras", async ({

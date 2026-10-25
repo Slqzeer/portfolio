@@ -1,5 +1,11 @@
-import { openNavigation, openSettings } from "./controls";
+import {
+  openNavigation,
+  openSettings,
+  useLightweightRoomLighting,
+} from "./controls";
 import { expect, test, type Page } from "@playwright/test";
+
+test.beforeEach(async ({ page }) => useLightweightRoomLighting(page));
 
 async function openRoomMenu(page: Page) {
   const menu = page.locator(".room-menu");
@@ -66,6 +72,7 @@ test("reads real projects while the 3D asset is still loading", async ({
   await openSettings(page);
   await page.getByRole("button", { name: "Lecture rapide" }).click();
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
+  await page.getByRole("button", { name: "ClassPulse", exact: true }).click();
   await expect(page.getByRole("heading", { name: "ClassPulse" })).toBeVisible();
   await expect(page.locator(".room-canvas")).toHaveCount(0);
   await page
@@ -74,7 +81,7 @@ test("reads real projects while the 3D asset is still loading", async ({
     .getByText("Découvrir le projet")
     .click();
   await expect(
-    page.getByText(/Mon rôle : contribuer à la conception/),
+    page.getByText(/Contribuer à la conception du système/),
   ).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("reading-classpulse.png"),
@@ -87,7 +94,7 @@ test("reads real projects while the 3D asset is still loading", async ({
   await expect(page.getByRole("dialog", { name: "Contact" })).toBeVisible();
   await expect(
     page.getByRole("link", { name: /LinkedIn Martin Couturier/ }),
-  ).toHaveAttribute("href", "https://www.linkedin.com/in/martin-couturier");
+  ).toHaveAttribute("href", "https://www.linkedin.com/in/martin-couturier/");
   await page.screenshot({ path: testInfo.outputPath("reading-contact.png") });
   release?.();
 });
@@ -138,7 +145,7 @@ test("loads the GLB behind a loading screen and enables pointer follow", async (
   await expect(loading).toBeVisible();
   // Ready waits for the GLB and its lightmaps; CI renders in software.
   await expect(roomCanvas).toHaveAttribute("data-ready", "true", {
-    timeout: 20000,
+    timeout: 20_000,
   });
   await expect(loading).toHaveCount(0);
   await expect(page.getByTestId("room-poster")).toHaveCount(0);
@@ -262,9 +269,12 @@ test("supports keyboard focus, Back, and Escape", async ({ page }) => {
     "INTERACT",
     { timeout: 15000 },
   );
-  await expect(monitor).toBeFocused();
+  await expect(
+    page.getByLabel("Toutes les rubriques", { exact: true }),
+  ).toBeFocused();
 
-  await monitor.press("Enter");
+  await openRoomMenu(page);
+  await page.getByRole("button", { name: "Mes projets" }).press("Enter");
   await expect(page.getByRole("main")).toHaveAttribute(
     "data-navigation-phase",
     "INTERACT",
@@ -304,7 +314,7 @@ test("keeps the poster and controls when the GLB fails", async ({ page }) => {
   await expect(page.getByRole("dialog", { name: "Projets" })).toBeVisible();
 });
 
-test("reviews direct projects navigation and separate desktop/mobile reading space", async ({
+test("reviews direct projects navigation and responsive reading overlays", async ({
   page,
 }, testInfo) => {
   test.setTimeout(120000);
@@ -333,8 +343,9 @@ test("reviews direct projects navigation and separate desktop/mobile reading spa
   const desktopCanvas = await page.locator(".room-canvas").boundingBox();
   const desktopPanel = await panel.boundingBox();
   await page.screenshot({ path: testInfo.outputPath("projects-desktop.png") });
-  expect(desktopCanvas!.x + desktopCanvas!.width).toBeLessThanOrEqual(
-    desktopPanel!.x + 1,
+  expect(desktopPanel!.x).toBeGreaterThan(desktopCanvas!.x);
+  expect(desktopPanel!.x + desktopPanel!.width).toBeLessThanOrEqual(
+    desktopCanvas!.x + desktopCanvas!.width + 1,
   );
   await page.screenshot({ path: testInfo.outputPath("projects-desktop.png") });
   await page.keyboard.press("Escape");
@@ -345,9 +356,7 @@ test("reviews direct projects navigation and separate desktop/mobile reading spa
   );
   await expect(page).not.toHaveURL(/#room\//);
   await expect(
-    page
-      .getByRole("navigation", { name: "Navigation principale" })
-      .getByRole("link", { name: "Projets" }),
+    page.getByLabel("Toutes les rubriques", { exact: true }),
   ).toBeFocused();
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -383,8 +392,9 @@ test("reviews direct projects navigation and separate desktop/mobile reading spa
   await expect(panel).toBeVisible();
   const mobileCanvas = await page.locator(".room-canvas").boundingBox();
   const mobilePanel = await panel.boundingBox();
-  expect(mobileCanvas!.y + mobileCanvas!.height).toBeLessThanOrEqual(
-    mobilePanel!.y + 1,
+  expect(mobilePanel!.y).toBeGreaterThan(mobileCanvas!.y);
+  expect(mobilePanel!.y + mobilePanel!.height).toBeLessThanOrEqual(
+    mobileCanvas!.y + mobileCanvas!.height + 1,
   );
   await page.screenshot({ path: testInfo.outputPath("projects-mobile.png") });
 
@@ -467,7 +477,7 @@ test("supports mobile, reduced motion, and hidden-tab pause", async ({
     page.getByRole("dialog", { name: "Création de jeux" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Aucun projet publié dans cette catégorie pour le moment."),
+    page.getByRole("heading", { name: "Pass-Through" }),
   ).toBeVisible();
 
   await openSettings(page);

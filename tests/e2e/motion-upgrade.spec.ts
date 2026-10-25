@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { openSettings } from "./controls";
+import { openSettings, useLightweightRoomLighting } from "./controls";
+
+test.beforeEach(async ({ page }) => useLightweightRoomLighting(page));
 
 for (const width of [1440, 390]) {
   test(`controller startup and project screenshots at ${width}px`, async ({
@@ -53,6 +55,7 @@ for (const width of [1440, 390]) {
       "INTERACT",
       { timeout: 15000 },
     );
+    await page.getByRole("button", { name: "ClassPulse", exact: true }).click();
     const preview = page.locator(".project-screenshot");
     await expect(preview).toHaveAttribute(
       "src",

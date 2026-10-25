@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { useLightweightRoomLighting } from "./controls";
+
+test.beforeEach(async ({ page }) => useLightweightRoomLighting(page));
 
 for (const viewport of [
   { width: 1440, height: 900 },
