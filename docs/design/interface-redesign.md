@@ -29,7 +29,7 @@ Le réglage manuel des mouvements est conservé dans le navigateur. La préfére
 - Martin Couturier, étudiant en cinquième année ; liens GitHub et LinkedIn fournis.
 - ClassPulse : système agentique d’aide aux étudiants visant à prévenir le décrochage scolaire, backend Python / FastAPI. Contribution : conception, tests, vérification du backend et qualité du produit. Aucun résultat chiffré ou déploiement n’est affirmé.
 - Portfolio : présentation de la chambre interactive et des choix techniques réellement présents dans le dépôt.
-- Parcours : cinquième année, expérience fullstack chez CACIB, contribution à ClassPulse. Aucune date ni diplôme obtenu n’est inventé.
+- Parcours : cinquième année, expérience full stack chez CACIB, contribution à ClassPulse. Aucune date ni diplôme obtenu n’est inventé.
 - La configuration du homelab, les dates du parcours, le nom exact de l’établissement et les coordonnées complémentaires restent à préciser. Le CV et l’e-mail sont masqués tant qu’aucune destination n’est fournie. Le dépôt ClassPulse n’était pas accessible publiquement lors de la vérification ; sa description vient directement de Martin.
 
 ## Captures et validation

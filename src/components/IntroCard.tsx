@@ -38,10 +38,24 @@ export function IntroCard({ content, locale, onExplore }: IntroCardProps) {
           ? "Cliquez sur un objet pour découvrir mon parcours."
           : "Click an object to discover my story."}
       </p>
-      <p className="availability">
+      <a
+        className="availability"
+        href="#room/contact"
+        aria-label={
+          locale === "fr"
+            ? `${localize(content.availability, locale)} — Me contacter`
+            : `${localize(content.availability, locale)} — Contact me`
+        }
+      >
         <span className="status-dot" />
-        {localize(content.availability, locale)}
-      </p>
+        <span className="availability-content">
+          <strong>
+            {locale === "fr" ? "Stage recherché" : "Seeking an internship"}
+          </strong>
+          <span>{localize(content.availability, locale)}</span>
+        </span>
+        <Icon name="arrow" />
+      </a>
       <div className="social-actions">
         {Object.entries(content.social).map(([id, link]) =>
           link.href ? (
