@@ -52,6 +52,12 @@ describe("portfolioContent", () => {
     expect(label.en.trim()).not.toBe("");
   });
 
+  it("keeps the French internship location correctly accented", () => {
+    expect(portfolioContent.contact.location.fr).toBe(
+      "Basé en Île-de-France, je recherche un stage en tant qu’ingénieur Data & IA à partir du 8 février 2027.",
+    );
+  });
+
   it("uses unique project IDs and the provided identity", () => {
     const projectIds = portfolioContent.projects.map(({ id }) => id);
 

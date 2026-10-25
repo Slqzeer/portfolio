@@ -21,6 +21,11 @@ describe("App", () => {
       screen.getByText(portfolioContent.availability.fr),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("link", {
+        name: `${portfolioContent.availability.fr} — Me contacter`,
+      }),
+    ).toHaveAttribute("href", "#room/contact");
+    expect(
       screen.getByRole("navigation", { name: "Navigation principale" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
