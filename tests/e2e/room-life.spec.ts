@@ -1,7 +1,12 @@
-import { openNavigation, openSettings } from "./controls";
+import {
+  openNavigation,
+  openSettings,
+  useLightweightRoomLighting,
+} from "./controls";
 import { expect, test } from "@playwright/test";
 
 test.use({ viewport: { width: 960, height: 640 } });
+test.beforeEach(async ({ page }) => useLightweightRoomLighting(page));
 
 test("re-enables and remembers curtain animation with saved and system reduced motion", async ({
   page,

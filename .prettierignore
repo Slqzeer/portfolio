@@ -1,5 +1,6 @@
 docs/
 .superpowers/
+.codex/
 README.md
 node_modules/
 dist/

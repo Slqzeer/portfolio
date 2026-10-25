@@ -199,20 +199,51 @@ h1 em {
   width: 14px;
 }
 .availability {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  width: 100%;
   margin: 24px 0 0;
-  color: var(--muted);
-  font-size: 9px;
-  line-height: 1.7;
+  padding: 14px 15px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--green) 7%, var(--paper));
+  box-shadow: 0 10px 30px #23382c0a;
+  text-decoration: none;
+  transition:
+    border-color 180ms,
+    background-color 180ms,
+    box-shadow 180ms;
+}
+.availability:hover {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, var(--paper));
+  box-shadow: 0 12px 34px #23382c12;
+}
+.availability-content {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.availability-content strong {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+}
+.availability .icon {
+  width: 18px;
+  color: var(--green);
 }
 .status-dot {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 0 4px #39705d0c;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--green) 12%, transparent);
   display: inline-block;
   flex: none;
 }
@@ -342,6 +373,10 @@ main {
   }
   .availability {
     margin-top: 18px;
+    padding: 13px 14px;
+  }
+  .availability-content {
+    font-size: 11px;
   }
   .social-actions {
     margin-top: 8px;

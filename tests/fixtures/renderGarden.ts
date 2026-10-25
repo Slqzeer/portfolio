@@ -22,6 +22,9 @@ export async function renderGarden() {
       if (ancestor.userData.exterior_surface) exterior = true;
     }
     node.visible = exterior;
+    if (exterior) {
+      for (const material of [node.material].flat()) material.visible = true;
+    }
   });
   const renderer = new T.WebGLRenderer({ alpha: true });
   renderer.setSize(96, 96);

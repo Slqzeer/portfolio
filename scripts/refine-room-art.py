@@ -11,21 +11,21 @@ OUT = ROOT / "assets/blender/art-v2"
 OUT.mkdir(parents=True, exist_ok=True)
 COPY = {
     "ContactCard_Name": "Martin Couturier",
-    "ContactCard_Role": "Etudiant / Developpeur fullstack",
-    "ContactCard_Email_Label": "Echangeons",
+    "ContactCard_Role": "Étudiant / Développeur full stack",
+    "ContactCard_Email_Label": "Échangeons",
     "ContactCard_Email_Value": "LinkedIn / GitHub",
     "ContactCard_GitHub_Value": "github.com/Slqzeer",
     "ContactCard_LinkedIn_Value": "linkedin.com/in/martin-couturier",
     "Diploma_Title": "FORMATION EN COURS",
     "Diploma_Name": "Martin Couturier",
-    "Diploma_Promotion": "Cinquieme annee",
-    "Diploma_Specialty": "Conception / Developpement / Qualite",
-    "Diploma_Detail": "Une formation, des projets et une experience fullstack chez CACIB",
+    "Diploma_Promotion": "Cinquième année",
+    "Diploma_Specialty": "Conception / Développement / Qualité",
+    "Diploma_Detail": "Une formation, des projets et une expérience full stack chez CACIB",
 }
 CODE = [
     "# ClassPulse / backend quality", "from fastapi import FastAPI", "", "app = FastAPI(title=\"ClassPulse\")", "",
-    "# Concevoir. Tester. Verifier.", "# Un accompagnement pour les etudiants.", "", "@app.get(\"/health\")", "def health():", "    return {\"status\": \"ok\"}", "",
-    "def test_health(client):", "    response = client.get(\"/health\")", "    assert response.status_code == 200", "    assert response.json() == {\"status\": \"ok\"}", "", "# Martin Couturier", "# Conception et verification du backend", "# Python / FastAPI", "", "# Illustration du travail de verification", "# github.com/Slqzeer",
+    "# Concevoir. Tester. Vérifier.", "# Un accompagnement pour les étudiants.", "", "@app.get(\"/health\")", "def health():", "    return {\"status\": \"ok\"}", "",
+    "def test_health(client):", "    response = client.get(\"/health\")", "    assert response.status_code == 200", "    assert response.json() == {\"status\": \"ok\"}", "", "# Martin Couturier", "# Conception et vérification du backend", "# Python / FastAPI", "", "# Illustration du travail de vérification", "# github.com/Slqzeer",
 ]
 
 def bsdf(material):
