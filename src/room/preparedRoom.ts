@@ -133,6 +133,20 @@ export function prepareRoomScene(source: Object3D) {
   en.quaternion.copy(fr.quaternion);
   en.scale.copy(fr.scale);
   const materials = prepareLighting(scene);
+  if (import.meta.env.VITE_E2E_LIGHTWEIGHT_RENDER === "true") {
+    // GitHub's software WebGL renderer cannot sustain the full Blender scene.
+    // Keep the real hierarchy, metadata and animations for browser coverage,
+    // while assets:check validates the production geometry independently.
+    materials.forEach((material) => {
+      material.visible = false;
+    });
+    const controllerPower = scene.getObjectByName("EMIT_Controller_Power");
+    if (controllerPower instanceof Mesh) {
+      for (const material of [controllerPower.material].flat()) {
+        material.visible = true;
+      }
+    }
+  }
   const baked = materials.filter((material) => material.userData.lightmapAtlas);
   const exterior = materials
     .filter(
