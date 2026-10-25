@@ -2,7 +2,7 @@
 from the master into the optimized blend, then regenerate the shell Lightmap UVs.
 
 Run on the optimized blend, then re-bake the lightmaps:
-  blender -b assets/blender/portfolio-room-optimized.blend --python scripts/sync-room-walls.py -- <abs master.blend>
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/sync-room-walls.py -- <abs master.blend>
 """
 import sys
 

@@ -4,7 +4,7 @@ Smart project had left the props atlas 15 % full and wildly uneven (window 173 p
 table 37, bookshelf 27), and the rug sat in the shell atlas at 20 px/m. The rug moves to props;
 every atlas gets average_islands_scale (same density everywhere) and a concave pack.
 Run on the optimized blend, then decal-lightmap-uvs.py, then re-bake:
-  blender -b assets/blender/portfolio-room-optimized.blend --python scripts/repack-lightmap-uvs.py
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/repack-lightmap-uvs.py
 """
 import math
 

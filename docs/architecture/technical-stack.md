@@ -41,13 +41,13 @@ Personal information, links, projects, skills, translations, and availability mu
 4. **Higgsfield** may provide concept references but never final geometry.
 5. The approved Canva export is aligned behind the locked Blender overview camera; blockout and final renders are compared by overlay.
 6. Blender exports `public/assets/room/portfolio-room.glb` plus day/night fallback posters.
-7. `portfolio-room.blend` remains the editable master; `portfolio-room-optimized.blend` joins static meshes by material for the web export without altering interactive or animated nodes.
+7. `refined/portfolio-room.blend` remains the editable master; `refined/portfolio-room-optimized.blend` joins static meshes by material for the web export without altering interactive or animated nodes.
 
-The `.blend` source is versioned at `assets/blender/portfolio-room.blend`. Functional objects and camera anchors keep the stable names defined by the approved 3D-room specification. Editorial copy never enters the GLB.
+The `.blend` source is versioned at `assets/blender/refined/portfolio-room.blend`. Functional objects and camera anchors keep the stable names defined by the room contract. Editorial copy remains in the typed content layer, apart from decorative text authored directly in Blender.
 
 Start with one GLB, joined static decor, instanced repeated homelab parts, baked ambient occlusion, and only the lights required by day/night behavior. Add texture compression, mesh compression, file splitting, or LOD only after measurements show the initial asset misses its targets.
 
-The current export is 2.26 MB with 168 named nodes. Static joining reduced the measured headless desktop draw calls from 213 to 144; mobile framing measured 21. Chromium software-renderer samples reached 7 FPS desktop and 41 FPS at 390 × 844, so the mobile 30 FPS target passes while physical desktop GPU validation remains required before treating the headless desktop number as representative.
+Runtime size, node and animation budgets are enforced by the GLB contract rather than copied into this document, so they cannot become stale after an asset export.
 
 ## Prepared room and authored clip patching
 

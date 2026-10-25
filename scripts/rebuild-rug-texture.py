@@ -4,8 +4,8 @@ The old texture was 1024 × 768 per-pixel noise stretched over the 6.4 × 4.7 m 
 "tufts"), so close-ups showed square pixels. The tile keeps its colour, mottling and grain
 contrast (measured from the old image) but is FFT-filtered noise, which tiles seamlessly.
 Run on the master and the optimized blend (same rug), then re-export:
-  blender -b assets/blender/portfolio-room.blend --python scripts/rebuild-rug-texture.py
-  blender -b assets/blender/portfolio-room-optimized.blend --python scripts/rebuild-rug-texture.py
+  blender -b assets/blender/refined/portfolio-room.blend --python scripts/rebuild-rug-texture.py
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/rebuild-rug-texture.py
 """
 import bpy
 import numpy as np

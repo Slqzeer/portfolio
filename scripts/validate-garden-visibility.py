@@ -33,4 +33,6 @@ for name,position,target,visible in [
  fraction=float(np.mean(alpha>.1));checks[name]=fraction
  assert fraction>.95 if visible else fraction==0, (name,fraction)
 print('[garden visibility] '+json.dumps(checks),flush=True)
-(root/'assets/reviews/garden-visibility-check.json').write_text(json.dumps(checks,indent=2))
+report_path=root/'assets/reviews/garden-visibility-check.json'
+report_path.parent.mkdir(parents=True,exist_ok=True)
+report_path.write_text(json.dumps(checks,indent=2))

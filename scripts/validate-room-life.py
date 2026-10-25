@@ -91,5 +91,7 @@ for curve in curves:
 scene.frame_set(1)
 report={'source':bpy.data.filepath,'wall_manifold':True,'background_top':max(point.z for point in points),
         'emission_curves':len(curves),'checks':['botanical garden geometry','individual leaves without ball canopies','Blender garden aperture','blind day/night','cord day/night','foliage wind','phone alignment and settling','screen typing','editor themes','bookshelf corner','controller status alignment','controller startup','loop endpoints']}
-(ROOT/'assets/reviews/room-refined-animation-check.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+report_path=ROOT/'assets/reviews/room-refined-animation-check.json'
+report_path.parent.mkdir(parents=True,exist_ok=True)
+report_path.write_text(json.dumps(report,indent=2),encoding='utf-8')
 print('[validate] '+json.dumps(report),flush=True)

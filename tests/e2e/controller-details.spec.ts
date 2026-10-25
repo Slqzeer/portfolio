@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+
+test.beforeAll(async () => {
+  await mkdir("assets/reviews", { recursive: true });
+});
 
 for (const viewport of [
   { width: 1440, height: 900 },

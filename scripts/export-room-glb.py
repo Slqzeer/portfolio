@@ -1,6 +1,6 @@
 """Export the optimized room to the runtime GLB (headless).
 
-Run: blender -b assets/blender/living/portfolio-room-optimized.blend --python scripts/export-room-glb.py
+Run: blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/export-room-glb.py
 Removes the Blender-only shadow blockers, then exports cameras, punctual lights, extras, actions,
 and both UV sets (TEXCOORD_0 = material UVs, TEXCOORD_1 = `Lightmap`) with WebP textures.
 Meshes are Draco-compressed (14-bit UVs keep lightmap texels exact); the decoder ships in public/draco/.

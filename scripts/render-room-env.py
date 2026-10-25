@@ -1,6 +1,6 @@
 """Render the room's reflection probes (equirectangular HDR, day and night) for the runtime.
 
-Run: blender -b assets/blender/living/portfolio-room-optimized.blend --python scripts/render-room-env.py
+Run: blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/render-room-env.py
 Writes public/assets/room/env/env_day.hdr (frame 1) and env_night.hdr (frame 23). The probe camera
 sits above the room centre looking down Blender +X, so the image centre is three.js +X and no
 runtime rotation is needed.
