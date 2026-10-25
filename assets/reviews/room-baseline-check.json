@@ -18,88 +18,56 @@
       "property": "location",
       "axis": 2,
       "amplitude": 0.07,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "controller": {
       "target": "INT_Controller",
       "property": "rotation_euler",
       "axis": 0,
       "amplitude": 0.025,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "bookshelf": {
       "target": "Shelf_BookStack",
       "property": "rotation_euler",
       "axis": 2,
       "amplitude": 0.012,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "monitor": {
       "target": "INT_Monitor",
       "property": "rotation_euler",
       "axis": 2,
       "amplitude": 0.008,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "smartphone": {
       "target": "INT_Smartphone",
       "property": "rotation_euler",
       "axis": 0,
       "amplitude": 0.018,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "education": {
       "target": "INT_Diploma",
       "property": "rotation_euler",
       "axis": 1,
       "amplitude": 0.004,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "contact": {
       "target": "INT_ContactCard",
       "property": "rotation_euler",
       "axis": 1,
       "amplitude": 0.004,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     },
     "server": {
       "target": "EMIT_Rack_Side_00_ACT1",
       "property": "scale",
       "axis": 0,
       "amplitude": 0.12,
-      "frames": [
-        1,
-        5,
-        13
-      ]
+      "frames": [1, 5, 13]
     }
   }
 }

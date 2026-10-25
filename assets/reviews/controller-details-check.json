@@ -1,11 +1,7 @@
 {
   "sourceFirst": true,
   "controllerStatus": {
-    "localBlender": [
-      0,
-      -0.004,
-      0.0414
-    ],
+    "localBlender": [0, -0.004, 0.0414],
     "bothSourcesValidated": true,
     "blinkPreserved": true
   },
@@ -36,14 +32,8 @@
     "roundedCardCorrection": {
       "build": "passed",
       "browserScenarios": 6,
-      "viewports": [
-        1440,
-        390
-      ],
-      "themes": [
-        "day",
-        "night"
-      ]
+      "viewports": [1440, 390],
+      "themes": ["day", "night"]
     }
   },
   "screenshots": [
