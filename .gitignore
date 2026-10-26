@@ -7,13 +7,13 @@ playwright-report/
 test-results/
 .vercel/
 .cache/
+debug.log
 optix7cache.db*
 
 # Large baked lightmap sources (EXR/PNG); runtime WebPs live in public/assets/room/lightmaps/
 assets/blender/lightmaps/
-assets/blender/art-v2/lightmaps/
-assets/blender/living/lightmaps/
-assets/blender/refined/lightmaps/
+assets/blender/*/lightmaps/
+assets/reviews/
 *.blend1
 
 # Blender animation renders (Render > Render Animation output)

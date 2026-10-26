@@ -5,6 +5,7 @@ import bpy
 from mathutils import Vector
 
 ROOT=Path(__file__).resolve().parents[1]
+REVIEW=ROOT/'assets/reviews';REVIEW.mkdir(parents=True,exist_ok=True)
 scene=bpy.context.scene
 args=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
 night='night' in args
@@ -50,6 +51,6 @@ for name in requested:
     scene.frame_set(frame);scene['screen_night']=night
     camera.location=position;camera.rotation_euler=(Vector(target)-camera.location).to_track_quat('-Z','Y').to_euler()
     camera.data.type='ORTHO';camera.data.ortho_scale=scale
-    scene.render.filepath=str(ROOT/'assets/reviews'/f'room-refined-{name}-{"night" if night else "day"}.png')
+    scene.render.filepath=str(REVIEW/f'room-refined-{name}-{"night" if night else "day"}.png')
     bpy.ops.render.render(write_still=True)
     print('[review] '+scene.render.filepath,flush=True)

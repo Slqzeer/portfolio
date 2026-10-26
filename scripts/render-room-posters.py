@@ -1,6 +1,6 @@
 """Render transparent overview posters without saving or changing the Blender source.
 
-blender -b assets/blender/living/portfolio-room.blend --threads 4 --python scripts/render-room-posters.py
+blender -b assets/blender/refined/portfolio-room.blend --threads 4 --python scripts/render-room-posters.py
 """
 from pathlib import Path
 import sys

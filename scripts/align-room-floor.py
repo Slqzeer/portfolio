@@ -3,8 +3,8 @@
 The planks stopped 11 cm short of the walls' outer faces, the slab overhung everything by 4 cm,
 and the baseboards stopped 2 cm short of the wall end caps. Run on the master and the optimized
 blend (same object names, except the optimized blend joins the baseboards), then re-bake:
-  blender -b assets/blender/portfolio-room.blend --python scripts/align-room-floor.py
-  blender -b assets/blender/portfolio-room-optimized.blend --python scripts/align-room-floor.py
+  blender -b assets/blender/refined/portfolio-room.blend --python scripts/align-room-floor.py
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/align-room-floor.py
 """
 import bpy
 from mathutils import Vector

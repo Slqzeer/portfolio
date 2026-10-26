@@ -1,10 +1,10 @@
 """Bake day/night diffuse lightmaps for the optimized room.
 
 Run headless:
-  blender -b assets/blender/living/portfolio-room-optimized.blend --python scripts/bake-room-lightmaps.py -- [state ...]
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/bake-room-lightmaps.py -- [state ...]
 
 Bakes every mesh tagged with the `lightmap_atlas` custom property ('shell' or 'props') into
-assets/blender/living/lightmaps/LM_<atlas>_<state>.exr using the `Lightmap` UV layer.
+assets/blender/refined/lightmaps/LM_<atlas>_<state>.exr using the `Lightmap` UV layer.
 Day = frame 1 (blind open, daylight on), night = frame 23 (blind closed, lamp on).
 """
 import os

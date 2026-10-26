@@ -5,6 +5,8 @@ import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+REVIEW = ROOT / 'assets/reviews'
+REVIEW.mkdir(parents=True, exist_ok=True)
 scene = bpy.context.scene
 requested = sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
 scene.frame_set(23 if requested==['night'] else 1)
@@ -77,6 +79,6 @@ for label in requested:
     camera.data.ortho_scale=scale
     scene.render.resolution_x=1100
     scene.render.resolution_y=800
-    scene.render.filepath=str(ROOT/'assets/reviews'/f'room-living-{label}.png')
+    scene.render.filepath=str(REVIEW/f'room-living-{label}.png')
     bpy.ops.render.render(write_still=True)
     print(f'[review] {label} at frame {frame}',flush=True)

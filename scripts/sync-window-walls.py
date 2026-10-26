@@ -1,7 +1,7 @@
 """Copy the approved wall outlines, window, blind and garden view from the master into the optimized blend.
 
 Run on the pre-sync optimized blend, then re-bake the lightmaps (the Lightmap UVs are regenerated):
-  blender -b assets/blender/portfolio-room-optimized.blend --python scripts/sync-window-walls.py -- <abs master.blend> <abs graded view.png>
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/sync-window-walls.py -- <abs master.blend> <abs graded view.png>
 The graded view is TEX_WindowView exported from the master. Verify every touched object's world bounds
 against the master before baking: appended objects have no evaluated matrix_world until linked.
 """

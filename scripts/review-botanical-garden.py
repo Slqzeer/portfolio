@@ -2,6 +2,7 @@
 import bpy
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
+REVIEW=ROOT/'assets/reviews';REVIEW.mkdir(parents=True,exist_ok=True)
 s=bpy.context.scene;s.frame_set(1)
 s.render.engine='CYCLES';s.cycles.samples=48;s.cycles.use_denoising=True
 p=bpy.context.preferences.addons['cycles'].preferences
@@ -27,5 +28,5 @@ for name,position,target,scale in [('botanical-garden-blender',(-6.9,6.0,6.2),(-
  for o in s.objects:
   if o.name.startswith('SHADOW_Garden_Portal_'):o.hide_render=name=='botanical-garden-blender'
  cam.location=position;cam.rotation_euler=(Vector(target)-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.ortho_scale=scale
- s.render.filepath=str(ROOT/'assets/reviews'/f'{name}.png')
+ s.render.filepath=str(REVIEW/f'{name}.png')
  bpy.ops.render.render(write_still=True)

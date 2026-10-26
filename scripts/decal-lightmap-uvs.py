@@ -6,7 +6,7 @@ symbols). Each decal face now takes the `Lightmap` UV of the nearest point on it
 which is the light it really receives. Decals are tagged `lightmap_decal` so the bake hides them
 (otherwise each letter would read its own contact shadow on the paper); re-bake after a first run.
 Run on the optimized blend after any `Lightmap` UV regeneration:
-  blender -b assets/blender/portfolio-room-optimized.blend --python scripts/decal-lightmap-uvs.py
+  blender -b assets/blender/refined/portfolio-room-optimized.blend --python scripts/decal-lightmap-uvs.py
 """
 import bpy
 from mathutils import Vector

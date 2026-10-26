@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
 import { useLightweightRoomLighting } from "./controls";
+
+test.beforeAll(async () => {
+  await mkdir("assets/reviews", { recursive: true });
+});
 
 test.beforeEach(async ({ page }) => useLightweightRoomLighting(page));
 

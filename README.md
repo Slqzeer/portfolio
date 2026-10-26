@@ -28,14 +28,13 @@ Current device surfaces and exterior pipeline: [Blender refinement](docs/design/
 - Référence de composition : [Canva](https://www.canva.com/d/Hy2EbjsPEIPOa6D)
 - Source Blender éditable actuelle : `assets/blender/refined/portfolio-room.blend`
 - Source Blender optimisée actuelle : `assets/blender/refined/portfolio-room-optimized.blend`
-- Les sources d’origine restent conservées dans `assets/blender/` ; `art-v2` est une expérience non validée conservée pour comparaison.
 - Scène web : `public/assets/room/portfolio-room.glb`
 - Posters transparents de secours et de lecture : `public/assets/room/room-overview-day.png` et `room-overview-night.png`, régénérés par `scripts/render-room-posters.py` sans enregistrer le master Blender
 - Contrat des objets : `src/room/sceneManifest.ts`
 
 Blender est la source de vérité : modifier et vérifier les assets, matières, éclairages et animations dans Blender avant l’export. Conserver les noms `INT_*`, `CTL_*` et `CAM_Anchor_*` ainsi que les clips `Hover_*`, `Ambient_*` et `Curtain_*`, exporter le GLB et recalculer les éclairages associés, puis exécuter `npm run assets:check`. Les interactions web lisent les clips et courbes exportés ; elles ne créent pas les mouvements de la scène.
 
-La [chambre vivante et la fidélité du rendu](docs/design/room-life.md) décrit les animations, les normales, le cadrage et la chaîne d’export actuelle. Le [retour ciblé à la scène d’origine](docs/design/room-baseline-restore.md) et la [passe art-v2](docs/design/room-art-direction.md) restent documentés pour comparaison.
+La [chambre vivante et la fidélité du rendu](docs/design/room-life.md) décrit les animations, les normales, le cadrage et la chaîne d’export actuelle. Les scènes intermédiaires et les captures de revue restent disponibles dans l’historique Git, mais ne sont plus versionnées dans l’état courant du dépôt.
 
 ## Déploiement
 
