@@ -27,24 +27,26 @@ export function ProjectGallery({
   const filtered = projects.filter(
     (project) => project.category === activeCategory,
   );
+  const availableCategories = Object.entries(
+    portfolioContent.projectCategories,
+  ).filter(
+    ([category]) =>
+      category === activeCategory ||
+      projects.some((project) => project.category === category),
+  );
   const selected =
     filtered.find(({ id }) => id === (selectedProjectId ?? selection)) ??
     filtered[0];
   return (
     <div className="project-gallery">
-      <div
-        className="project-filters"
-        aria-label={
-          locale === "fr" ? "Catégories de projets" : "Project categories"
-        }
-      >
-        {Object.entries(portfolioContent.projectCategories)
-          .filter(
-            ([category]) =>
-              category === activeCategory ||
-              projects.some((project) => project.category === category),
-          )
-          .map(([category, label]) => (
+      {availableCategories.length > 1 && (
+        <div
+          className="project-filters"
+          aria-label={
+            locale === "fr" ? "Catégories de projets" : "Project categories"
+          }
+        >
+          {availableCategories.map(([category, label]) => (
             <button
               type="button"
               key={category}
@@ -60,7 +62,8 @@ export function ProjectGallery({
               </small>
             </button>
           ))}
-      </div>
+        </div>
+      )}
       {filtered.length > 1 && (
         <div
           className="project-list"

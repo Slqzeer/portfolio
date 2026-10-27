@@ -58,6 +58,10 @@ describe("portfolioContent", () => {
     );
   });
 
+  it("does not contain text corrupted by a character-encoding mismatch", () => {
+    expect(JSON.stringify(portfolioContent)).not.toMatch(/(?:Ã.|Â.|â[€†Œ]|�)/);
+  });
+
   it("uses unique project IDs and the provided identity", () => {
     const projectIds = portfolioContent.projects.map(({ id }) => id);
 
