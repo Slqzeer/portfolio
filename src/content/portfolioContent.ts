@@ -400,10 +400,10 @@ export const portfolioContent: PortfolioContent = {
     },
     {
       id: "croatia-semester",
-      period: text("2023 - 2024", "2023 - 2024"),
+      period: text("Février - juillet 2024", "February - July 2024"),
       title: text(
-        "Deuxième année - semestre international en Croatie",
-        "Second year - international semester in Croatia",
+        "Deuxième année - échange international à Algebra University College, Zagreb",
+        "Second year - international exchange at Algebra University College, Zagreb",
       ),
       description: text(
         "Une immersion académique et culturelle qui m’a permis de gagner en autonomie et de participer à StreetSync, un projet web et mobile consacré aux événements et services locaux.",

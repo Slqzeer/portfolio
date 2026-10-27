@@ -58,6 +58,20 @@ describe("portfolioContent", () => {
     );
   });
 
+  it("dates the Croatia exchange from February 2024", () => {
+    const exchange = portfolioContent.timeline.find(
+      ({ id }) => id === "croatia-semester",
+    );
+
+    expect(exchange).toMatchObject({
+      period: {
+        fr: "Février - juillet 2024",
+        en: "February - July 2024",
+      },
+    });
+    expect(exchange?.title.fr).toContain("Algebra University College");
+  });
+
   it("does not contain text corrupted by a character-encoding mismatch", () => {
     expect(JSON.stringify(portfolioContent)).not.toMatch(/(?:Ã.|Â.|â[€†Œ]|�)/);
   });
