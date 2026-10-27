@@ -102,6 +102,14 @@ describe("portfolioContent", () => {
       "/assets/projects/advanced-rag-chat.png",
       "/assets/projects/advanced-rag-overview.png",
     ]);
+    expect(screenshots["medtriage-ai"]).toEqual([
+      "/assets/projects/medtriage-session.png",
+      "/assets/projects/medtriage-home.png",
+    ]);
+    expect(screenshots["homelab-portal"]).toEqual([
+      "/assets/projects/homelab-portal-catalog.png",
+      "/assets/projects/homelab-portal-diagnostics.png",
+    ]);
     expect(screenshots.ping).toEqual(["/assets/projects/ping-overview.png"]);
     expect(screenshots["pass-through"]).toEqual([
       "/assets/projects/pass-through-cover.png",
@@ -116,6 +124,23 @@ describe("portfolioContent", () => {
       stack: ["Python", "Hermes Agent", "Telegram", "GitHub"],
     });
     expect(hermes).not.toHaveProperty("github");
+  });
+
+  it("publishes the strongest public GitHub projects with their contribution focus", () => {
+    const projects = Object.fromEntries(
+      portfolioContent.projects.map((project) => [project.id, project]),
+    );
+
+    expect(projects["medtriage-ai"]).toMatchObject({
+      category: "data-ai",
+      stack: ["Python", "FastAPI", "MCP", "React", "Docker"],
+      github: "https://github.com/gitmehdii/medtriage-ai",
+    });
+    expect(projects["homelab-portal"]).toMatchObject({
+      category: "homelab",
+      stack: ["Go", "Kubernetes", "Keycloak", "Tailscale"],
+      github: "https://github.com/Slqzeer/homelab-portal",
+    });
   });
 
   it("localizes a value", () => {

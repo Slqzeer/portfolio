@@ -150,6 +150,57 @@ export const portfolioContent: PortfolioContent = {
       github: "https://github.com/Slqzeer/Advanced-RAG-Knowledge-Assistant",
     },
     {
+      id: "medtriage-ai",
+      screenshots: [
+        {
+          src: "/assets/projects/medtriage-session.png",
+          alt: text(
+            "MedTriage AI : échange de triage et orientation médicale",
+            "MedTriage AI: triage conversation and medical guidance",
+          ),
+        },
+        {
+          src: "/assets/projects/medtriage-home.png",
+          alt: text(
+            "MedTriage AI : accueil et saisie des symptômes",
+            "MedTriage AI: symptom entry screen",
+          ),
+        },
+      ],
+      name: text("MedTriage AI", "MedTriage AI"),
+      category: "data-ai",
+      summary: text(
+        "Un prototype académique de triage médical qui combine dialogue, règles de sécurité, modèle de classification et analyse d’image pour proposer une orientation prudente.",
+        "An academic medical-triage prototype combining conversation, safety rules, a classification model, and image analysis to suggest cautious next steps.",
+      ),
+      problem: text(
+        "Transformer une description libre de symptômes en une orientation compréhensible sans confier la décision critique au seul modèle de langage.",
+        "Turn a free-form symptom description into understandable guidance without leaving the critical decision to a language model alone.",
+      ),
+      solution: text(
+        "Un orchestrateur retient le niveau d’urgence le plus élevé parmi les règles déterministes, le modèle ML et l’analyse visuelle, puis utilise le LLM pour formuler la réponse et poursuivre l’échange.",
+        "An orchestrator keeps the highest urgency signaled by deterministic rules, the ML model, and visual analysis, then uses the LLM to phrase the response and continue the conversation.",
+      ),
+      architecture: text(
+        "Une interface React échange avec une API FastAPI, des services Flask dédiés au ML et à la vision, et un serveur MCP donnant accès à des sources médicales officielles.",
+        "A React interface connects to a FastAPI service, dedicated Flask services for ML and vision, and an MCP server exposing official medical sources.",
+      ),
+      challenges: text(
+        "Conserver le contexte des questions de suivi, gérer les fournisseurs LLM de secours et intégrer des connaissances externes sans affaiblir les règles de triage.",
+        "Preserve follow-up context, handle fallback LLM providers, and integrate external knowledge without weakening the triage rules.",
+      ),
+      learnings: text(
+        "Dans un domaine sensible, l’IA générative est plus utile pour expliquer une décision encadrée que pour déterminer seule le niveau d’urgence.",
+        "In a sensitive domain, generative AI is more useful for explaining a bounded decision than for determining urgency on its own.",
+      ),
+      stack: ["Python", "FastAPI", "MCP", "React", "Docker"],
+      status: text(
+        "Projet académique collectif · 2026",
+        "Team academic project · 2026",
+      ),
+      github: "https://github.com/gitmehdii/medtriage-ai",
+    },
+    {
       id: "portfolio",
       screenshots: [
         {
@@ -196,6 +247,57 @@ export const portfolioContent: PortfolioContent = {
         en: "Evolving",
       },
       github: "https://github.com/Slqzeer/portfolio",
+    },
+    {
+      id: "homelab-portal",
+      screenshots: [
+        {
+          src: "/assets/projects/homelab-portal-catalog.png",
+          alt: text(
+            "Homelab Portal : catalogue des services publiés",
+            "Homelab Portal: published service catalog",
+          ),
+        },
+        {
+          src: "/assets/projects/homelab-portal-diagnostics.png",
+          alt: text(
+            "Homelab Portal : diagnostics de publication en lecture seule",
+            "Homelab Portal: read-only publication diagnostics",
+          ),
+        },
+      ],
+      name: text("Homelab Portal", "Homelab Portal"),
+      category: "homelab",
+      summary: text(
+        "Un catalogue de services auto-hébergé, en lecture seule, conçu pour rendre mon homelab facile à parcourir sans élargir les droits d’accès.",
+        "A self-hosted, read-only service catalog that makes my homelab easy to browse without expanding access rights.",
+      ),
+      problem: text(
+        "Retrouver les applications disponibles sur le réseau local et le tailnet tout en séparant clairement découverte, authentification et autorisation.",
+        "Find applications available on the local network and tailnet while keeping discovery, authentication, and authorization clearly separated.",
+      ),
+      solution: text(
+        "Un portail authentifié par Keycloak découvre uniquement les Ingress Tailscale explicitement publiés et présente leur état sans accorder d’accès aux applications cibles.",
+        "A Keycloak-authenticated portal discovers only explicitly published Tailscale Ingresses and presents their status without granting access to target applications.",
+      ),
+      architecture: text(
+        "Un BFF en Go et son interface embarquée utilisent une identité Kubernetes en lecture seule. Les manifests durcis, la chaîne de publication et un environnement jetable couvrent la livraison et la recette.",
+        "A Go BFF and embedded interface use a read-only Kubernetes identity. Hardened manifests, a release pipeline, and a disposable environment cover delivery and acceptance.",
+      ),
+      challenges: text(
+        "Tester les frontières réelles — sessions OIDC, RBAC, isolation réseau et données périmées — sans confondre validation hors ligne et preuve en production.",
+        "Test real boundaries—OIDC sessions, RBAC, network isolation, and stale data—without confusing offline validation with live evidence.",
+      ),
+      learnings: text(
+        "Une interface d’exploitation utile doit rendre son périmètre de confiance visible et fournir des preuves séparées pour le code, la livraison et l’environnement réel.",
+        "A useful operations interface should make its trust boundary visible and provide separate evidence for source, delivery, and the live environment.",
+      ),
+      stack: ["Go", "Kubernetes", "Keycloak", "Tailscale"],
+      status: text(
+        "Projet personnel en cours",
+        "Ongoing personal project",
+      ),
+      github: "https://github.com/Slqzeer/homelab-portal",
     },
     {
       id: "classpulse",
