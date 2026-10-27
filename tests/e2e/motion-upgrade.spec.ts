@@ -55,8 +55,17 @@ for (const width of [1440, 390]) {
       "INTERACT",
       { timeout: 15000 },
     );
-    await page.getByRole("button", { name: "ClassPulse", exact: true }).click();
     const preview = page.locator(".project-screenshot");
+    await expect(preview).toHaveAttribute(
+      "src",
+      "/assets/projects/advanced-rag-chat.png",
+    );
+    await expect(canvas).toHaveAttribute(
+      "data-project-preview",
+      "/assets/projects/advanced-rag-chat.png",
+      { timeout: 15000 },
+    );
+    await page.getByRole("button", { name: "ClassPulse", exact: true }).click();
     await expect(preview).toHaveAttribute(
       "src",
       "/assets/projects/classpulse-homepage.png",
@@ -96,6 +105,26 @@ for (const width of [1440, 390]) {
       "src",
       "/assets/projects/portfolio-night.png",
     );
+    await page.getByRole("button", { name: "Ping", exact: true }).click();
+    await expect(preview).toHaveAttribute(
+      "src",
+      "/assets/projects/ping-overview.png",
+    );
+    await expect(canvas).toHaveAttribute(
+      "data-project-preview",
+      "/assets/projects/ping-overview.png",
+      { timeout: 15000 },
+    );
+    await page.getByRole("button", { name: "Games", exact: true }).click();
+    await expect(preview).toHaveAttribute(
+      "src",
+      "/assets/projects/pass-through-cover.png",
+    );
+    await expect(canvas).toHaveAttribute(
+      "data-project-preview",
+      "/assets/projects/pass-through-cover.png",
+      { timeout: 15000 },
+    );
     await openSettings(page);
     await page.getByRole("button", { name: "Toggle day / night" }).click();
     await expect(canvas).toHaveAttribute("data-editor-theme", "night", {
@@ -103,12 +132,12 @@ for (const width of [1440, 390]) {
     });
     await expect(canvas).toHaveAttribute(
       "data-project-preview",
-      "/assets/projects/portfolio-night.png",
+      "/assets/projects/pass-through-cover.png",
       { timeout: 15000 },
     );
     await page.getByLabel("Visit settings").click();
     await page.screenshot({
-      path: info.outputPath("portfolio-preview-night.png"),
+      path: info.outputPath("pass-through-preview-night.png"),
     });
     expect(
       await page.evaluate(

@@ -97,6 +97,22 @@ export const portfolioContent: PortfolioContent = {
   projects: [
     {
       id: "advanced-rag",
+      screenshots: [
+        {
+          src: "/assets/projects/advanced-rag-chat.png",
+          alt: text(
+            "Advanced RAG : espace de discussion avec sources",
+            "Advanced RAG: grounded chat workspace",
+          ),
+        },
+        {
+          src: "/assets/projects/advanced-rag-overview.png",
+          alt: text(
+            "Advanced RAG : tableau de bord des performances",
+            "Advanced RAG: performance dashboard",
+          ),
+        },
+      ],
       name: text(
         "Advanced RAG Knowledge Assistant",
         "Advanced RAG Knowledge Assistant",
@@ -234,6 +250,15 @@ export const portfolioContent: PortfolioContent = {
     },
     {
       id: "ping",
+      screenshots: [
+        {
+          src: "/assets/projects/ping-overview.png",
+          alt: text(
+            "Ping : tableau de bord de suivi du matÃ©riel et des risques ergonomiques",
+            "Ping: equipment and ergonomic-risk dashboard",
+          ),
+        },
+      ],
       name: text("Ping", "Ping"),
       category: "software",
       summary: text(
@@ -268,6 +293,15 @@ export const portfolioContent: PortfolioContent = {
     },
     {
       id: "pass-through",
+      screenshots: [
+        {
+          src: "/assets/projects/pass-through-cover.png",
+          alt: text(
+            "Pass-Through : visuel du prototype dâ€™action multijoueur",
+            "Pass-Through: multiplayer action prototype artwork",
+          ),
+        },
+      ],
       name: text("Pass-Through", "Pass-Through"),
       category: "game-development",
       summary: text(
