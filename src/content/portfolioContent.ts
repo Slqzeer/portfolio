@@ -43,7 +43,10 @@ export const portfolioContent: PortfolioContent = {
       label: text("LinkedIn", "LinkedIn"),
       href: "https://www.linkedin.com/in/martin-couturier/",
     },
-    cv: { label: text("CV", "Résumé"), href: "" },
+    cv: {
+      label: text("CV", "Résumé"),
+      href: "/assets/documents/CV-Martin-Couturier.pdf",
+    },
     email: {
       label: text("E-mail", "Email"),
       href: "mailto:martin.couturier.pro@gmail.com",
