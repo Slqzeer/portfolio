@@ -72,6 +72,24 @@ describe("portfolioContent", () => {
     ).toBe(true);
   });
 
+  it("shows the updated project visuals on the project screen", () => {
+    const screenshots = Object.fromEntries(
+      portfolioContent.projects.map(({ id, screenshots }) => [
+        id,
+        screenshots?.map(({ src }) => src),
+      ]),
+    );
+
+    expect(screenshots["advanced-rag"]).toEqual([
+      "/assets/projects/advanced-rag-chat.png",
+      "/assets/projects/advanced-rag-overview.png",
+    ]);
+    expect(screenshots.ping).toEqual(["/assets/projects/ping-overview.png"]);
+    expect(screenshots["pass-through"]).toEqual([
+      "/assets/projects/pass-through-cover.png",
+    ]);
+  });
+
   it("localizes a value", () => {
     expect(localize({ fr: "Bonjour", en: "Hello" }, "en")).toBe("Hello");
   });
