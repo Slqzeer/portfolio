@@ -1,18 +1,19 @@
 export function ProjectCover({ variant = "portfolio" }: { variant?: string }) {
+  const background =
+    variant === "classpulse"
+      ? "#dfe7ed"
+      : variant === "hermes"
+        ? "#dce8e2"
+        : "#dce4d8";
+
   return (
     <svg
       className="project-cover"
       viewBox="0 0 600 310"
       aria-hidden="true"
-      style={{
-        backgroundColor: variant === "classpulse" ? "#dfe7ed" : "#dce4d8",
-      }}
+      style={{ backgroundColor: background }}
     >
-      <rect
-        width="600"
-        height="310"
-        fill={variant === "classpulse" ? "#dfe7ed" : "#dce4d8"}
-      />
+      <rect width="600" height="310" fill={background} />
       <pattern
         id={`grid-${variant}`}
         width="30"
@@ -36,6 +37,37 @@ export function ProjectCover({ variant = "portfolio" }: { variant?: string }) {
           <path d="m308 215 74-43 30 17-74 43Z" fill="#c0cfb9" />
           <path d="m359 125 43-25v47l-43 25Z" fill="#bed2d5" />
           <circle cx="202" cy="135" r="7" fill="#bc6d49" stroke="none" />
+        </g>
+      ) : variant === "hermes" ? (
+        <g stroke="#42685a" strokeWidth="1.5" strokeLinejoin="round">
+          <rect
+            x="235"
+            y="34"
+            width="130"
+            height="210"
+            rx="22"
+            fill="#f8faf7"
+          />
+          <rect x="248" y="58" width="104" height="156" rx="8" fill="#e8f1ec" />
+          <path
+            d="m279 116 54-25-18 57-13-20-23-12Z"
+            fill="#5d8d7c"
+            stroke="none"
+          />
+          <path d="m302 128 31-37-43 30" fill="none" stroke="#f8faf7" />
+          <circle cx="300" cy="228" r="5" fill="#42685a" stroke="none" />
+          <circle cx="176" cy="91" r="18" fill="#f8faf7" />
+          <circle cx="424" cy="91" r="18" fill="#f8faf7" />
+          <circle cx="176" cy="188" r="18" fill="#f8faf7" />
+          <circle cx="424" cy="188" r="18" fill="#f8faf7" />
+          <path
+            d="M194 91h41m130 0h41M194 188h41m130 0h41"
+            strokeDasharray="4 5"
+          />
+          <path
+            d="m169 91 5 5 10-11m233 6 5 5 10-11m-263 103 5 5 10-11m233 11 5 5 10-11"
+            strokeLinecap="round"
+          />
         </g>
       ) : (
         <g fill="none" stroke="#526d82" strokeWidth="1.4">
@@ -87,7 +119,9 @@ export function ProjectCover({ variant = "portfolio" }: { variant?: string }) {
       >
         {variant === "portfolio"
           ? "ESPACE INTERACTIF / 01"
-          : "CLASS PULSE / 02"}
+          : variant === "hermes"
+            ? "AUTOMATISATION MOBILE / 03"
+            : "CLASS PULSE / 02"}
       </text>
       <text
         x="576"
