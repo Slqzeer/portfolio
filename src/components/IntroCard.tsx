@@ -62,8 +62,9 @@ export function IntroCard({ content, locale, onExplore }: IntroCardProps) {
             <a
               href={link.href}
               key={id}
-              target="_blank"
-              rel="noopener noreferrer"
+              download={id === "cv" ? "CV-Martin-Couturier.pdf" : undefined}
+              target={id === "cv" ? undefined : "_blank"}
+              rel={id === "cv" ? undefined : "noopener noreferrer"}
             >
               {localize(link.label, locale)}
             </a>

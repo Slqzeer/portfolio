@@ -32,6 +32,14 @@ describe("App", () => {
       "href",
       "https://github.com/Slqzeer",
     );
+    expect(screen.getByRole("link", { name: "CV" })).toHaveAttribute(
+      "href",
+      "/assets/documents/CV-Martin-Couturier.pdf",
+    );
+    expect(screen.getByRole("link", { name: "CV" })).toHaveAttribute(
+      "download",
+      "CV-Martin-Couturier.pdf",
+    );
   });
 
   it("switches the interface to English", async () => {
