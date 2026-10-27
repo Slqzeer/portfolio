@@ -115,26 +115,30 @@ for (const width of [1440, 390]) {
       "/assets/projects/ping-overview.png",
       { timeout: 15000 },
     );
-    await page.getByRole("button", { name: "Games", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Games", exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(page.locator("#room-hotspot-controller")).toBeVisible({
+      timeout: 15000,
+    });
+    await page.locator("#room-hotspot-controller").click();
+    await expect(page.locator("main")).toHaveAttribute(
+      "data-navigation-phase",
+      "INTERACT",
+      { timeout: 15000 },
+    );
     await expect(preview).toHaveAttribute(
       "src",
       "/assets/projects/pass-through-cover.png",
     );
-    await expect(canvas).toHaveAttribute(
-      "data-project-preview",
-      "/assets/projects/pass-through-cover.png",
-      { timeout: 15000 },
-    );
+    await expect(canvas).toHaveAttribute("data-project-preview", "");
     await openSettings(page);
     await page.getByRole("button", { name: "Toggle day / night" }).click();
     await expect(canvas).toHaveAttribute("data-editor-theme", "night", {
       timeout: 15000,
     });
-    await expect(canvas).toHaveAttribute(
-      "data-project-preview",
-      "/assets/projects/pass-through-cover.png",
-      { timeout: 15000 },
-    );
+    await expect(canvas).toHaveAttribute("data-project-preview", "");
     await page.getByLabel("Visit settings").click();
     await page.screenshot({
       path: info.outputPath("pass-through-preview-night.png"),
