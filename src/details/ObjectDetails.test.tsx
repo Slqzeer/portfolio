@@ -25,6 +25,13 @@ describe("ObjectDetails", () => {
       <ObjectDetails objectId="server" locale="en" onClose={() => undefined} />,
     );
     expect(screen.getByText(/Understand what happens/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Homelab Portal" }),
+    ).toBeVisible();
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/Slqzeer/homelab-portal",
+    );
 
     rerender(
       <ObjectDetails

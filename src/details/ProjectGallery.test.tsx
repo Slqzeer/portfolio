@@ -72,6 +72,18 @@ describe("ProjectGallery", () => {
         onCategoryChange={onCategoryChange}
       />,
     );
+    expect(
+      screen.getByRole("heading", { name: "Homelab Portal" }),
+    ).toBeVisible();
+
+    rerender(
+      <ProjectGallery
+        projects={[]}
+        locale="en"
+        activeCategory="homelab"
+        onCategoryChange={onCategoryChange}
+      />,
+    );
     expect(screen.queryByRole("article")).toBeNull();
     expect(
       screen.getByText("No published projects in this category yet."),

@@ -98,6 +98,17 @@ export function ObjectDetails({
                 <span key={service}>{service}</span>
               ))}
             </div>
+            <ProjectGallery
+              projects={portfolioContent.projects.filter(
+                (project) => project.category === "homelab",
+              )}
+              locale={locale}
+              activeCategory="homelab"
+              onCategoryChange={onCategoryChange}
+              selectedProjectId={selectedProjectId}
+              onProjectSelect={onProjectSelect}
+              onScreenshotSelect={onScreenshotSelect}
+            />
           </>
         );
       case "education":
