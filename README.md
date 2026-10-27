@@ -17,7 +17,7 @@ npm run test:e2e
 
 ## Contenu
 
-Toutes les informations personnelles, traductions, projets et destinations de liens se trouvent dans `src/content/portfolioContent.ts`. Le contenu présente Martin Couturier, sa formation EPITA-SCIA, sa recherche de stage Data/IA, Advanced RAG Knowledge Assistant, ClassPulse, Ping, Pass-Through, ce portfolio, le homelab et son stage full stack chez CACIB. Le CV est disponible au téléchargement. Les liens absents sont masqués et exclus du fallback sans JavaScript.
+Toutes les informations personnelles, traductions, projets et destinations de liens se trouvent dans `src/content/portfolioContent.ts`. Le contenu présente Martin Couturier, sa formation EPITA-SCIA, sa recherche de stage Data/IA, Advanced RAG Knowledge Assistant, ClassPulse, Hermes, Ping, Pass-Through, ce portfolio, le homelab et son stage full stack chez CACIB. Le CV est disponible au téléchargement. Les liens absents sont masqués et exclus du fallback sans JavaScript.
 
 La barre compacte rassemble les commandes : **Explorer** donne accès aux rubriques et aux objets ; **Réglages** contient l’ambiance, les animations, la langue et la **Lecture rapide**, disponible sans attendre la 3D. Les animations sont actives par défaut, y compris lorsque le système réduit les mouvements. Un arrêt choisi explicitement reste mémorisé dans le navigateur. Les mouvements se mettent en pause en lecture et lorsque l’onglet est masqué.
 

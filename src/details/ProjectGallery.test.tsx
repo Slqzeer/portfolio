@@ -105,4 +105,19 @@ describe("ProjectGallery", () => {
       });
     }
   });
+
+  it("shows Hermes in the phone experiments category", () => {
+    render(
+      <ProjectGallery
+        projects={portfolioContent.projects}
+        locale="en"
+        activeCategory="experiments"
+        onCategoryChange={() => undefined}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Hermes" })).toBeVisible();
+    expect(screen.getByText("Telegram")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "GitHub" })).toBeNull();
+  });
 });

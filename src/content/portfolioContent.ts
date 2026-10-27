@@ -338,6 +338,40 @@ export const portfolioContent: PortfolioContent = {
       ),
       github: "https://github.com/Projet-s2-2027/Pass-Through",
     },
+    {
+      id: "hermes",
+      name: text("Hermes", "Hermes"),
+      category: "experiments",
+      summary: text(
+        "Une plateforme personnelle qui me permet de piloter et de suivre des automatisations depuis mon téléphone avec Telegram.",
+        "A personal platform for controlling and monitoring automations from my phone through Telegram.",
+      ),
+      problem: text(
+        "Lancer des tâches, suivre leur progression et recevoir les alertes importantes sans rester devant mon poste de travail.",
+        "Start tasks, follow their progress, and receive important alerts without staying at my workstation.",
+      ),
+      solution: text(
+        "Une interface Telegram reliée à Hermes pour transmettre les demandes et renvoyer les événements du tableau de tâches et des opérations planifiées.",
+        "A Telegram interface connected to Hermes that submits requests and returns task-board events and scheduled-operation alerts.",
+      ),
+      architecture: text(
+        "Des adaptateurs Python synchronisent les issues GitHub, orchestrent les tâches, surveillent les revues et exécutent des opérations planifiées. Le gateway Hermes centralise l’exécution et les notifications mobiles.",
+        "Python adapters synchronize GitHub issues, orchestrate tasks, watch reviews, and run scheduled operations. The Hermes gateway centralizes execution and mobile notifications.",
+      ),
+      challenges: text(
+        "Rendre l’automatisation fiable sans supervision, isoler les secrets et permettre une reprise sûre après un redémarrage ou l’échec d’une tâche.",
+        "Make unattended automation reliable, isolate secrets, and recover safely after a restart or task failure.",
+      ),
+      learnings: text(
+        "Une automatisation utile dépend autant de limites explicites, de notifications lisibles et de procédures de reprise que de l’agent qui exécute le travail.",
+        "Useful automation depends as much on explicit boundaries, readable notifications, and recovery procedures as on the agent doing the work.",
+      ),
+      stack: ["Python", "Hermes Agent", "Telegram", "GitHub"],
+      status: text(
+        "Expérimentation personnelle en cours",
+        "Ongoing personal experiment",
+      ),
+    },
   ],
   homelab: {
     description: text(

@@ -90,6 +90,16 @@ describe("portfolioContent", () => {
     ]);
   });
 
+  it("publishes Hermes as the phone experiment without exposing its private repository", () => {
+    const hermes = portfolioContent.projects.find(({ id }) => id === "hermes");
+
+    expect(hermes).toMatchObject({
+      category: "experiments",
+      stack: ["Python", "Hermes Agent", "Telegram", "GitHub"],
+    });
+    expect(hermes).not.toHaveProperty("github");
+  });
+
   it("localizes a value", () => {
     expect(localize({ fr: "Bonjour", en: "Hello" }, "en")).toBe("Hello");
   });
