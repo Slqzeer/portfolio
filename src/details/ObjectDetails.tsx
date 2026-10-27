@@ -18,6 +18,14 @@ interface ObjectDetailsProps {
   onScreenshotSelect?: (src: string) => void;
 }
 
+const projectCategoriesByObject: Partial<
+  Record<RoomObjectId, ProjectCategory[]>
+> = {
+  monitor: ["data-ai", "software"],
+  controller: ["game-development"],
+  smartphone: ["experiments"],
+};
+
 export function ObjectDetails({
   objectId,
   locale,
@@ -50,7 +58,9 @@ export function ObjectDetails({
       case "smartphone":
         return (
           <ProjectGallery
-            projects={portfolioContent.projects}
+            projects={portfolioContent.projects.filter((project) =>
+              projectCategoriesByObject[objectId]?.includes(project.category),
+            )}
             locale={locale}
             activeCategory={activeCategory}
             onCategoryChange={onCategoryChange}

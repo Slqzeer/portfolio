@@ -72,4 +72,39 @@ describe("ObjectDetails", () => {
       "https://github.com/Slqzeer",
     );
   });
+
+  it("keeps project roles separated between the monitor, controller, and phone", () => {
+    const { rerender } = render(
+      <ObjectDetails
+        objectId="monitor"
+        locale="en"
+        onClose={() => undefined}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Data & AI" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Software" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Games" })).toBeNull();
+
+    rerender(
+      <ObjectDetails
+        objectId="controller"
+        locale="en"
+        activeCategory="game-development"
+        onClose={() => undefined}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "Pass-Through" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Data & AI" })).toBeNull();
+
+    rerender(
+      <ObjectDetails
+        objectId="smartphone"
+        locale="en"
+        activeCategory="experiments"
+        onClose={() => undefined}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "Hermes" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Games" })).toBeNull();
+  });
 });

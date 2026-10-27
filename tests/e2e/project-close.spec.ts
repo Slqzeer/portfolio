@@ -27,7 +27,7 @@ test("reading projects and closing does not reopen Explorer", async ({
     { timeout: 60000 },
   );
   const panel = page.getByRole("dialog", { name: "Projets", exact: true });
-  for (const category of ["Data & IA", "Logiciel", "Jeux"]) {
+  for (const category of ["Data & IA", "Logiciel"]) {
     await panel
       .getByRole("button", { name: new RegExp(`^${category}`) })
       .click();

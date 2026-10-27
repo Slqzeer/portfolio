@@ -257,7 +257,7 @@ export const portfolioContent: PortfolioContent = {
         {
           src: "/assets/projects/ping-overview.png",
           alt: text(
-            "Ping : tableau de bord de suivi du matÃ©riel et des risques ergonomiques",
+            "Ping : tableau de bord de suivi du matériel et des risques ergonomiques",
             "Ping: equipment and ergonomic-risk dashboard",
           ),
         },
@@ -300,7 +300,7 @@ export const portfolioContent: PortfolioContent = {
         {
           src: "/assets/projects/pass-through-cover.png",
           alt: text(
-            "Pass-Through : visuel du prototype dâ€™action multijoueur",
+            "Pass-Through : visuel du prototype d’action multijoueur",
             "Pass-Through: multiplayer action prototype artwork",
           ),
         },
