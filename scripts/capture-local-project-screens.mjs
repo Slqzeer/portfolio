@@ -6,7 +6,9 @@ const medtriageUrl = process.env.MEDTRIAGE_URL ?? "http://127.0.0.1:3000";
 const browser = await chromium.launch({ channel: "chromium", headless: true });
 
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 900 },
+  });
 
   await page.goto(homelabUrl, { waitUntil: "domcontentloaded" });
   await page.locator("#catalog-items").waitFor();

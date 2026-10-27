@@ -293,10 +293,7 @@ export const portfolioContent: PortfolioContent = {
         "A useful operations interface should make its trust boundary visible and provide separate evidence for source, delivery, and the live environment.",
       ),
       stack: ["Go", "Kubernetes", "Keycloak", "Tailscale"],
-      status: text(
-        "Projet personnel en cours",
-        "Ongoing personal project",
-      ),
+      status: text("Projet personnel en cours", "Ongoing personal project"),
       github: "https://github.com/Slqzeer/homelab-portal",
     },
     {
